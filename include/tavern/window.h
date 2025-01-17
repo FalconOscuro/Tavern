@@ -2,7 +2,6 @@
 #define WINDOW_H
 
 #include <string>
-#include <cstdint>
 
 #include "platform/sdl.h"
 

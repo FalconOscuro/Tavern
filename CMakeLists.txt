@@ -14,6 +14,7 @@ FetchContent_Declare(
     ecs
     GIT_REPOSITORY git@github.com:FalconOscuro/Tavern-ECS.git
     GIT_TAG origin/main
+    GIT_PROGRESS TRUE
 )
 
 FetchContent_MakeAvailable(ecs)
@@ -33,6 +34,8 @@ target_sources(Tavern PUBLIC
     src/tavern/tavern.cpp
     src/tavern/graphics/opengl_renderer.cpp
     src/tavern/window.cpp
+    src/tavern/graphics/opengl/vertex_array.cpp
+    src/tavern/graphics/opengl/shader.cpp
 )
 
 target_link_libraries(Tavern
