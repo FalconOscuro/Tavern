@@ -2,13 +2,30 @@
 
 #include "tavern/graphics/opengl_renderer.h"
 
-#include <GL/glew.h>
-
 #include <boost/log/trivial.hpp>
 
 namespace tavern::graphics {
 
-bool opengl_renderer::init() {
+void opengl_renderer::clean() {
+
+    if (!m_glcontext)
+        return;
+
+    SDL_GL_DeleteContext(m_glcontext);
+    BOOST_LOG_TRIVIAL(trace) << "Shutdown OpenGL";
+    m_glcontext = NULL;
+}
+
+bool opengl_renderer::post_window_init(SDL_Window* wnd) {
+
+    // init opengl context
+    m_glcontext = SDL_GL_CreateContext(wnd);
+
+    if (!m_glcontext) {
+        BOOST_LOG_TRIVIAL(error) << "Failed to create OpenGL context:\n"
+            << SDL_GetError();
+        return false;
+    }
 
     // init glew
     glewExperimental = true;
@@ -22,7 +39,7 @@ bool opengl_renderer::init() {
     BOOST_LOG_TRIVIAL(info) << "Renderer: " << glGetString(GL_RENDERER);
     BOOST_LOG_TRIVIAL(info) << "OpenGL supported version: " << glGetString(GL_VERSION);
 
-    BOOST_LOG_TRIVIAL(info) << "Initialized OpenGL";
+    BOOST_LOG_TRIVIAL(trace) << "Initialized OpenGL";
 
     return true;
 }

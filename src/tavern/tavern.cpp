@@ -11,7 +11,7 @@ tavern::~tavern() {
 }
 
 bool tavern::init() {
-    m_ready = m_window.init(800, 600) && m_renderer.init();
+    m_ready = m_window.init(maths::vector2i(800, 600));
     return m_ready;
 }
 

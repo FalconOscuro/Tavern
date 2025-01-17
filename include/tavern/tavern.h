@@ -4,7 +4,6 @@
 #include <ecs/ecs.h>
 
 #include "window.h"
-#include "graphics/renderer.h"
 
 namespace tavern {
 
@@ -28,7 +27,6 @@ private:
     bool m_ready = false;
 
     window m_window;
-    renderer m_renderer;
 
     ecs::registry m_registry;
 }; /* end of class tavern */

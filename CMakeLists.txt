@@ -13,7 +13,7 @@ include(FetchContent)
 FetchContent_Declare(
     ecs
     GIT_REPOSITORY git@github.com:FalconOscuro/Tavern-ECS.git
-    GIT_TAG main
+    GIT_TAG origin/main
 )
 
 FetchContent_MakeAvailable(ecs)

@@ -12,10 +12,10 @@ window::~window() {
     clean();
     SDL_Quit();
 
-    BOOST_LOG_TRIVIAL(info) << "Shutdown SDL";
+    BOOST_LOG_TRIVIAL(trace) << "Shutdown SDL";
 }
 
-bool window::init(uint16_t w, uint16_t h, int flags) {
+bool window::init(const maths::vector2i& size, int flags) {
 
     if (open())
         return true;
@@ -26,23 +26,15 @@ bool window::init(uint16_t w, uint16_t h, int flags) {
         return false;
     }
 
-#ifdef USE_OPENGL
-    flags |= SDL_WINDOW_OPENGL;
+    flags |= SDL_WINDOW_RENDERER;
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-
-#ifndef NDEBUG
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
-#endif // NDEBUG
-
-#endif // USE_OPENGL
+    if (!graphics::pre_window_init())
+        return false;
 
     m_window = SDL_CreateWindow(
         m_name.c_str(),
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-        w, h, flags
+        size.X, size.Y, flags
     );
 
     if (!m_window) {
@@ -51,23 +43,22 @@ bool window::init(uint16_t w, uint16_t h, int flags) {
         return false;
     }
 
-#ifdef USE_OPENGL
-    // init opengl context
-    m_glcontext = SDL_GL_CreateContext(m_window);
-
-    if (!m_glcontext) {
-        BOOST_LOG_TRIVIAL(error) << "Failed to create OpenGL context:\n"
-            << SDL_GetError();
+    if (!m_renderer.post_window_init(m_window))
         return false;
-    }
-#endif // USE_OPENGL
 
-    BOOST_LOG_TRIVIAL(info) << "Created SDL Window";
+    // need to set for get_size to work
     m_open = true;
-    return true;
+    maths::vector2i view_size = get_size();
+    m_renderer.set_viewport_size(view_size);
+
+    BOOST_LOG_TRIVIAL(trace) << "Created SDL Window: Width = " << view_size.X << ", Height = " << view_size.Y;
+    return m_open;
 }
 
 bool window::update() {
+
+    if (!open())
+        return false;
 
     SDL_Event e;
 
@@ -75,9 +66,13 @@ bool window::update() {
         switch (e.type)
         {
         case(SDL_QUIT):
-            BOOST_LOG_TRIVIAL(info) << "Recieved shutdown message";
+            BOOST_LOG_TRIVIAL(trace) << "Recieved shutdown message";
             m_open = false;
             return false;
+
+        case(SDL_WINDOWEVENT):
+            handle_window_event(e.window);
+            break;
 
         default:
             break;
@@ -92,11 +87,12 @@ void window::clean() {
     if (!m_window)
         return;
 
+    m_renderer.clean();
     SDL_DestroyWindow(m_window);
     m_window = NULL;
     m_open = false;
 
-    BOOST_LOG_TRIVIAL(info) << "Closed SDL Window";
+    BOOST_LOG_TRIVIAL(trace) << "Closed SDL Window";
 }
 
 void window::set_title(const std::string& name) {
@@ -106,6 +102,20 @@ void window::set_title(const std::string& name) {
         return;
 
     SDL_SetWindowTitle(m_window, m_name.c_str());
+}
+
+void window::handle_window_event(const SDL_WindowEvent& e) {
+
+    switch(e.event)
+    {
+    case(SDL_WINDOWEVENT_RESIZED):
+        BOOST_LOG_TRIVIAL(trace) << "Window resized: X = " << e.data1 << ", Y = " << e.data2;
+        m_renderer.set_viewport_size(maths::vector2i(e.data1, e.data2));
+        break;
+
+    default:
+        break;
+    }
 }
 
 } /* end of namespace tavern */

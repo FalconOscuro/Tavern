@@ -4,11 +4,10 @@
 #include <string>
 #include <cstdint>
 
-#ifdef __linux
-#include <SDL2/SDL.h>
-#elif _WIN32
-#include <SDL.h>
-#endif
+#include "platform/sdl.h"
+
+#include "maths/vector2.hpp"
+#include "graphics/renderer.h"
 
 namespace tavern {
 
@@ -19,7 +18,7 @@ public:
     window(const std::string& name);
     ~window();
 
-    bool init(uint16_t w, uint16_t h, int flags = 0);
+    bool init(const maths::vector2i& size, int flags = 0);
     bool update();
     void clean();
 
@@ -29,14 +28,18 @@ public:
 
     void set_title(const std::string& name);
 
-private:
-    bool m_open = false;
+    maths::vector2i get_size() const {
+        return open() ? graphics::get_viewport_size(m_window) : maths::vector2i();
+    }
 
+private:
+
+    void handle_window_event(const SDL_WindowEvent& e);
+
+    bool m_open = false;
     SDL_Window* m_window = NULL;
 
-#ifdef USE_OPENGL
-    SDL_GLContext m_glcontext = {};
-#endif // USE_OPENGL
+    renderer m_renderer;
 
     std::string m_name;
 
