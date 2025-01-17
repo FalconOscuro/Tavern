@@ -1,4 +1,4 @@
-#include "tavern/window.h"
+#include "tavern/core/window.h"
 
 #include <boost/log/trivial.hpp>
 

@@ -1,0 +1,30 @@
+#ifndef GRAPHICS_H
+#define GRAPHICS_H
+
+#ifdef USE_OPENGL
+
+#include "opengl/renderer.hpp"
+#include "opengl/shader.h"
+#include "opengl/vertex_array.h"
+
+#define RENDERER_NS opengl
+
+#endif // USE_OPENGL
+
+namespace tavern::graphics {
+
+typedef RENDERER_NS::renderer renderer;
+
+typedef RENDERER_NS::vertex_array vertex_array;
+typedef RENDERER_NS::shader shader;
+
+namespace sdl {
+
+using tavern::graphics::RENDERER_NS::sdl::pre_window_init;
+using tavern::graphics::RENDERER_NS::sdl::get_viewport_size;
+
+} /* end of namespace sdl */
+
+} /* end of namespace tavern::graphics */
+
+#endif /* end of define guard GRAPHICS_H */

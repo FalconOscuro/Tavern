@@ -1,12 +1,12 @@
 #ifdef USE_OPENGL
 
-#include "tavern/graphics/opengl_renderer.hpp"
+#include "tavern/graphics/opengl/renderer.hpp"
 
 #include <boost/log/trivial.hpp>
 
-namespace tavern::graphics {
+namespace tavern::graphics::opengl {
 
-void opengl_renderer::clean() {
+void renderer::clean() {
 
     if (!m_glcontext)
         return;
@@ -16,7 +16,7 @@ void opengl_renderer::clean() {
     m_glcontext = NULL;
 }
 
-bool opengl_renderer::post_window_init(SDL_Window* wnd) {
+bool renderer::post_window_init(SDL_Window* wnd) {
 
     // init opengl context
     m_glcontext = SDL_GL_CreateContext(wnd);
@@ -44,10 +44,10 @@ bool opengl_renderer::post_window_init(SDL_Window* wnd) {
     return true;
 }
 
-void opengl_renderer::update()
+void renderer::update()
 {}
 
-void opengl_renderer::swap_buffer(SDL_Window* wnd) {
+void renderer::swap_buffer(SDL_Window* wnd) {
 
     GLenum gl_error;
     while ((gl_error = glGetError()) != GL_NO_ERROR)
@@ -56,7 +56,7 @@ void opengl_renderer::swap_buffer(SDL_Window* wnd) {
     SDL_GL_SwapWindow(wnd);
 }
 
-void opengl_renderer::clear() {
+void renderer::clear() {
     glClearColor(0.f, 0.f, .2f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT);
 }

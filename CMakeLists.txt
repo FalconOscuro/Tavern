@@ -32,8 +32,8 @@ target_include_directories(Tavern
 
 target_sources(Tavern PUBLIC
     src/tavern/tavern.cpp
-    src/tavern/graphics/opengl_renderer.cpp
-    src/tavern/window.cpp
+    src/tavern/core/window.cpp
+    src/tavern/graphics/opengl/renderer.cpp
     src/tavern/graphics/opengl/vertex_array.cpp
     src/tavern/graphics/opengl/shader.cpp
 )

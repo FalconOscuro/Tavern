@@ -1,5 +1,5 @@
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef OPENGL_SHADER_H
+#define OPENGL_SHADER_H
 #ifdef USE_OPENGL
 
 #include <cstdint>

@@ -6,18 +6,16 @@
 
 #include <GL/glew.h>
 
-#include "a_renderer.h"
+#include "../generic/renderer.h"
 
-namespace tavern {
+namespace tavern::graphics::opengl {
 
-namespace graphics {
-
-class opengl_renderer : public a_renderer
+class renderer : public generic::renderer
 {
 public:
 
-    opengl_renderer() = default;
-    ~opengl_renderer() {
+    renderer() = default;
+    ~renderer() {
         clean();
     }
 
@@ -60,11 +58,7 @@ inline maths::vector2i get_viewport_size(SDL_Window* wnd) {
 
 } /* end of namespace sdl */
 
-} /* end of namespace graphics */
-
-typedef graphics::opengl_renderer renderer;
-
-} /* end of namespace tavern */
+} /* end of namespace tavern::graphics::opengl */
 
 #endif // USE_OPENGL
 #endif /* end of define guard OPENGL_RENDERER_HPP */

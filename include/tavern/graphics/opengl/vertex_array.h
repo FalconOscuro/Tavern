@@ -16,11 +16,12 @@ public:
 
     ~vertex_array();
 
-    void activate() const;
+    void use() const;
 
 private:
 
     uint32_t m_vertex_buffer;
+    uint32_t m_id;
 
 }; /* end of class vertex_array */
 

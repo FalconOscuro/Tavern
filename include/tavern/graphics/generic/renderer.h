@@ -1,12 +1,12 @@
-#ifndef A_RENDERER_H
-#define A_RENDERER_H
+#ifndef GENERIC_RENDERER_H
+#define GENERIC_RENDERER_H
 
-#include "../platform/sdl.h"
-#include "../maths/vector2.hpp"
+#include "../../platform/sdl.h"
+#include "../../maths/vector2.hpp"
 
-namespace tavern::graphics {
+namespace tavern::graphics::generic {
 
-class a_renderer
+class renderer
 {
 public:
 
@@ -29,6 +29,6 @@ maths::vector2i get_viewport_size(SDL_Window* wnd);
 
 } /* end of namespace sdl */
 
-} /* end of namespace tavern::graphics */
+} /* end of namespace tavern::graphics::generic */
 
-#endif /* end of define guard A_RENDERER_H */
+#endif /* end of define guard GENERIC_RENDERER_H */

@@ -3,10 +3,10 @@
 
 #include <string>
 
-#include "platform/sdl.h"
+#include "../platform/sdl.h"
 
-#include "maths/vector2.hpp"
-#include "graphics/renderer.h"
+#include "../maths/vector2.hpp"
+#include "../graphics/graphics.h"
 
 namespace tavern {
 
@@ -46,7 +46,7 @@ private:
     bool m_open = false;
     SDL_Window* m_window = NULL;
 
-    renderer m_renderer;
+    graphics::renderer m_renderer;
 
     std::string m_name;
 
