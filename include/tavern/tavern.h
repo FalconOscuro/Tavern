@@ -4,6 +4,7 @@
 #include <ecs/ecs.h>
 
 #include "core/window.h"
+#include "resource/resource_manager.h"
 
 namespace tavern {
 

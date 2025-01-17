@@ -17,7 +17,14 @@ FetchContent_Declare(
     GIT_PROGRESS TRUE
 )
 
-FetchContent_MakeAvailable(ecs)
+FetchContent_Declare(
+    ryml
+    GIT_REPOSITORY git@github.com:biojppm/rapidyaml.git
+    GIT_TAG v0.7.2
+    GIT_SHALLOW FALSE
+)
+
+FetchContent_MakeAvailable(ecs ryml)
 
 find_package(Boost COMPONENTS log)
 find_package(SDL2 REQUIRED)
@@ -42,6 +49,7 @@ target_link_libraries(Tavern
     PUBLIC ecs
     PUBLIC SDL2::SDL2
     PUBLIC Boost::log
+    PUBLIC ryml::ryml
 )
 
 if(${RENDERER} STREQUAL "gl")

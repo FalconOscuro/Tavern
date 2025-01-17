@@ -1,5 +1,7 @@
 #include "tavern/tavern.h"
 
+#include "tavern/resource/resource_manager.h"
+
 namespace tavern {
 
 tavern::tavern():
@@ -12,6 +14,7 @@ tavern::~tavern() {
 
 bool tavern::init() {
     m_ready = m_window.init(maths::vector2i(800, 600));
+    resource_manager::get();
     return m_ready;
 }
 
