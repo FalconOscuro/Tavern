@@ -1,6 +1,6 @@
 #ifdef USE_OPENGL
 
-#include "tavern/graphics/opengl_renderer.h"
+#include "tavern/graphics/opengl_renderer.hpp"
 
 #include <boost/log/trivial.hpp>
 
@@ -46,6 +46,20 @@ bool opengl_renderer::post_window_init(SDL_Window* wnd) {
 
 void opengl_renderer::update()
 {}
+
+void opengl_renderer::swap_buffer(SDL_Window* wnd) {
+
+    GLenum gl_error;
+    while ((gl_error = glGetError()) != GL_NO_ERROR)
+        BOOST_LOG_TRIVIAL(error) << "OpenGL Error: " << gl_error;
+
+    SDL_GL_SwapWindow(wnd);
+}
+
+void opengl_renderer::clear() {
+    glClearColor(0.f, 0.f, .2f, 1.f);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
 
 } /* end of namespace tavern::graphics */
 

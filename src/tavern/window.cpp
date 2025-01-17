@@ -28,7 +28,7 @@ bool window::init(const maths::vector2i& size, int flags) {
 
     flags |= SDL_WINDOW_RENDERER;
 
-    if (!graphics::pre_window_init())
+    if (!graphics::sdl::pre_window_init())
         return false;
 
     m_window = SDL_CreateWindow(

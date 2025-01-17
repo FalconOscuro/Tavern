@@ -22,6 +22,14 @@ public:
     bool update();
     void clean();
 
+    void draw_frame() {
+        if (!open())
+            return;
+
+        m_renderer.swap_buffer(m_window);
+        m_renderer.clear();
+    }
+
     bool open() const {
         return m_open;
     }
@@ -29,7 +37,7 @@ public:
     void set_title(const std::string& name);
 
     maths::vector2i get_size() const {
-        return open() ? graphics::get_viewport_size(m_window) : maths::vector2i();
+        return open() ? graphics::sdl::get_viewport_size(m_window) : maths::vector2i();
     }
 
 private:

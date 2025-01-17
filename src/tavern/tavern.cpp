@@ -23,6 +23,7 @@ void tavern::run() {
     while (m_window.open()) {
 
         m_window.update();
+        m_window.draw_frame();
     }
 }
 

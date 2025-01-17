@@ -1,5 +1,5 @@
-#ifndef OPENGL_RENDERER_H
-#define OPENGL_RENDERER_H
+#ifndef OPENGL_RENDERER_HPP
+#define OPENGL_RENDERER_HPP
 #ifdef USE_OPENGL
 
 #define SDL_WINDOW_RENDERER SDL_WINDOW_OPENGL
@@ -29,11 +29,16 @@ public:
         glViewport(0, 0, view_size.X, view_size.Y);
     }
 
+    void swap_buffer(SDL_Window* wnd) override;
+    void clear() override;
+
 private:
 
     SDL_GLContext m_glcontext = NULL;
 
 }; /* end of class opengl_renderer final : public a_renderer */
+
+namespace sdl {
 
 inline bool pre_window_init() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -53,6 +58,8 @@ inline maths::vector2i get_viewport_size(SDL_Window* wnd) {
     return size;
 }
 
+} /* end of namespace sdl */
+
 } /* end of namespace graphics */
 
 typedef graphics::opengl_renderer renderer;
@@ -60,4 +67,4 @@ typedef graphics::opengl_renderer renderer;
 } /* end of namespace tavern */
 
 #endif // USE_OPENGL
-#endif /* end of define guard OPENGL_RENDERER_H */
+#endif /* end of define guard OPENGL_RENDERER_HPP */
