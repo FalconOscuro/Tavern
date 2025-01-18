@@ -5,6 +5,7 @@
 #include <string>
 
 #include "shader_manager.hpp"
+#include "mesh_manager.h"
 
 namespace tavern {
 
@@ -21,6 +22,9 @@ public:
         return m_shaders.load(path);
     }
 
+    resource::mesh_manager::resource_ptr load_mesh(const std::string& path) {
+        return m_meshes.load(path);
+    }
 
 private:
 
@@ -28,6 +32,7 @@ private:
     {}
 
     resource::shader_manager m_shaders;
+    resource::mesh_manager   m_meshes;
 
 }; /* end of class resource_manager */
 

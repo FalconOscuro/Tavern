@@ -1,5 +1,5 @@
-#ifndef OPENGL_VERTEX_ARRAY_H
-#define OPENGL_VERTEX_ARRAY_H
+#ifndef OPENGL_MESH_ARRAY_H
+#define OPENGL_MESH_ARRAY_H
 #ifdef USE_OPENGL
 
 #include <cstdint>
@@ -8,13 +8,14 @@
 
 namespace tavern::graphics::opengl {
 
-class vertex_array
+class mesh
 {
 public:
 
-    vertex_array(maths::vector3f vertices[], uint32_t vertex_count);
+    // could use std::vector<> instead of array?
+    mesh(const maths::vector3f* vertices, const uint32_t vertex_count);
 
-    ~vertex_array();
+    ~mesh();
 
     void use() const;
 
@@ -23,9 +24,9 @@ private:
     uint32_t m_vertex_buffer;
     uint32_t m_id;
 
-}; /* end of class vertex_array */
+}; /* end of class mesh */
 
 } /* end of namespace tavern::graphics::opengl */
 
 #endif // USE_OPENGL
-#endif /* end of define guard OPENGL_VERTEX_ARRAY_H */
+#endif /* end of define guard OPENGL_MESH_ARRAY_H */

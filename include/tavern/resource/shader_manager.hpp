@@ -1,28 +1,21 @@
 #ifndef SHADER_MANAGER_HPP
 #define SHADER_MANAGER_HPP
 
-#include "c4/yml/parse.hpp"
 #include "resource_type_manager.hpp"
+#include "../graphics/graphics.h"
 
 #include <boost/log/trivial.hpp>
 
 #include <ryml_std.hpp>
 #include <ryml.hpp>
+#include <c4/yml/parse.hpp>
 
-#include "../graphics/graphics.h"
-#include "../util/read_file.hpp"
+#include "util/read_file.hpp"
 
 namespace tavern::resource {
 
 class shader_manager : public resource_type_manager<graphics::shader>
 {
-public:
-    typedef resource_type_manager<graphics::shader> base;
-
-    shader_manager():
-        base()
-    {}
-
 protected:
 
     graphics::shader* load_new(const std::string& path) override

@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <cstdio>
 
-namespace tavern::utility {
+namespace tavern::resource::utility {
 
 // WARNING: Do not forget to delete!
 // NOTE: Could make raw buffer static, but would mess with multithreading IO ops
@@ -28,6 +28,7 @@ inline char* read_file(const char* filename, uint32_t& size)
     char* raw = new char[size];
     rewind(file);
     fread(raw, sizeof(char), size, file);
+    fclose(file);
 
     return raw;
 }

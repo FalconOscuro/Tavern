@@ -24,7 +24,13 @@ FetchContent_Declare(
     GIT_SHALLOW FALSE
 )
 
-FetchContent_MakeAvailable(ecs ryml)
+FetchContent_Declare(
+    tinyobjloader
+    GIT_REPOSITORY git@github.com:tinyobjloader/tinyobjloader.git
+    GIT_TAG v2.0.0rc13
+)
+
+FetchContent_MakeAvailable(ecs ryml tinyobjloader)
 
 find_package(Boost COMPONENTS log)
 find_package(SDL2 REQUIRED)
@@ -41,8 +47,9 @@ target_sources(Tavern PUBLIC
     src/tavern/tavern.cpp
     src/tavern/core/window.cpp
     src/tavern/graphics/opengl/renderer.cpp
-    src/tavern/graphics/opengl/vertex_array.cpp
+    src/tavern/graphics/opengl/mesh.cpp
     src/tavern/graphics/opengl/shader.cpp
+    src/tavern/resource/mesh_manager.cpp
 )
 
 target_link_libraries(Tavern
@@ -50,6 +57,7 @@ target_link_libraries(Tavern
     PUBLIC SDL2::SDL2
     PUBLIC Boost::log
     PUBLIC ryml::ryml
+    PUBLIC tinyobjloader
 )
 
 if(${RENDERER} STREQUAL "gl")

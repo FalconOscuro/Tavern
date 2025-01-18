@@ -25,6 +25,10 @@ struct vector4 {
     T W;
 }; /* end of struct vector4<T> */
 
+typedef vector4<int>    vector4i;
+typedef vector4<float>  vector4f;
+typedef vector4<double> vector4d;
+
 } /* end of namespace tavern::maths */
 
 #endif /* end of define guard VECTOR4_HPP */

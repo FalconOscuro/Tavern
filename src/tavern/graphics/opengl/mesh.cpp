@@ -1,12 +1,13 @@
 #ifdef USE_OPENGL
 
-#include "tavern/graphics/opengl/vertex_array.h"
+#include "tavern/graphics/opengl/mesh.h"
 
 #include "GL/glew.h"
 
 namespace tavern::graphics::opengl {
 
-vertex_array::vertex_array(maths::vector3f verticies[], uint32_t vertex_count) {
+// could use vector?
+mesh::mesh(const maths::vector3f* verticies, const uint32_t vertex_count) {
 
     glGenBuffers(1, &m_vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, m_vertex_buffer);
@@ -20,11 +21,11 @@ vertex_array::vertex_array(maths::vector3f verticies[], uint32_t vertex_count) {
     glEnableVertexAttribArray(0);
 }
 
-vertex_array::~vertex_array() {
+mesh::~mesh() {
     glDeleteBuffers(1, &m_vertex_buffer);
 }
 
-void vertex_array::use() const {
+void mesh::use() const {
     glBindVertexArray(m_id);
 }
 
