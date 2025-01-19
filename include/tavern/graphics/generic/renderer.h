@@ -10,28 +10,21 @@ namespace tavern {
 
 class window;
 
-namespace component {
-
-struct drawable3d;
-
-} /* end of namespace component */
-
 namespace graphics::generic {
 
 class renderer
 {
 public:
-    typedef ecs::view<component::drawable3d> render_view;
-
     virtual bool pre_window_init() = 0;
     virtual bool init(window& window) = 0;
-    virtual void update() = 0;
     virtual void clean() = 0;
 
     virtual void set_viewport_size(const maths::vector2i& view_size) = 0;
 
     virtual void clear() = 0;
+
     virtual void render(ecs::registry& registry) = 0;
+
     virtual void swap_buffer(window& wnd) = 0;
 }; /* end of class a_renderer */
 

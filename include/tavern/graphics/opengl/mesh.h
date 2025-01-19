@@ -24,6 +24,7 @@ private:
     uint32_t m_vertex_buffer;
     uint32_t m_id;
 
+    uint32_t m_vertex_count;
 }; /* end of class mesh */
 
 } /* end of namespace tavern::graphics::opengl */

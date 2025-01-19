@@ -30,7 +30,6 @@ public:
     }
 
     bool init(window& window) override;
-    void update() override;
     void clean() override;
 
     void set_viewport_size(const maths::vector2i& view_size) override {
@@ -38,7 +37,7 @@ public:
     }
 
     void clear() override;
-    void render(ecs::registry& registry) override{};
+    void render(ecs::registry& registry) override;
     void swap_buffer(window& wnd) override;
 
 private:

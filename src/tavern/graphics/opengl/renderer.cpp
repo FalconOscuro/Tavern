@@ -5,6 +5,7 @@
 #include <boost/log/trivial.hpp>
 
 #include "tavern/core/window.h"
+#include "tavern/components/drawable3d.h"
 
 namespace tavern::graphics::opengl {
 
@@ -48,8 +49,22 @@ bool renderer::init(window& wnd) {
     return true;
 }
 
-void renderer::update()
-{}
+void renderer::clear() {
+    glClearColor(0.f, 0.f, .2f, 1.f);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void renderer::render(ecs::registry& registry) {
+
+    auto view = registry.create_view<component::drawable3d>();
+
+    for (auto it = view.begin(); it != view.end(); it++) {
+        auto drawable = it.get<component::drawable3d>();
+
+        drawable.Shader->use();
+        drawable.Mesh->use();
+    }
+}
 
 void renderer::swap_buffer(window& wnd) {
 
@@ -58,11 +73,6 @@ void renderer::swap_buffer(window& wnd) {
         BOOST_LOG_TRIVIAL(error) << "OpenGL Error: " << gl_error;
 
     SDL_GL_SwapWindow(wnd);
-}
-
-void renderer::clear() {
-    glClearColor(0.f, 0.f, .2f, 1.f);
-    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 } /* end of namespace tavern::graphics */

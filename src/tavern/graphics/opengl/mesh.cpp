@@ -7,7 +7,9 @@
 namespace tavern::graphics::opengl {
 
 // could use vector?
-mesh::mesh(const maths::vector3f* verticies, const uint32_t vertex_count) {
+mesh::mesh(const maths::vector3f* verticies, const uint32_t vertex_count):
+    m_vertex_count(vertex_count)
+{
 
     glGenBuffers(1, &m_vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, m_vertex_buffer);
@@ -27,6 +29,7 @@ mesh::~mesh() {
 
 void mesh::use() const {
     glBindVertexArray(m_id);
+    glDrawArrays(GL_TRIANGLES, 0, m_vertex_count);
 }
 
 } /* end of namespace tavern::graphics::opengl */
