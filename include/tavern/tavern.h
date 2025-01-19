@@ -4,6 +4,7 @@
 #include <ecs/ecs.h>
 
 #include "core/window.h"
+#include "graphics/graphics.h"
 #include "resource/resource_manager.h"
 
 namespace tavern {
@@ -28,6 +29,7 @@ private:
     bool m_ready = false;
 
     window m_window;
+    graphics::renderer m_renderer;
 
     ecs::registry m_registry;
 }; /* end of class tavern */

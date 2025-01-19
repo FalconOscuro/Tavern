@@ -13,9 +13,11 @@ tavern::~tavern() {
 }
 
 bool tavern::init() {
-    m_ready = m_window.init(maths::vector2i(800, 600));
     resource_manager::get();
-    return m_ready;
+    return m_ready =
+           m_renderer.pre_window_init()
+        && m_window.init(maths::vector2i(800, 600))
+        && m_renderer.init(m_window);
 }
 
 void tavern::run() {
@@ -26,12 +28,16 @@ void tavern::run() {
     while (m_window.open()) {
 
         m_window.update();
-        m_window.draw_frame();
+
+        m_renderer.clear();
+        m_renderer.render(m_registry);
+        m_renderer.swap_buffer(m_window);
     }
 }
 
 void tavern::clean() {
     m_ready = false;
+    m_renderer.clean();
     m_window.clean();
 }
 

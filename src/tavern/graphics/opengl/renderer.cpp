@@ -4,6 +4,8 @@
 
 #include <boost/log/trivial.hpp>
 
+#include "tavern/core/window.h"
+
 namespace tavern::graphics::opengl {
 
 void renderer::clean() {
@@ -16,7 +18,7 @@ void renderer::clean() {
     m_glcontext = NULL;
 }
 
-bool renderer::post_window_init(SDL_Window* wnd) {
+bool renderer::init(window& wnd) {
 
     // init opengl context
     m_glcontext = SDL_GL_CreateContext(wnd);
@@ -41,13 +43,15 @@ bool renderer::post_window_init(SDL_Window* wnd) {
 
     BOOST_LOG_TRIVIAL(trace) << "Initialized OpenGL";
 
+    set_viewport_size(wnd.get_size());
+
     return true;
 }
 
 void renderer::update()
 {}
 
-void renderer::swap_buffer(SDL_Window* wnd) {
+void renderer::swap_buffer(window& wnd) {
 
     GLenum gl_error;
     while ((gl_error = glGetError()) != GL_NO_ERROR)

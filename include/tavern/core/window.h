@@ -6,7 +6,6 @@
 #include "../platform/sdl.h"
 
 #include "../maths/vector2.hpp"
-#include "../graphics/graphics.h"
 
 namespace tavern {
 
@@ -21,14 +20,6 @@ public:
     bool update();
     void clean();
 
-    void draw_frame() {
-        if (!open())
-            return;
-
-        m_renderer.swap_buffer(m_window);
-        m_renderer.clear();
-    }
-
     bool open() const {
         return m_open;
     }
@@ -36,7 +27,21 @@ public:
     void set_title(const std::string& name);
 
     maths::vector2i get_size() const {
-        return open() ? graphics::sdl::get_viewport_size(m_window) : maths::vector2i();
+        maths::vector2i size;
+
+        if (!open())
+            return size;
+
+        SDL_GetDrawableSize(m_window, &size.X, &size.Y);
+        return size;
+    }
+
+    operator SDL_Window*&() {
+        return m_window;
+    }
+
+    operator SDL_Window*() const {
+        return m_window;
     }
 
 private:
@@ -45,8 +50,6 @@ private:
 
     bool m_open = false;
     SDL_Window* m_window = NULL;
-
-    graphics::renderer m_renderer;
 
     std::string m_name;
 

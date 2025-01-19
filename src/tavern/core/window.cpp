@@ -28,9 +28,6 @@ bool window::init(const maths::vector2i& size, int flags) {
 
     flags |= SDL_WINDOW_RENDERER;
 
-    if (!graphics::sdl::pre_window_init())
-        return false;
-
     m_window = SDL_CreateWindow(
         m_name.c_str(),
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -43,16 +40,9 @@ bool window::init(const maths::vector2i& size, int flags) {
         return false;
     }
 
-    if (!m_renderer.post_window_init(m_window))
-        return false;
-
-    // need to set for get_size to work
-    m_open = true;
     maths::vector2i view_size = get_size();
-    m_renderer.set_viewport_size(view_size);
-
     BOOST_LOG_TRIVIAL(trace) << "Created SDL Window: Width = " << view_size.X << ", Height = " << view_size.Y;
-    return m_open;
+    return m_open = true;
 }
 
 bool window::update() {
@@ -87,7 +77,6 @@ void window::clean() {
     if (!m_window)
         return;
 
-    m_renderer.clean();
     SDL_DestroyWindow(m_window);
     m_window = NULL;
     m_open = false;
@@ -110,7 +99,6 @@ void window::handle_window_event(const SDL_WindowEvent& e) {
     {
     case(SDL_WINDOWEVENT_RESIZED):
         BOOST_LOG_TRIVIAL(trace) << "Window resized: X = " << e.data1 << ", Y = " << e.data2;
-        m_renderer.set_viewport_size(maths::vector2i(e.data1, e.data2));
         break;
 
     default:
