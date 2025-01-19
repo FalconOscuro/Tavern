@@ -62,16 +62,16 @@ void shader::use() const {
     glUseProgram(m_id);
 }
 
-uint32_t shader::compile_shader(const char* fragment_src, int type)
+uint32_t shader::compile_shader(const char* src, int type)
 {
     uint32_t s = glCreateShader(type);
-    glShaderSource(s, 1, &fragment_src, NULL);
+    glShaderSource(s, 1, &src, NULL);
     glCompileShader(s);
 
     int success = -1;
     glGetShaderiv(s, GL_COMPILE_STATUS, &success);
 
-    if (!success) {
+    if (success != GL_TRUE) {
         const uint32_t LOG_LEN = 1024;
         char log[LOG_LEN];
 

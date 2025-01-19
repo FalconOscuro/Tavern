@@ -2,6 +2,7 @@
 
 #include <boost/log/trivial.hpp>
 
+
 namespace tavern {
 
 window::window(const std::string& name) :
@@ -45,7 +46,7 @@ bool window::init(const maths::vector2i& size, int flags) {
     return m_open = true;
 }
 
-bool window::update() {
+bool window::update(graphics::renderer& renderer) {
 
     if (!open())
         return false;
@@ -61,7 +62,7 @@ bool window::update() {
             return false;
 
         case(SDL_WINDOWEVENT):
-            handle_window_event(e.window);
+            handle_window_event(e.window, renderer);
             break;
 
         default:
@@ -93,12 +94,13 @@ void window::set_title(const std::string& name) {
     SDL_SetWindowTitle(m_window, m_name.c_str());
 }
 
-void window::handle_window_event(const SDL_WindowEvent& e) {
+void window::handle_window_event(const SDL_WindowEvent& e, graphics::renderer& renderer) {
 
     switch(e.event)
     {
     case(SDL_WINDOWEVENT_RESIZED):
         BOOST_LOG_TRIVIAL(trace) << "Window resized: X = " << e.data1 << ", Y = " << e.data2;
+        renderer.set_viewport_size(get_size());
         break;
 
     default:

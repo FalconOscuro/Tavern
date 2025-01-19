@@ -28,7 +28,7 @@ protected:
             return nullptr;
         }
 
-        ryml::Tree tree = ryml::parse_in_place(ryml::to_substr(raw));
+        ryml::Tree tree = ryml::parse_in_place(raw);
 
         std::string vertex_path, frag_path;
 
@@ -37,13 +37,16 @@ protected:
 
         delete[] raw;
 
-        char* vertex_raw = utility::read_file(vertex_path.c_str(), size);
+        auto end = path.find_last_of('/');
+        std::string path_dir = end == path.npos ? "" : path.substr(0, end + 1);
+
+        char* vertex_raw = utility::read_file((path_dir + vertex_path).c_str(), size);
         if (vertex_raw == nullptr) {
             BOOST_LOG_TRIVIAL(warning) << "Failed to open vertex shader file: " << vertex_path;
             return nullptr;
         }
 
-        char* frag_raw   = utility::read_file(frag_path.c_str()  , size);
+        char* frag_raw   = utility::read_file((path_dir + frag_path).c_str()  , size);
         if (frag_raw == nullptr) {
             delete[] vertex_raw;
             BOOST_LOG_TRIVIAL(warning) << "Failed to open fragment shader file: " << vertex_path;

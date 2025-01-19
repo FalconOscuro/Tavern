@@ -6,6 +6,7 @@
 #include "../platform/sdl.h"
 
 #include "../maths/vector2.hpp"
+#include "../graphics/graphics.h"
 
 namespace tavern {
 
@@ -17,7 +18,7 @@ public:
     ~window();
 
     bool init(const maths::vector2i& size, int flags = 0);
-    bool update();
+    bool update(graphics::renderer& renderer);
     void clean();
 
     bool open() const {
@@ -46,7 +47,7 @@ public:
 
 private:
 
-    void handle_window_event(const SDL_WindowEvent& e);
+    void handle_window_event(const SDL_WindowEvent& e, graphics::renderer& renderer);
 
     bool m_open = false;
     SDL_Window* m_window = NULL;

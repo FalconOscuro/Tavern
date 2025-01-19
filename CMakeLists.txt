@@ -84,3 +84,10 @@ add_executable(tavern-bin
 target_link_libraries(tavern-bin PUBLIC
     Tavern
 )
+
+add_custom_command(
+    TARGET tavern-bin PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/shaders"
+        "${PROJECT_BINARY_DIR}/shaders"
+)

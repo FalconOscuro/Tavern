@@ -1,3 +1,4 @@
+#include <cassert>
 #ifdef USE_OPENGL
 
 #include "tavern/graphics/opengl/renderer.hpp"
@@ -60,6 +61,9 @@ void renderer::render(ecs::registry& registry) {
 
     for (auto it = view.begin(); it != view.end(); it++) {
         auto drawable = it.get<component::drawable3d>();
+
+        assert(drawable.Shader != nullptr);
+        assert(drawable.Mesh != nullptr);
 
         drawable.Shader->use();
         drawable.Mesh->use();
