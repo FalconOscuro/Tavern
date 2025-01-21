@@ -60,10 +60,7 @@ void renderer::render(ecs::registry& registry) {
     auto view = registry.create_view<component::drawable3d>();
 
     for (auto it = view.begin(); it != view.end(); it++) {
-        auto drawable = it.get<component::drawable3d>();
-
-        assert(drawable.Shader != nullptr);
-        assert(drawable.Mesh != nullptr);
+        auto& drawable = it.get<component::drawable3d>();
 
         drawable.Shader->use();
         drawable.Mesh->use();

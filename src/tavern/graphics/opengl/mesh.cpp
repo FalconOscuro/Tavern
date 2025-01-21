@@ -7,13 +7,13 @@
 namespace tavern::graphics::opengl {
 
 // could use vector?
-mesh::mesh(const maths::vector3f* verticies, const uint32_t vertex_count):
-    m_vertex_count(vertex_count)
+mesh::mesh(const std::vector<float>& verticies, const std::vector<float>& texcoords):
+    m_vertex_count(verticies.size() / 3)
 {
 
     glGenBuffers(1, &m_vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, m_vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(maths::vector3f) * vertex_count, verticies, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * verticies.size(), verticies.data(), GL_STATIC_DRAW);
 
     glGenVertexArrays(1, &m_id);
     glBindVertexArray(m_id);

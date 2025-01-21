@@ -5,7 +5,7 @@
 
 #include "opengl/renderer.hpp"
 #include "opengl/shader.h"
-#include "opengl/mesh.h"
+#include "opengl/render_mesh.h"
 
 #define RENDERER_NS opengl
 
@@ -15,7 +15,7 @@ namespace tavern::graphics {
 
 typedef RENDERER_NS::renderer renderer;
 
-typedef RENDERER_NS::mesh mesh;
+typedef RENDERER_NS::render_mesh render_mesh;
 typedef RENDERER_NS::shader shader;
 
 } /* end of namespace tavern::graphics */

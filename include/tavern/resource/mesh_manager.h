@@ -6,11 +6,11 @@
 
 namespace tavern::resource {
 
-class mesh_manager : public resource_type_manager<graphics::mesh>
+class mesh_manager : public resource_type_manager<graphics::render_mesh>
 {
 protected:
 
-    graphics::mesh* load_new(const std::string& path) override;
+    graphics::render_mesh* load_new(const std::string& path) override;
 
 }; /* end of class mesh_manager : public resource_type_manager<graphics::vertex_array> */
 

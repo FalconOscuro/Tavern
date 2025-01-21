@@ -3,19 +3,17 @@
 #ifdef USE_OPENGL
 
 #include <cstdint>
-
-#include "../../maths/vector3.hpp"
+#include <vector>
 
 namespace tavern::graphics::opengl {
 
-class mesh
+class render_mesh
 {
 public:
 
-    // could use std::vector<> instead of array?
-    mesh(const maths::vector3f* vertices, const uint32_t vertex_count);
+    render_mesh(const std::vector<float>& vertices, const std::vector<float>& texcoords);
 
-    ~mesh();
+    ~render_mesh();
 
     void use() const;
 

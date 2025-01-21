@@ -10,7 +10,7 @@
 #include <ryml.hpp>
 #include <c4/yml/parse.hpp>
 
-#include "util/read_file.hpp"
+#include "util/file.hpp"
 
 namespace tavern::resource {
 
@@ -37,8 +37,7 @@ protected:
 
         delete[] raw;
 
-        auto end = path.find_last_of('/');
-        std::string path_dir = end == path.npos ? "" : path.substr(0, end + 1);
+        std::string path_dir = std::string(utility::get_file_parent_dir(path));
 
         char* vertex_raw = utility::read_file((path_dir + vertex_path).c_str(), size);
         if (vertex_raw == nullptr) {
