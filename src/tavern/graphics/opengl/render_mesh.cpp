@@ -1,13 +1,13 @@
 #ifdef USE_OPENGL
 
-#include "tavern/graphics/opengl/mesh.h"
+#include "tavern/graphics/opengl/render_mesh.h"
 
 #include "GL/glew.h"
 
 namespace tavern::graphics::opengl {
 
 // could use vector?
-mesh::mesh(const std::vector<float>& verticies, const std::vector<float>& texcoords):
+render_mesh::render_mesh(const std::vector<float>& verticies, const std::vector<float>& texcoords):
     m_vertex_count(verticies.size() / 3)
 {
 
@@ -23,11 +23,11 @@ mesh::mesh(const std::vector<float>& verticies, const std::vector<float>& texcoo
     glEnableVertexAttribArray(0);
 }
 
-mesh::~mesh() {
+render_mesh::~render_mesh() {
     glDeleteBuffers(1, &m_vertex_buffer);
 }
 
-void mesh::use() const {
+void render_mesh::use() const {
     glBindVertexArray(m_id);
     glDrawArrays(GL_TRIANGLES, 0, m_vertex_count);
 }

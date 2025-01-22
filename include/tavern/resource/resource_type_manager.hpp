@@ -12,27 +12,25 @@ namespace tavern::resource {
 template <typename Resource>
 class resource_deleter
 {
-    typedef std::unordered_map<std::string, std::weak_ptr<Resource>> container;
+    typedef std::unordered_map<std::size_t, std::weak_ptr<Resource>> container;
 public:
-    resource_deleter(container* mgr, const std::string& name):
-        Name(name), m_container(mgr)
+    resource_deleter(container* mgr, const std::size_t hash):
+        m_container(mgr), m_hash(hash)
     {}
 
     resource_deleter(const resource_deleter& d):
-        Name(d.Name), m_container(d.m_container)
+        m_container(d.m_container), m_hash(d.m_hash)
     {}
 
     void operator()(Resource* res) {
-        m_container->erase(Name);
+        m_container->erase(m_hash);
         delete res;
     }
-
-    // Note: Copy string will cause slowdown when passing shared pointers
-    const std::string Name;
 
 private:
 
     container* m_container;
+    const std::size_t m_hash;
 
 }; /* end of class resource_deleter */
 
@@ -47,15 +45,16 @@ public:
 
     resource_ptr load(const std::string& path)
     {
-        auto res = m_loaded.find(path);
+        const std::size_t hash = std::hash<std::string>{}(path);
+        auto res = m_loaded.find(hash);
 
         if (!(res == m_loaded.end() || res->second.expired()))
             return res->second.lock();
 
-        resource_ptr res_ptr = resource_ptr(load_new(path), resource_deleter<Resource>(&m_loaded, path));
+        resource_ptr res_ptr = resource_ptr(load_new(path), resource_deleter<Resource>(&m_loaded, hash));
 
         if (res_ptr != nullptr)
-            m_loaded.emplace(path, res_ptr);
+            m_loaded.emplace(hash, res_ptr);
 
         else
             BOOST_LOG_TRIVIAL(error) << "Failed to load resource: " << path;
@@ -70,7 +69,7 @@ protected:
 
 private:
 
-    std::unordered_map<std::string, std::weak_ptr<Resource>> m_loaded;
+    std::unordered_map<std::size_t, std::weak_ptr<Resource>> m_loaded;
 }; /* end of class resource_type_manager<Resource> */
 
 } /* end of namespace tavern::resource */
