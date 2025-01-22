@@ -33,7 +33,7 @@ public:
     void clean() override;
 
     void set_viewport_size(const maths::vector2i& view_size) override {
-        glViewport(0, 0, view_size.X, view_size.Y);
+        glViewport(0, 0, view_size.x, view_size.y);
     }
 
     void clear() override;

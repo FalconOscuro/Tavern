@@ -47,11 +47,17 @@ public:
     {
         const std::size_t hash = std::hash<std::string>{}(path);
         auto res = m_loaded.find(hash);
+        resource_ptr res_ptr;
 
-        if (!(res == m_loaded.end() || res->second.expired()))
-            return res->second.lock();
+        // WARNING: Not threadsafe
+        if (res != m_loaded.end()) {
+            res_ptr = res->second.lock();
 
-        resource_ptr res_ptr = resource_ptr(load_new(path), resource_deleter<Resource>(&m_loaded, hash));
+            if (res_ptr != nullptr)
+                return res_ptr;
+        }
+
+        res_ptr = resource_ptr(load_new(path), resource_deleter<Resource>(&m_loaded, hash));
 
         if (res_ptr != nullptr)
             m_loaded.emplace(hash, res_ptr);
@@ -60,6 +66,9 @@ public:
             BOOST_LOG_TRIVIAL(error) << "Failed to load resource: " << path;
 
         return res_ptr;
+    }
+
+    void clear() {
     }
 
 protected:

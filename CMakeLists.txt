@@ -40,7 +40,8 @@ find_package(OpenGL REQUIRED)
 add_library(Tavern STATIC)
 
 target_include_directories(Tavern
-    PUBLIC ${PROJECT_SOURCE_DIR}/include
+    PUBLIC include/
+    PUBLIC extern/
 )
 
 target_sources(Tavern PUBLIC
@@ -50,6 +51,7 @@ target_sources(Tavern PUBLIC
     src/tavern/graphics/opengl/render_mesh.cpp
     src/tavern/graphics/opengl/shader.cpp
     src/tavern/resource/mesh_manager.cpp
+    src/tavern/resource/texture2d_manager.cpp
 )
 
 target_link_libraries(Tavern

@@ -7,20 +7,20 @@ template <typename T>
 struct vector2 {
 
     vector2():
-        X(), Y()
+        x(), y()
     {}
 
-    vector2(const T X, const T Y):
-        X(X), Y(Y)
+    vector2(const T x, const T y):
+        x(x), y(y)
     {}
 
     template <typename T2>
     vector2(const vector2<T2>& v):
-      X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y))
+      x(static_cast<T>(v.x)), y(static_cast<T>(v.y))
     {}
 
-    T X;
-    T Y;
+    T x;
+    T y;
 }; /* end of struct vector2<T> */
 
 typedef vector2<int>    vector2i;

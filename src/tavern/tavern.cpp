@@ -44,6 +44,7 @@ void tavern::run() {
 
 void tavern::clean() {
     m_ready = false;
+    m_registry.destroy_all();
     m_renderer.clean();
     m_window.clean();
 }

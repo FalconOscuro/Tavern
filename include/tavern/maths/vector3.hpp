@@ -7,21 +7,42 @@ template <typename T>
 struct vector3 {
 
     vector3():
-        X(), Y(), Z()
+        x(), y(), z()
     {}
 
-    vector3(T X, T Y, T Z):
-        X(X), Y(Y), Z(Z)
+    vector3(T x, T y, T z):
+        x(x), y(y), z(z)
+    {}
+
+    template <typename T2>
+    vector3(const T2* v):
+        x(static_cast<T>(v[0])), y(v[1]), z(v[2])
     {}
 
     template <typename T2>
     vector3(const vector3<T2>& v):
-        X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)), Z(static_cast<T>(v.Z))
+        x(static_cast<T>(v.x)), y(static_cast<T>(v.y)), z(static_cast<T>(v.z))
     {}
 
-    T X;
-    T Y;
-    T Z;
+    template <typename T2>
+    vector3& operator=(const T2* v) {
+        x = static_cast<T>(v[0]);
+        y = static_cast<T>(v[1]);
+        z = static_cast<T>(v[2]);
+        return *this;
+    }
+
+    template <typename T2>
+    vector3& operator=(const vector3<T2>& v) {
+        x = static_cast<T>(v.x);
+        y = static_cast<T>(v.y);
+        z = static_cast<T>(v.z);
+        return *this;
+    }
+
+    T x;
+    T y;
+    T z;
 }; /* end of struct vector3<T> */
 
 typedef vector3<int>    vector3i;

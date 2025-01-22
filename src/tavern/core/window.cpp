@@ -32,7 +32,7 @@ bool window::init(const maths::vector2i& size, int flags) {
     m_window = SDL_CreateWindow(
         m_name.c_str(),
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-        size.X, size.Y, flags
+        size.x, size.y, flags
     );
 
     if (!m_window) {
@@ -42,7 +42,7 @@ bool window::init(const maths::vector2i& size, int flags) {
     }
 
     maths::vector2i view_size = get_size();
-    BOOST_LOG_TRIVIAL(trace) << "Created SDL Window: Width = " << view_size.X << ", Height = " << view_size.Y;
+    BOOST_LOG_TRIVIAL(trace) << "Created SDL Window: Width = " << view_size.x << ", Height = " << view_size.y;
     return m_open = true;
 }
 

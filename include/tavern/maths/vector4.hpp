@@ -7,22 +7,22 @@ template <typename T>
 struct vector4 {
 
     vector4():
-        X(), Y(), Z(), W()
+        x(), y(), z(), w()
     {}
 
-    vector4(T X, T Y, T Z, T W):
-        X(X), Y(Y), Z(Z), W(W)
+    vector4(T x, T y, T z, T w):
+        x(x), y(y), z(z), w(w)
     {}
 
     template <typename T2>
     vector4(const vector4<T2>& v):
-        X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)), Z(static_cast<T>(v.Z)), W(static_cast<T>(v.W))
+        x(static_cast<T>(v.x)), y(static_cast<T>(v.y)), z(static_cast<T>(v.z)), w(static_cast<T>(v.w))
     {}
 
-    T X;
-    T Y;
-    T Z;
-    T W;
+    T x;
+    T y;
+    T z;
+    T w;
 }; /* end of struct vector4<T> */
 
 typedef vector4<int>    vector4i;

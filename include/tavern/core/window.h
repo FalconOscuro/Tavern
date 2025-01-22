@@ -33,7 +33,7 @@ public:
         if (!open())
             return size;
 
-        SDL_GetDrawableSize(m_window, &size.X, &size.Y);
+        SDL_GetDrawableSize(m_window, &size.x, &size.y);
         return size;
     }
 
