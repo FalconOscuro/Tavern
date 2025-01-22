@@ -5,7 +5,7 @@
 
 #include "opengl/renderer.hpp"
 #include "opengl/shader.h"
-#include "opengl/render_mesh.h"
+#include "opengl/render_mesh.hpp"
 #include "opengl/texture2d.hpp"
 
 #define RENDERER_NS opengl

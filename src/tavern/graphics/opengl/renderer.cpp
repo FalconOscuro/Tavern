@@ -1,7 +1,8 @@
-#include <cassert>
 #ifdef USE_OPENGL
 
 #include "tavern/graphics/opengl/renderer.hpp"
+
+#include <cassert>
 
 #include <boost/log/trivial.hpp>
 

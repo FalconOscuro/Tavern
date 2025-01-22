@@ -48,7 +48,6 @@ target_sources(Tavern PUBLIC
     src/tavern/tavern.cpp
     src/tavern/core/window.cpp
     src/tavern/graphics/opengl/renderer.cpp
-    src/tavern/graphics/opengl/render_mesh.cpp
     src/tavern/graphics/opengl/shader.cpp
     src/tavern/resource/mesh_manager.cpp
     src/tavern/resource/texture2d_manager.cpp

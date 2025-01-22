@@ -26,7 +26,6 @@ graphics::render_mesh* mesh_manager::load_new(const std::string& path)
         BOOST_LOG_TRIVIAL(warning) << "Warning whilst reading obj file: " << reader.Warning();
 
     auto& attrib = reader.GetAttrib();
-    auto& materials = reader.GetMaterials();
 
     // WARNING: Potentially dangerous type conversion
     graphics::render_mesh* m = new graphics::render_mesh(attrib.vertices, attrib.texcoords);
