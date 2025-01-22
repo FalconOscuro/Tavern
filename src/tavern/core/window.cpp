@@ -16,7 +16,7 @@ window::~window() {
     BOOST_LOG_TRIVIAL(trace) << "Shutdown SDL";
 }
 
-bool window::init(const maths::vector2i& size, int flags) {
+bool window::init(const glm::ivec2& size, int flags) {
 
     if (open())
         return true;
@@ -41,7 +41,7 @@ bool window::init(const maths::vector2i& size, int flags) {
         return false;
     }
 
-    maths::vector2i view_size = get_size();
+    glm::ivec2 view_size = get_size();
     BOOST_LOG_TRIVIAL(trace) << "Created SDL Window: Width = " << view_size.x << ", Height = " << view_size.y;
     return m_open = true;
 }

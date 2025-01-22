@@ -8,6 +8,7 @@
 
 #include "tavern/core/window.h"
 #include "tavern/components/drawable3d.h"
+#include "tavern/components/transform3d.h"
 
 namespace tavern::graphics::opengl {
 
@@ -58,7 +59,7 @@ void renderer::clear() {
 
 void renderer::render(ecs::registry& registry) {
 
-    auto view = registry.create_view<component::drawable3d>();
+    auto view = registry.create_view<component::drawable3d, component::transform>();
 
     for (auto it = view.begin(); it != view.end(); it++) {
         auto& drawable = it.get<component::drawable3d>();

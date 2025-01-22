@@ -1,10 +1,11 @@
 #ifndef GENERIC_RENDERER_H
 #define GENERIC_RENDERER_H
 
+#include <glm/vec2.hpp>
+
 #include <ecs/ecs.h>
 
 #include "../../platform/sdl.h"
-#include "../../maths/vector2.hpp"
 
 namespace tavern {
 
@@ -19,7 +20,7 @@ public:
     virtual bool init(window& window) = 0;
     virtual void clean() = 0;
 
-    virtual void set_viewport_size(const maths::vector2i& view_size) = 0;
+    virtual void set_viewport_size(const glm::ivec2& view_size) = 0;
 
     virtual void clear() = 0;
 

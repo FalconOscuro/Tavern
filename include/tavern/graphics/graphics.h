@@ -12,6 +12,8 @@
 
 #endif // USE_OPENGL
 
+#include "generic/material.h"
+
 namespace tavern::graphics {
 
 typedef RENDERER_NS::renderer renderer;
@@ -19,6 +21,8 @@ typedef RENDERER_NS::renderer renderer;
 typedef RENDERER_NS::render_mesh render_mesh;
 typedef RENDERER_NS::shader shader;
 typedef RENDERER_NS::texture2d texture2d;
+
+typedef generic::material<texture2d> material;
 
 } /* end of namespace tavern::graphics */
 

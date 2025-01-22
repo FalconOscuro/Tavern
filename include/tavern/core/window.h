@@ -2,10 +2,10 @@
 #define WINDOW_H
 
 #include <string>
+#include <glm/vec2.hpp>
 
 #include "../platform/sdl.h"
 
-#include "../maths/vector2.hpp"
 #include "../graphics/graphics.h"
 
 namespace tavern {
@@ -17,7 +17,7 @@ public:
     window(const std::string& name);
     ~window();
 
-    bool init(const maths::vector2i& size, int flags = 0);
+    bool init(const glm::ivec2& size, int flags = 0);
     bool update(graphics::renderer& renderer);
     void clean();
 
@@ -27,8 +27,8 @@ public:
 
     void set_title(const std::string& name);
 
-    maths::vector2i get_size() const {
-        maths::vector2i size;
+    glm::ivec2 get_size() const {
+        glm::ivec2 size;
 
         if (!open())
             return size;

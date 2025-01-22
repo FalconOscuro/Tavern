@@ -36,6 +36,7 @@ find_package(Boost COMPONENTS log)
 find_package(SDL2 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(glm REQUIRED)
 
 add_library(Tavern STATIC)
 
@@ -68,6 +69,7 @@ if(${RENDERER} STREQUAL "gl")
         GLEW::glew
         OpenGL::GL
         OpenGL::GLU
+        glm
     )
 
     target_compile_definitions(Tavern PUBLIC USE_OPENGL)

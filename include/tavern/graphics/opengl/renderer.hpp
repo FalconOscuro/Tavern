@@ -32,7 +32,7 @@ public:
     bool init(window& window) override;
     void clean() override;
 
-    void set_viewport_size(const maths::vector2i& view_size) override {
+    void set_viewport_size(const glm::ivec2& view_size) override {
         glViewport(0, 0, view_size.x, view_size.y);
     }
 

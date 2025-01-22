@@ -17,7 +17,7 @@ bool tavern::init() {
     resource_manager::get();
     m_ready =
            m_renderer.pre_window_init()
-        && m_window.init(maths::vector2i(800, 600))
+        && m_window.init(glm::ivec2(800, 600))
         && m_renderer.init(m_window);
 
     BOOST_LOG_TRIVIAL(trace) << "Engine initialization complete";

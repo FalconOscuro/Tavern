@@ -4,7 +4,7 @@
 
 #include <GL/glew.h>
 
-#include "../../maths/vector3.hpp"
+#include <glm/vec3.hpp>
 
 namespace tavern::graphics::opengl {
 
@@ -12,7 +12,7 @@ class texture2d
 {
 public:
 
-    texture2d(const unsigned char* data, const maths::vector3i& size)
+    texture2d(const unsigned char* data, const glm::ivec3& size)
     {
         glGenTextures(1, &m_texture);
         glBindTexture(GL_TEXTURE_2D, m_texture);
