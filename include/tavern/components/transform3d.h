@@ -1,7 +1,8 @@
 #ifndef TRANSFORM3D_H
 #define TRANSFORM3D_H
 
-#include <glm/mat4x4.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <ecs/ecs.h>
 
