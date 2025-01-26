@@ -6,6 +6,7 @@
 #include "core/window.h"
 #include "graphics/graphics.h"
 #include "resource/resource_manager.h"
+#include "systems/scene_tree.h"
 
 namespace tavern {
 
@@ -30,6 +31,9 @@ private:
 
     window m_window;
     graphics::renderer m_renderer;
+
+    // TODO: Should be integrated into physics system
+    system::scene_tree m_scene_tree;
 
     ecs::registry m_registry;
 }; /* end of class tavern */

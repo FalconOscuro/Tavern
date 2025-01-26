@@ -35,6 +35,8 @@ void tavern::run() {
 
         m_window.update(m_renderer);
 
+        m_scene_tree.update(m_registry);
+
         m_renderer.clear();
         m_renderer.render(m_registry);
         m_renderer.swap_buffer(m_window);
