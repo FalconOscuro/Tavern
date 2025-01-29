@@ -61,6 +61,7 @@ target_link_libraries(Tavern
     PUBLIC Boost::log
     PUBLIC ryml::ryml
     PUBLIC tinyobjloader
+    PUBLIC glm::glm
 )
 
 if(${RENDERER} STREQUAL "gl")
@@ -70,7 +71,6 @@ if(${RENDERER} STREQUAL "gl")
         GLEW::glew
         OpenGL::GL
         OpenGL::GLU
-        glm
     )
 
     target_compile_definitions(Tavern PUBLIC USE_OPENGL)
