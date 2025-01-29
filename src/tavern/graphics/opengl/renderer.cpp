@@ -56,7 +56,7 @@ bool renderer::init(window& wnd) {
 
     set_viewport_size(wnd.get_size());
 
-    m_default_shader = resource_manager::get().load_shader("shaders/basic.yml");
+    m_default_shader = resource_manager::get().load_shader("./shaders/basic.yml");
 
     return true;
 }

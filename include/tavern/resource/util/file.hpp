@@ -22,9 +22,9 @@ inline std::string_view get_file_parent_dir(const std::string_view& s) {
 
 // WARNING: Do not forget to delete!
 // NOTE: Could make raw buffer static, but would mess with multithreading IO ops
-inline char* read_file(const char* filename, uint32_t& size)
+inline char* read_file(const char* filename, size_t& size)
 {
-    FILE* file = fopen(filename, "r");
+    FILE* file = fopen(filename, "rb");
 
     if (file == NULL) {
         size = 0;
@@ -32,17 +32,18 @@ inline char* read_file(const char* filename, uint32_t& size)
     }
     
     // get file size
-    fseek(file, 0, SEEK_END);
+    fseek(file, 0L, SEEK_END);
     size = ftell(file);
+    fseek(file, 0L, SEEK_SET);
 
-    if (size == 0)
+    if (size <= 0)
         return nullptr;
 
     // place file contents
-    char* raw = new char[size];
-    rewind(file);
+    char* raw = new char[size + 1];
     auto read = fread(raw, sizeof(char), size, file);
     assert(read == size);
+    raw[size] = '\0';
     fclose(file);
 
     return raw;

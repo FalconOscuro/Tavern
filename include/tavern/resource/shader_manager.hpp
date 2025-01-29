@@ -6,9 +6,8 @@
 
 #include <boost/log/trivial.hpp>
 
-#include <ryml_std.hpp>
 #include <ryml.hpp>
-#include <c4/yml/parse.hpp>
+#include <ryml_std.hpp>
 
 #include "util/file.hpp"
 
@@ -20,7 +19,7 @@ protected:
 
     graphics::shader* load_new(const std::string& path) override
     {
-        uint32_t size;   
+        size_t size;
         char* raw = utility::read_file(path.c_str(), size);
 
         if (raw == nullptr) {
