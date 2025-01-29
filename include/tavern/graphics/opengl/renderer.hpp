@@ -2,9 +2,12 @@
 #define OPENGL_RENDERER_HPP
 #ifdef USE_OPENGL
 
+#include <memory>
+
 #include <GL/glew.h>
 
 #include "../generic/renderer.h"
+#include "shader.h"
 
 namespace tavern::graphics::opengl {
 
@@ -33,6 +36,7 @@ public:
     void clean() override;
 
     void set_viewport_size(const glm::ivec2& view_size) override {
+        m_aspect_ratio = (float)view_size.x / (float)view_size.y;
         glViewport(0, 0, view_size.x, view_size.y);
     }
 
@@ -43,6 +47,11 @@ public:
 private:
 
     SDL_GLContext m_glcontext = NULL;
+
+    ecs::entity_type m_camera = UINT32_MAX;
+    float m_aspect_ratio = 1.f;
+
+    std::shared_ptr<shader> m_default_shader;
 
 }; /* end of class opengl_renderer final : public a_renderer */
 

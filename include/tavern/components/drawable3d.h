@@ -8,8 +8,8 @@ namespace tavern::component {
 
 struct drawable3d {
 
-    resource::mesh_manager::resource_ptr Mesh;
-    resource::shader_manager::resource_ptr Shader;
+    resource::mesh_manager::resource_ptr mesh;
+    resource::shader_manager::resource_ptr shader = nullptr;
 };
 
 } /* namespace tavern::component */
