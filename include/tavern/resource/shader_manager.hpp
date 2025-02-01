@@ -2,7 +2,7 @@
 #define SHADER_MANAGER_HPP
 
 #include "resource_type_manager.hpp"
-#include "../graphics/graphics.h"
+#include "../graphics/shader.h"
 
 #include <boost/log/trivial.hpp>
 
@@ -17,7 +17,7 @@ class shader_manager : public resource_type_manager<graphics::shader>
 {
 protected:
 
-    graphics::shader* load_new(const std::string& path) override
+    resource_ptr load_new(const std::string& path) override
     {
         size_t size;
         char* raw = utility::read_file(path.c_str(), size);

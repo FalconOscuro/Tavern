@@ -10,7 +10,7 @@
 
 namespace tavern::resource {
 
-graphics::render_mesh* mesh_manager::load_new(const std::string& path)
+mesh_manager::resource_ptr mesh_manager::load_new(const std::string& path)
 {
     tinyobj::ObjReader reader;
 
@@ -28,7 +28,7 @@ graphics::render_mesh* mesh_manager::load_new(const std::string& path)
     auto& attrib = reader.GetAttrib();
 
     // WARNING: Potentially dangerous type conversion
-    graphics::render_mesh* m = new graphics::render_mesh(attrib.vertices, attrib.texcoords);
+    graphics::mesh* m = new graphics::mesh(attrib.vertices, attrib.texcoords);
 
     return m;
 }

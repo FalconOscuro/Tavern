@@ -38,43 +38,45 @@ template <typename Resource>
 class resource_type_manager
 {
 public:
-    typedef std::shared_ptr<Resource> resource_ptr;
+    typedef Resource resource_type;
+    typedef std::shared_ptr<resource_type> resource_handle;
 
     resource_type_manager()
     {}
 
-    resource_ptr load(const std::string& path)
+    resource_handle load(const std::string& path)
     {
         const std::size_t hash = std::hash<std::string>{}(path);
         auto res = m_loaded.find(hash);
-        resource_ptr res_ptr;
+        resource_handle res_handle;
 
         // WARNING: Not threadsafe
         if (res != m_loaded.end()) {
-            res_ptr = res->second.lock();
+            res_handle = res->second.lock();
 
-            if (res_ptr != nullptr)
-                return res_ptr;
+            if (res_handle != nullptr)
+                return res_handle;
         }
 
-        res_ptr = resource_ptr(load_new(path), resource_deleter<Resource>(&m_loaded, hash));
+        res_handle = resource_handle(load_new(path), resource_deleter<Resource>(&m_loaded, hash));
 
-        if (res_ptr != nullptr)
-            m_loaded.emplace(hash, res_ptr);
+        if (res_handle != nullptr)
+            m_loaded.emplace(hash, res_handle);
 
         else
             BOOST_LOG_TRIVIAL(error) << "Failed to load resource: " << path;
 
-        return res_ptr;
+        return res_handle;
     }
 
     void clear() {
     }
 
 protected:
+    typedef resource_type* resource_ptr;
 
     // Could be useful to specify memory location for pooling
-    virtual Resource* load_new(const std::string& path) = 0;
+    virtual resource_ptr load_new(const std::string& path) = 0;
 
 private:
 

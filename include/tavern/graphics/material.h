@@ -7,7 +7,7 @@
 
 #include <glm/vec3.hpp>
 
-namespace tavern::graphics::generic {
+namespace tavern::graphics {
 
 template <typename tex_type>
 struct material

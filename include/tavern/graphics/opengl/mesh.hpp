@@ -1,5 +1,5 @@
-#ifndef OPENGL_MESH_ARRAY_HPP
-#define OPENGL_MESH_ARRAY_HPP
+#ifndef OPENGL_MESH_HPP
+#define OPENGL_MESH_HPP
 #ifdef USE_OPENGL
 
 #include <cstdint>
@@ -9,11 +9,11 @@
 
 namespace tavern::graphics::opengl {
 
-class render_mesh
+class mesh
 {
 public:
 
-    render_mesh(const std::vector<float>& vertices, const std::vector<float>& texcoords):
+    mesh(const std::vector<float>& vertices, const std::vector<float>& texcoords):
         m_vertex_count(vertices.size() / 3)
     {
         glGenBuffers(1, &m_vertex_buffer);
@@ -35,13 +35,13 @@ public:
         glEnableVertexAttribArray(0);
     }
 
-    ~render_mesh() {
+    ~mesh() {
         glDeleteVertexArrays(1, &m_id);
         glDeleteBuffers(1, &m_vertex_buffer);
         glDeleteBuffers(1, &m_tex_buffer);
     }
 
-    render_mesh& use() {
+    mesh& use() {
         glBindVertexArray(m_id);
         glDrawArrays(GL_TRIANGLES, 0, m_vertex_count);
 
@@ -60,4 +60,4 @@ private:
 } /* end of namespace tavern::graphics::opengl */
 
 #endif // USE_OPENGL
-#endif /* end of define guard OPENGL_MESH_ARRAY_HPP */
+#endif /* end of define guard OPENGL_MESH_HPP */

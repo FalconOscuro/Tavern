@@ -1,11 +1,8 @@
 #ifndef SCENE_TREE_H
 #define SCENE_TREE_H
 
-#include "ecs/containers/sparse_set.hpp"
-#include <memory>
-#include <vector>
-
 #include <ecs/ecs.h>
+#include <ecs/containers/sparse_set.hpp>
 
 namespace tavern::system {
 

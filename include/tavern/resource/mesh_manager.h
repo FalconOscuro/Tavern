@@ -2,15 +2,15 @@
 #define MESH_MANAGER_H
 
 #include "resource_type_manager.hpp"
-#include "../graphics/graphics.h"
+#include "../graphics/mesh.h"
 
 namespace tavern::resource {
 
-class mesh_manager : public resource_type_manager<graphics::render_mesh>
+class mesh_manager : public resource_type_manager<graphics::mesh>
 {
 protected:
 
-    graphics::render_mesh* load_new(const std::string& path) override;
+    resource_ptr load_new(const std::string& path) override;
 
 }; /* end of class mesh_manager : public resource_type_manager<graphics::vertex_array> */
 

@@ -73,7 +73,9 @@ if(${RENDERER} STREQUAL "gl")
         OpenGL::GLU
     )
 
-    target_compile_definitions(Tavern PUBLIC USE_OPENGL)
+    target_compile_definitions(Tavern
+        PUBLIC USE_OPENGL RENDERER_NS=opengl
+    )
 
 elseif(${RENDERER} STREQUAL "vk")
     message(FATAL_ERROR "Vulkan is not currently supported")

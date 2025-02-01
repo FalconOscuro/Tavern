@@ -19,15 +19,15 @@ public:
         return mgr;
     }
 
-    [[nodiscard]] resource::shader_manager::resource_ptr load_shader(const std::string& path) {
+    [[nodiscard]] resource::shader_manager::resource_handle load_shader(const std::string& path) {
         return m_shaders.load(path);
     }
 
-    [[nodiscard]] resource::mesh_manager::resource_ptr load_mesh(const std::string& path) {
+    [[nodiscard]] resource::mesh_manager::resource_handle load_mesh(const std::string& path) {
         return m_meshes.load(path);
     }
 
-    [[nodiscard]] resource::texture2d_manager::resource_ptr load_texture2d(const std::string& path) {
+    [[nodiscard]] resource::texture2d_manager::resource_handle load_texture2d(const std::string& path) {
         return m_tex2ds.load(path);
     }
 

@@ -4,7 +4,7 @@
 #include <ecs/ecs.h>
 
 #include "core/window.h"
-#include "graphics/graphics.h"
+#include "graphics/renderer.h"
 #include "resource/resource_manager.h"
 #include "systems/scene_tree.h"
 

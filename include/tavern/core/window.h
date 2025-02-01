@@ -6,7 +6,7 @@
 
 #include "../platform/sdl.h"
 
-#include "../graphics/graphics.h"
+#include "../graphics/renderer.h"
 
 namespace tavern {
 
