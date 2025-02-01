@@ -56,7 +56,7 @@ bool renderer::init(window& wnd) {
 
     set_viewport_size(wnd.get_size());
 
-    m_default_shader = resource_manager::get().load_shader("./shaders/basic.yml");
+    m_default_shader = resource_manager::get().load_shader("./shaders/pbr.yml");
 
     return true;
 }
@@ -115,7 +115,7 @@ void renderer::render(ecs::registry& registry)
         // TODO: Account for custom shaders
         //resource::shader_manager::resource_ptr& shader = drawable.shader ? drawable.shader : m_default_shader;
 
-        shader->set_mat4x4("model", transform.get_global());
+        shader->set_transform(transform.get_global());
 
         drawable.mesh->use();
     }

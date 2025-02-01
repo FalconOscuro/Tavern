@@ -1,30 +1,29 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include <cstdint>
 #include <memory>
-#include <string>
 
 #include <glm/vec3.hpp>
 
+#include "texture2d.h"
+
 namespace tavern::graphics {
 
-template <typename tex_type>
 struct material
 {
-    std::string name;
+    typedef std::shared_ptr<texture2d> tex_ptr;
 
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
+    glm::vec3 albedo;
+    float metallic;
+    float roughness;
+    float ambient_occlusion;
+    glm::vec3 emissive;
 
-    std::shared_ptr<tex_type> albedo;
-
-    // currently unused, but part of base .mtl spec
-    glm::vec3 transmission;
-
-    uint8_t illum; // see https://paulbourke.net/dataformats/mtl/ for description of illumination models
-    float dissolve; // ad-hoc transparency w/out accounting for thickness or spectral character;
+    tex_ptr albedo_tex;
+    tex_ptr metallic_roughness_tex;
+    tex_ptr normal_tex;
+    tex_ptr ambient_occlusion_tex;
+    tex_ptr emissive_tex;
 }; /* end of struct material */
 
 } /* end of namespace tavern::graphics::generic */

@@ -41,9 +41,11 @@ bool window::init(const glm::ivec2& size, int flags) {
         return false;
     }
 
+    // Must set before get_size
+    m_open = true;
     glm::ivec2 view_size = get_size();
     BOOST_LOG_TRIVIAL(trace) << "Created SDL Window: Width = " << view_size.x << ", Height = " << view_size.y;
-    return m_open = true;
+    return true;
 }
 
 bool window::update(graphics::renderer& renderer) {

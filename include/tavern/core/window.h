@@ -28,7 +28,7 @@ public:
     void set_title(const std::string& name);
 
     glm::ivec2 get_size() const {
-        glm::ivec2 size;
+        glm::ivec2 size = glm::ivec2(0);
 
         if (!open())
             return size;
