@@ -30,7 +30,13 @@ FetchContent_Declare(
     GIT_TAG v2.0.0rc13
 )
 
-FetchContent_MakeAvailable(ecs ryml tinyobjloader)
+FetchContent_Declare(
+    assimp
+    GIT_REPOSITORY git@github.com:assimp/assimp.git
+    GIT_TAG v5.4.3
+)
+
+FetchContent_MakeAvailable(ecs ryml tinyobjloader assimp)
 
 find_package(Boost COMPONENTS log)
 find_package(SDL2 REQUIRED)
@@ -61,6 +67,7 @@ target_link_libraries(Tavern
     PUBLIC Boost::log
     PUBLIC ryml::ryml
     PUBLIC tinyobjloader
+    PUBLIC assimp
     PUBLIC glm::glm
 )
 
