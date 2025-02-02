@@ -56,7 +56,7 @@ bool renderer::init(window& wnd) {
 
     set_viewport_size(wnd.get_size());
 
-    m_default_shader = resource_manager::get().load_shader("./shaders/pbr.yml");
+    m_default_shader = resource_manager::get().shaders.load("./shaders/pbr.yml");
 
     return true;
 }
@@ -112,12 +112,15 @@ void renderer::render(ecs::registry& registry)
         auto& drawable = it.get<component::drawable3d>();
         auto& transform = it.get<component::transform>();
 
-        // TODO: Account for custom shaders
-        //resource::shader_manager::resource_ptr& shader = drawable.shader ? drawable.shader : m_default_shader;
+        if (!drawable.mesh)
+            continue;
 
         shader->set_transform(transform.get_global());
+        // Default material?
+        if (drawable.mesh->mat)
+            shader->set_material(*drawable.mesh->mat);
 
-        drawable.mesh->use();
+        drawable.mesh->draw();
     }
 }
 

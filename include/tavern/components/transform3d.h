@@ -20,7 +20,14 @@ struct transform
 {
     friend class tavern::system::scene_tree;
 
-    glm::mat4 local;
+    transform()
+    {}
+
+    transform(const glm::mat4& local, const ecs::entity_type parent):
+        local(local), parent(parent)
+    {}
+
+    glm::mat4 local = glm::mat4(1.f);
 
     // Refer to parent entity transform by ID
     // If tombstone, no parent
@@ -33,7 +40,7 @@ struct transform
 
 private:
 
-    glm::mat4 m_global;
+    glm::mat4 m_global = glm::mat4(1.f);
 };
 
 }} /* end of namespace tavern::component */

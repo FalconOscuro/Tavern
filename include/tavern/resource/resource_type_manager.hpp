@@ -46,17 +46,11 @@ public:
 
     resource_handle load(const std::string& path)
     {
-        const std::size_t hash = std::hash<std::string>{}(path);
-        auto res = m_loaded.find(hash);
-        resource_handle res_handle;
+        const std::size_t hash = get_hash(path);
+        resource_handle res_handle = try_get(hash);
 
-        // WARNING: Not threadsafe
-        if (res != m_loaded.end()) {
-            res_handle = res->second.lock();
-
-            if (res_handle != nullptr)
-                return res_handle;
-        }
+        if (res_handle)
+            return res_handle;
 
         res_handle = resource_handle(load_new(path), resource_deleter<Resource>(&m_loaded, hash));
 
@@ -69,7 +63,24 @@ public:
         return res_handle;
     }
 
-    void clear() {
+    resource_handle register_new(const Resource& x, const std::string& name)
+    {
+        const std::size_t hash = get_hash(name);
+        resource_handle res_handle = try_get(hash);
+
+        // throw warning?
+        if (res_handle)
+            return res_handle;
+
+        res_handle = resource_handle(new Resource(x), resource_deleter<Resource>(&m_loaded, hash));
+        return res_handle;
+    }
+
+    bool is_loaded(const std::string& name) const {
+        const std::size_t hash = get_hash(name);
+        auto res = m_loaded.find(hash);
+
+        return res != m_loaded.end() && !res->second.expired();
     }
 
 protected:
@@ -79,6 +90,15 @@ protected:
     virtual resource_ptr load_new(const std::string& path) = 0;
 
 private:
+
+    resource_handle try_get(const std::size_t hash) const {
+        auto res = m_loaded.find(hash);
+        return res != m_loaded.end() ? res->second.lock() : nullptr;
+    }
+
+    static std::size_t get_hash(const std::string& name) {
+        return std::hash<std::string>{}(name);
+    }
 
     std::unordered_map<std::size_t, std::weak_ptr<Resource>> m_loaded;
 }; /* end of class resource_type_manager<Resource> */

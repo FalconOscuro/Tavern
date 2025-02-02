@@ -1,6 +1,8 @@
 #ifndef SCENE_TREE_H
 #define SCENE_TREE_H
 
+#include <string>
+
 #include <ecs/ecs.h>
 #include <ecs/containers/sparse_set.hpp>
 
@@ -11,6 +13,8 @@ class scene_tree
 public:
 
     void update(ecs::registry& reg);
+
+    void load_scene(const std::string& file, ecs::registry& reg);
 
 private:
 

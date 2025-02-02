@@ -1,11 +1,16 @@
 #ifndef OPENGL_MESH_HPP
 #define OPENGL_MESH_HPP
+#include <istream>
 #ifdef USE_OPENGL
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 
 #include <GL/glew.h>
+
+#include "../material.h"
+#include "../vertex.h"
 
 namespace tavern::graphics::opengl {
 
@@ -13,8 +18,8 @@ class mesh
 {
 public:
 
-    mesh(const std::vector<float>& vertices, const std::vector<float>& texcoords):
-        m_vertex_count(vertices.size() / 3)
+    mesh(const std::vector<vertex>& vertices, const std::vector<uint32_t>& indices, std::shared_ptr<material>& mat):
+        mat(mat), m_vertex_count(vertices.size())
     {
         glGenBuffers(1, &m_vertex_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, m_vertex_buffer);
@@ -41,12 +46,14 @@ public:
         glDeleteBuffers(1, &m_tex_buffer);
     }
 
-    mesh& use() {
+    mesh& draw() {
         glBindVertexArray(m_id);
         glDrawArrays(GL_TRIANGLES, 0, m_vertex_count);
 
         return *this;
     }
+
+    std::shared_ptr<material> mat;
 
 private:
 
