@@ -4,7 +4,6 @@
 #include <string>
 
 #include <ecs/ecs.h>
-#include <ecs/containers/sparse_set.hpp>
 
 namespace tavern::system {
 

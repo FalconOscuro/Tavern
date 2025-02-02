@@ -10,9 +10,9 @@ struct vertex
 {
     glm::vec3 position;
     glm::vec3 normal;
-    glm::vec2 texture_coordinates;
     glm::vec3 tangent;
     glm::vec3 bi_tangent;
+    glm::vec2 texture_coordinates;
 }; /* end of struct vertex */
 
 } /* end of namespace tavern::graphics */

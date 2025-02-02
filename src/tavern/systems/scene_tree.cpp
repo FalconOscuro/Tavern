@@ -8,8 +8,10 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "assimp/material.h"
 #include "tavern/components/drawable3d.h"
 #include "tavern/components/transform3d.h"
+#include "tavern/graphics/material.h"
 #include "tavern/resource/resource_manager.h"
 #include "tavern/graphics/vertex.h"
 #include "tavern/graphics/mesh.h"
@@ -24,6 +26,7 @@ void scene_tree::update(ecs::registry& reg)
     for (auto it = pool.begin(); it != pool.end(); ++it) {
         m_entities.emplace(it->second);
     }
+    return;
 
     // sort entities and remove deleted
     {
@@ -60,7 +63,31 @@ void scene_tree::update(ecs::registry& reg)
     }
 }
 
-[[nodiscard]] graphics::material load_material(aiMaterial* material, const aiScene* scene);
+[[nodiscard]] std::shared_ptr<graphics::texture2d> load_texture(aiMaterial* material, aiTextureType type)
+{
+    if (material->GetTextureCount(type) > 0)
+        return nullptr;
+
+    aiString img_path;
+    material->GetTexture(type, 0, &img_path);
+
+    return resource_manager::get().tex2ds.load(std::string(img_path.C_Str()));
+}
+
+[[nodiscard]] graphics::material load_material(aiMaterial* material)
+{
+    graphics::material mat;
+
+    // TODO: Read non texture properties
+
+    mat.albedo_tex = load_texture(material, aiTextureType_DIFFUSE);
+    mat.metallic_roughness_tex = load_texture(material, aiTextureType_UNKNOWN);
+    mat.normal_tex = load_texture(material, aiTextureType_NORMALS);
+    mat.ambient_occlusion_tex = load_texture(material, aiTextureType_LIGHTMAP);
+    mat.emissive_tex = load_texture(material, aiTextureType_EMISSIVE);
+
+    return mat;
+}
 
 [[nodiscard]] graphics::mesh load_mesh(aiMesh* mesh, const aiScene* scene, const std::string& path)
 {
@@ -100,16 +127,14 @@ void scene_tree::update(ecs::registry& reg)
     }
 
     std::shared_ptr<graphics::material> material_ptr;
-    if (mesh->mMaterialIndex >= 0) {
-        std::string material_name = path + ";material:" + std::to_string(mesh->mMaterialIndex);
-        
-        if (resource_mgr.materials.is_loaded(material_name))
-            material_ptr = resource_mgr.materials.load(material_name);
+    std::string material_name = path + ";material:" + std::to_string(mesh->mMaterialIndex);
+    
+    if (resource_mgr.materials.is_loaded(material_name))
+        material_ptr = resource_mgr.materials.load(material_name);
 
-        else {
-            graphics::material material = load_material(scene->mMaterials[mesh->mMaterialIndex], scene);
-            material_ptr = resource_mgr.materials.register_new(material, material_name);
-        }
+    else {
+        graphics::material material = load_material(scene->mMaterials[mesh->mMaterialIndex]);
+        material_ptr = resource_mgr.materials.register_new(material, material_name);
     }
 
     return graphics::mesh(vertices, indices, material_ptr);
@@ -153,6 +178,10 @@ void load_node(aiNode* node, const aiScene* scene, ecs::registry& reg, ecs::enti
         if (i == 0 && node->mNumMeshes == 1)
             parent = eid;
     }
+
+    // iterate over children
+    for (uint64_t i = 0; i < node->mNumChildren; ++i)
+        load_node(node->mChildren[i], scene, reg, parent, path);
 }
 
 void scene_tree::load_scene(const std::string& file, ecs::registry& reg)

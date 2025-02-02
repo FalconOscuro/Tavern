@@ -18,7 +18,7 @@ namespace component {
 
 struct transform
 {
-    friend class tavern::system::scene_tree;
+    friend class system::scene_tree;
 
     transform()
     {}

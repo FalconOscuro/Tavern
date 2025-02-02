@@ -25,6 +25,15 @@ public:
         return m_ready;
     }
 
+    ecs::registry& get_registry() {
+        return m_registry;
+    }
+
+    // temp
+    system::scene_tree& get_scene_tree() {
+        return m_scene_tree;
+    }
+
 private:
 
     bool m_ready = false;
