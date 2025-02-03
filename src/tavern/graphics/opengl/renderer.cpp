@@ -16,6 +16,11 @@
 
 namespace tavern::graphics::opengl {
 
+struct camera_ub {
+    glm::mat4 projection;
+    glm::mat4 view;
+}; /* end of struct camera_ub */
+
 void renderer::clean() {
 
     if (!m_glcontext)
@@ -23,6 +28,7 @@ void renderer::clean() {
 
     // release ownership of default shader
     m_default_shader.reset((shader*)nullptr);
+    glDeleteBuffers(1, &m_camera_ub);
 
     SDL_GL_DeleteContext(m_glcontext);
     BOOST_LOG_TRIVIAL(trace) << "Shutdown OpenGL";
@@ -56,14 +62,14 @@ bool renderer::init(window& wnd) {
 
     set_viewport_size(wnd.get_size());
 
+    // load default shader
+    // Check to ensure successful completion?
     m_default_shader = resource_manager::get().shaders.load("./shaders/pbr.yml");
 
-    return true;
-}
+    // create uniform buffer for camera data
+    m_camera_ub = create_uniform_buffer<camera_ub>();
 
-void renderer::clear() {
-    glClearColor(0.f, 0.f, .2f, 1.f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    return true;
 }
 
 void renderer::render(ecs::registry& registry)
@@ -95,18 +101,34 @@ void renderer::render(ecs::registry& registry)
     }
 
     // no camera to draw to, skip rendering
-    if (!registry.has<component::transform, component::camera>(m_camera))
+    if (!registry.has<component::transform, component::camera>(m_camera)) {
+        BOOST_LOG_TRIVIAL(warning) << "No camera found in scene";
         return;
+    }
 
     auto draw_view = registry.create_view<component::drawable3d, component::transform>();
 
     auto& camera = registry.get<component::camera>(m_camera);
     auto& camera_transf = registry.get<component::transform>(m_camera);
-    auto& shader = m_default_shader;
 
+    // update camera uniform buffer
+    {
+        camera_ub camera_data;
+        camera_data.projection = glm::perspective(glm::radians(camera.fov), m_aspect_ratio, camera.near, camera.far);
+        camera_data.view = glm::inverse(camera_transf.get_global());
+        glNamedBufferSubData(m_camera_ub, 0, sizeof(camera_ub), &camera_data);
+    }
+
+    glEnable(GL_DEPTH_TEST);
+    // clear screen
+    glClearColor(0.f, 0.f, .2f, 1.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // bind uniform buffer
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_camera_ub);
+
+    auto& shader = m_default_shader;
     shader->use();
-    shader->set_mat4x4("projection", glm::perspective(glm::radians(camera.fov), m_aspect_ratio, camera.near, camera.far));
-    shader->set_mat4x4("view", glm::inverse(camera_transf.get_global()));
 
     for (auto it = draw_view.begin(); it != draw_view.end(); ++it) {
         auto& drawable = it.get<component::drawable3d>();
@@ -117,10 +139,8 @@ void renderer::render(ecs::registry& registry)
 
         shader->set_transform(transform.get_global());
         // Default material?
-        if (drawable.mesh->mat)
-            shader->set_material(*drawable.mesh->mat);
 
-        drawable.mesh->draw();
+        drawable.mesh->draw(*shader.get());
     }
 }
 

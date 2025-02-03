@@ -25,13 +25,11 @@ layout (location = 0) out vertex
 
 void main()
 {
-    vec4 pos4 = vec4(position, 1.0f);
-
-    vertex_out.position  = vec3(model * pos4);
-    vertex_out.tex_coords = tex_coords;
+    vertex_out.position  = vec3(model * vec4(position, 1.0f));
+    vertex_out.tex_coords = vec2(tex_coords.x, 1.0f - tex_coords.y);
 
     // Tangent space vectors for normal mapping
     vertex_out.tangent_basis = mat3(model) * mat3(tangent, bi_tangent, normal);
 
-    gl_Position = projection * view * model * pos4;
+    gl_Position = projection * view * model * vec4(position, 1.0f);
 }

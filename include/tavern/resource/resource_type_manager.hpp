@@ -63,7 +63,8 @@ public:
         return res_handle;
     }
 
-    resource_handle register_new(const Resource& x, const std::string& name)
+    template <typename... Args>
+    resource_handle register_new(const std::string& name, Args&&... args)
     {
         const std::size_t hash = get_hash(name);
         resource_handle res_handle = try_get(hash);
@@ -72,7 +73,7 @@ public:
         if (res_handle)
             return res_handle;
 
-        res_handle = resource_handle(new Resource(x), resource_deleter<Resource>(&m_loaded, hash));
+        res_handle = resource_handle(new Resource(std::forward<Args>(args)...), resource_deleter<Resource>(&m_loaded, hash));
         return res_handle;
     }
 

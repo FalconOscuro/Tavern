@@ -40,13 +40,26 @@ public:
         glViewport(0, 0, view_size.x, view_size.y);
     }
 
-    void clear() override;
     void render(ecs::registry& registry) override;
     void swap_buffer(window& wnd) override;
 
 private:
 
+    template<typename T>
+    static uint32_t create_uniform_buffer(const T* data = nullptr) {
+        return create_uniform_buffer(data, sizeof(T));
+    }
+
+    static uint32_t create_uniform_buffer(const void* data, const uint32_t size) {
+        uint32_t buffer;
+        glCreateBuffers(1, &buffer);
+        glNamedBufferStorage(buffer, size, data, GL_DYNAMIC_STORAGE_BIT);
+        return buffer;
+    }
+
     SDL_GLContext m_glcontext = NULL;
+
+    uint32_t m_camera_ub;
 
     ecs::entity_type m_camera = UINT32_MAX;
     float m_aspect_ratio = 1.f;

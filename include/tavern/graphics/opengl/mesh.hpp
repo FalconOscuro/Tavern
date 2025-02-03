@@ -1,6 +1,5 @@
 #ifndef OPENGL_MESH_HPP
 #define OPENGL_MESH_HPP
-#include <istream>
 #ifdef USE_OPENGL
 
 #include <cstdint>
@@ -9,6 +8,7 @@
 
 #include <GL/glew.h>
 
+#include "shader.h"
 #include "../material.h"
 #include "../vertex.h"
 
@@ -19,7 +19,7 @@ class mesh
 public:
 
     mesh(const std::vector<vertex>& vertices, const std::vector<uint32_t>& indices, std::shared_ptr<material>& mat):
-        mat(mat), m_vertex_count(vertices.size())
+        mat(mat), m_index_count(indices.size())
     {
         glGenBuffers(1, &m_vertex_buffer);
         glGenBuffers(1, &m_index_buffer);
@@ -42,19 +42,19 @@ public:
 
         // normal
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)sizeof(glm::vec3));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, normal));
 
         // tangent
         glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)(sizeof(glm::vec3) * 2));
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, tangent));
 
         // bitangent
         glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)(sizeof(glm::vec3) * 3));
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, bi_tangent));
 
         // texture coordinates
         glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)(sizeof(glm::vec3) * 4));
+        glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, texture_coordinates));
     }
 
     ~mesh() {
@@ -63,18 +63,20 @@ public:
         glDeleteBuffers(1, &m_index_buffer);
     }
 
-    mesh& draw() {
-        glBindVertexArray(m_id);
-        glDrawArrays(GL_TRIANGLES, 0, m_vertex_count);
+    void draw(shader& s) {
+        if (mat)
+            s.set_material(*mat.get());
 
-        return *this;
+        glBindVertexArray(m_id);
+        glDrawElements(GL_TRIANGLES, m_index_count, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
     }
 
     std::shared_ptr<material> mat;
 
 private:
 
-    uint32_t m_vertex_count;
+    uint32_t m_index_count;
     uint32_t m_vertex_buffer;
     uint32_t m_index_buffer;
 

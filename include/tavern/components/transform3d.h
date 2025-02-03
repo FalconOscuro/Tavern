@@ -23,7 +23,7 @@ struct transform
     transform()
     {}
 
-    transform(const glm::mat4& local, const ecs::entity_type parent):
+    transform(const glm::mat4& local, const ecs::entity_type parent = UINT32_MAX):
         local(local), parent(parent)
     {}
 

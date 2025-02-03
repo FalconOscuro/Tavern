@@ -22,8 +22,6 @@ public:
 
     virtual void set_viewport_size(const glm::ivec2& view_size) = 0;
 
-    virtual void clear() = 0;
-
     virtual void render(ecs::registry& registry) = 0;
 
     virtual void swap_buffer(window& wnd) = 0;

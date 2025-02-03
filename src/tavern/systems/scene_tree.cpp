@@ -7,14 +7,15 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/material.h>
 
-#include "assimp/material.h"
 #include "tavern/components/drawable3d.h"
 #include "tavern/components/transform3d.h"
 #include "tavern/graphics/material.h"
 #include "tavern/resource/resource_manager.h"
 #include "tavern/graphics/vertex.h"
 #include "tavern/graphics/mesh.h"
+#include "tavern/resource/util/file.hpp"
 
 namespace tavern::system {
 
@@ -26,7 +27,6 @@ void scene_tree::update(ecs::registry& reg)
     for (auto it = pool.begin(); it != pool.end(); ++it) {
         m_entities.emplace(it->second);
     }
-    return;
 
     // sort entities and remove deleted
     {
@@ -63,37 +63,44 @@ void scene_tree::update(ecs::registry& reg)
     }
 }
 
-[[nodiscard]] std::shared_ptr<graphics::texture2d> load_texture(aiMaterial* material, aiTextureType type)
+[[nodiscard]] std::shared_ptr<graphics::texture2d> load_texture(aiMaterial* material, aiTextureType type, const std::string& dir)
 {
-    if (material->GetTextureCount(type) > 0)
+    if (material->GetTextureCount(type) == 0)
         return nullptr;
 
     aiString img_path;
     material->GetTexture(type, 0, &img_path);
 
-    return resource_manager::get().tex2ds.load(std::string(img_path.C_Str()));
+    return resource_manager::get().tex2ds.load(dir + std::string(img_path.C_Str()));
 }
 
-[[nodiscard]] graphics::material load_material(aiMaterial* material)
+[[nodiscard]] graphics::material load_material(aiMaterial* material, const std::string& dir)
 {
     graphics::material mat;
 
     // TODO: Read non texture properties
 
-    mat.albedo_tex = load_texture(material, aiTextureType_DIFFUSE);
-    mat.metallic_roughness_tex = load_texture(material, aiTextureType_UNKNOWN);
-    mat.normal_tex = load_texture(material, aiTextureType_NORMALS);
-    mat.ambient_occlusion_tex = load_texture(material, aiTextureType_LIGHTMAP);
-    mat.emissive_tex = load_texture(material, aiTextureType_EMISSIVE);
+    mat.albedo_tex = load_texture(material, aiTextureType_DIFFUSE, dir);
+    mat.metallic_roughness_tex = load_texture(material, aiTextureType_UNKNOWN, dir);
+    mat.normal_tex = load_texture(material, aiTextureType_NORMALS, dir);
+    mat.ambient_occlusion_tex = load_texture(material, aiTextureType_LIGHTMAP, dir);
+    mat.emissive_tex = load_texture(material, aiTextureType_EMISSIVE, dir);
 
     return mat;
 }
 
-[[nodiscard]] graphics::mesh load_mesh(aiMesh* mesh, const aiScene* scene, const std::string& path)
+[[nodiscard]] std::shared_ptr<graphics::mesh> load_mesh(uint32_t mesh_id, const aiScene* scene, const std::string& path)
 {
+    const std::string mesh_name = path + ";mesh:" + std::to_string(mesh_id);
+    auto & resource_mgr = resource_manager::get();
+
+    if (resource_mgr.meshes.is_loaded(mesh_name))
+        return resource_mgr.meshes.load(mesh_name);
+
+    aiMesh* mesh = scene->mMeshes[mesh_id];
+
     std::vector<graphics::vertex> vertices;
     std::vector<uint32_t> indices;
-    auto & resource_mgr = resource_manager::get();
 
     vertices.reserve(mesh->mNumVertices);
     indices.reserve(mesh->mNumFaces * 3);
@@ -103,6 +110,7 @@ void scene_tree::update(ecs::registry& reg)
     {
         graphics::vertex v;
 
+        // NOTE: Loaded models seem to be flipped in x/y?
         v.position   = glm::vec3(mesh->mVertices[i].x  , mesh->mVertices[i].y  , mesh->mVertices[i].z  );
         v.normal     = glm::vec3(mesh->mNormals[i].x   , mesh->mNormals[i].y   , mesh->mNormals[i].z   );
         v.tangent    = glm::vec3(mesh->mTangents[i].x  , mesh->mTangents[i].y  , mesh->mTangents[i].z  );
@@ -133,11 +141,11 @@ void scene_tree::update(ecs::registry& reg)
         material_ptr = resource_mgr.materials.load(material_name);
 
     else {
-        graphics::material material = load_material(scene->mMaterials[mesh->mMaterialIndex]);
-        material_ptr = resource_mgr.materials.register_new(material, material_name);
+        graphics::material material = load_material(scene->mMaterials[mesh->mMaterialIndex], std::string(resource::utility::get_file_parent_dir(path)));
+        material_ptr = resource_mgr.materials.register_new(material_name, material);
     }
 
-    return graphics::mesh(vertices, indices, material_ptr);
+    return resource_mgr.meshes.register_new(mesh_name, vertices, indices, material_ptr);
 }
 
 void load_node(aiNode* node, const aiScene* scene, ecs::registry& reg, ecs::entity_type parent, const std::string& path)
@@ -155,25 +163,14 @@ void load_node(aiNode* node, const aiScene* scene, ecs::registry& reg, ecs::enti
         t.parent = parent;
     }
 
-    auto& resource_mgr = resource_manager::get();
-
     // iterate all meshes on node
     for (uint64_t i = 0; i < node->mNumMeshes; ++i) {
         ecs::entity_type eid = reg.create();
         reg.set(eid, t);
 
-        std::string mesh_name = path + ";mesh:" + std::to_string(node->mMeshes[i]);
-        std::shared_ptr<graphics::mesh> mesh_ptr;
+        std::shared_ptr<graphics::mesh> mesh = load_mesh(node->mMeshes[i], scene, path);
 
-        if (resource_mgr.meshes.is_loaded(mesh_name))
-            mesh_ptr = resource_mgr.meshes.load(mesh_name);
-        
-        else {
-            graphics::mesh mesh = load_mesh(scene->mMeshes[node->mMeshes[i]], scene, path);
-            mesh_ptr = resource_mgr.meshes.register_new(mesh, mesh_name);
-        }
-
-        reg.emplace<component::drawable3d>(eid, mesh_ptr);
+        reg.emplace<component::drawable3d>(eid, mesh);
 
         if (i == 0 && node->mNumMeshes == 1)
             parent = eid;
