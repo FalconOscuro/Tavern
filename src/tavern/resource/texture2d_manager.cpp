@@ -10,7 +10,7 @@ namespace tavern::resource {
 graphics::texture2d* texture2d_manager::load_new(const std::string& path)
 {
     glm::ivec3 size;
-    stbi_set_flip_vertically_on_load(true);
+    //stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(path.c_str(), &size.x, &size.y, &size.z, 0);
 
     if (!data) {

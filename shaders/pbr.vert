@@ -26,7 +26,7 @@ layout (location = 0) out vertex
 void main()
 {
     vertex_out.position  = vec3(model * vec4(position, 1.0f));
-    vertex_out.tex_coords = vec2(tex_coords.x, 1.0f - tex_coords.y);
+    vertex_out.tex_coords = tex_coords;
 
     // Tangent space vectors for normal mapping
     vertex_out.tangent_basis = mat3(model) * mat3(tangent, bi_tangent, normal);
