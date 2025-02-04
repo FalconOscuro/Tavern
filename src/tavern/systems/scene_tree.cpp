@@ -148,11 +148,19 @@ void scene_tree::update(ecs::registry& reg)
     return resource_mgr.meshes.register_new(mesh_name, vertices, indices, material_ptr);
 }
 
+[[nodiscard]] glm::mat4 convert_matrix(const aiMatrix4x4& m)
+{
+    return glm::mat4(
+        m.a1, m.b1, m.c1, m.d1,
+        m.a2, m.b2, m.c2, m.d2,
+        m.a3, m.b3, m.c3, m.d3,
+        m.a4, m.b4, m.c4, m.d4
+    );
+}
+
 void load_node(aiNode* node, const aiScene* scene, ecs::registry& reg, ecs::entity_type parent, const std::string& path)
 {
-    // This can't be safe right?
-    // *Theoretically* both should have the same structure in memory
-    component::transform t = component::transform(*((glm::mat4*)&node->mTransformation), parent);
+    component::transform t = component::transform(convert_matrix(node->mTransformation), parent); // temporary hack to oreient model
 
     if (node->mNumMeshes > 1) {
         ecs::entity_type eid = reg.create();
