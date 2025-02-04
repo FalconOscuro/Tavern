@@ -119,7 +119,7 @@ void renderer::render(ecs::registry& registry)
     // update camera uniform buffer
     {
         camera_ub camera_data;
-        camera_data.projection = glm::perspective(glm::radians(camera.fov), m_aspect_ratio, camera.near, camera.far);
+        camera_data.projection = camera.get_view_matrix(m_aspect_ratio);
         camera_data.view = glm::inverse(camera_transf.get_global());
         glNamedBufferSubData(m_camera_ub, 0, sizeof(camera_ub), &camera_data);
     }
