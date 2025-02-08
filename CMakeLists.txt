@@ -44,11 +44,14 @@ find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(glm REQUIRED)
 
+add_subdirectory(extern)
+
 add_library(Tavern STATIC)
 
 target_include_directories(Tavern
     PUBLIC include/
     PUBLIC extern/
+    PUBLIC extern/imgui
 )
 
 target_sources(Tavern PUBLIC
@@ -70,6 +73,7 @@ target_link_libraries(Tavern
     PUBLIC tinyobjloader
     PUBLIC assimp
     PUBLIC glm::glm
+    PUBLIC imgui
 )
 
 if(${RENDERER} STREQUAL "gl")

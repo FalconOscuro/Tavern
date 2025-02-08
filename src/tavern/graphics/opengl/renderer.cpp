@@ -6,6 +6,10 @@
 
 #include <boost/log/trivial.hpp>
 
+#include <imgui.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_sdl2.h>
+
 #include "tavern/core/window.h"
 
 #include "tavern/components/drawable3d.h"
@@ -25,6 +29,11 @@ void renderer::clean() {
 
     if (!m_glcontext)
         return;
+
+    // shutdown imgui
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
 
     // release ownership of default shader
     m_default_shader.reset((shader*)nullptr);
@@ -73,6 +82,15 @@ bool renderer::init(window& wnd) {
 
     // create uniform buffer for camera data
     m_camera_ub = create_uniform_buffer<camera_ub>();
+
+    // init imgui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplSDL2_InitForOpenGL(wnd, m_glcontext);
+    ImGui_ImplOpenGL3_Init();
+    BOOST_LOG_TRIVIAL(trace) << "Initialized imgui";
 
     return true;
 }
