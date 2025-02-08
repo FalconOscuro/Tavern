@@ -1,4 +1,4 @@
-#include "tavern/systems/scene_tree.h"
+#include "tavern/systems/scene.h"
 
 #include <cassert>
 
@@ -19,7 +19,7 @@
 
 namespace tavern::system {
 
-void scene_tree::update(ecs::registry& reg)
+void scene::update(ecs::registry& reg)
 {
     auto& pool = reg.get_pool<component::transform>();
 
@@ -189,7 +189,7 @@ void load_node(aiNode* node, const aiScene* scene, ecs::registry& reg, ecs::enti
         load_node(node->mChildren[i], scene, reg, parent, path);
 }
 
-void scene_tree::load_scene(const std::string& file, ecs::registry& reg)
+void scene::load(const std::string& file, ecs::registry& reg)
 {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(file, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);

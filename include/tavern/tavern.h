@@ -10,7 +10,7 @@
 #include "resource/resource_manager.h"
 #include "platform/sdl.h"
 
-#include "systems/scene_tree.h"
+#include "systems/scene.h"
 
 namespace tavern {
 
@@ -37,11 +37,6 @@ public:
         return m_registry;
     }
 
-    // temp
-    system::scene_tree& get_scene_tree() {
-        return m_scene_tree;
-    }
-
 private:
 
     bool handle_events();
@@ -55,7 +50,7 @@ private:
     graphics::renderer m_renderer;
 
     // TODO: Should be integrated into physics system
-    system::scene_tree m_scene_tree;
+    system::scene m_scene;
 
     ecs::registry m_registry;
 }; /* end of class tavern */

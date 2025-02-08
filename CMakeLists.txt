@@ -62,7 +62,7 @@ target_sources(Tavern PUBLIC
     src/tavern/graphics/opengl/shader.cpp
     src/tavern/resource/mesh_manager.cpp
     src/tavern/resource/texture2d_manager.cpp
-    src/tavern/systems/scene_tree.cpp
+    src/tavern/systems/scene.cpp
 )
 
 target_link_libraries(Tavern

@@ -38,7 +38,7 @@ void tavern::run() {
     BOOST_LOG_TRIVIAL(trace) << "Entering main loop";
     while (handle_events()) {
 
-        m_scene_tree.update(m_registry);
+        m_scene.update(m_registry);
 
         m_renderer.render(m_registry);
         m_renderer.swap_buffer(m_window);
