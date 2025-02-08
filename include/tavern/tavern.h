@@ -4,10 +4,13 @@
 #include <ecs/ecs.h>
 
 #include "core/window.h"
+#include "core/input.h"
 #include "graphics/renderer.h"
+
 #include "resource/resource_manager.h"
-#include "systems/scene_tree.h"
 #include "platform/sdl.h"
+
+#include "systems/scene_tree.h"
 
 namespace tavern {
 
@@ -48,6 +51,7 @@ private:
     bool m_running = false;
 
     window m_window;
+    input m_input;
     graphics::renderer m_renderer;
 
     // TODO: Should be integrated into physics system

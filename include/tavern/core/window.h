@@ -22,6 +22,11 @@ public:
         return m_open;
     }
 
+    bool compare_window_id(const uint32_t win_id) {
+        // check win_id not zero as indicates error;
+        return SDL_GetWindowID(m_window) == win_id && win_id;
+    }
+
     void set_title(const std::string& name);
 
     glm::ivec2 get_size() const {

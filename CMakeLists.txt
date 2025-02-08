@@ -54,6 +54,7 @@ target_include_directories(Tavern
 target_sources(Tavern PUBLIC
     src/tavern/tavern.cpp
     src/tavern/core/window.cpp
+    src/tavern/core/input.cpp
     src/tavern/graphics/opengl/renderer.cpp
     src/tavern/graphics/opengl/shader.cpp
     src/tavern/resource/mesh_manager.cpp

@@ -66,6 +66,12 @@ bool tavern::handle_events()
             handle_window_event(e.window);
             break;
 
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+            if (m_window.compare_window_id(e.key.windowID))
+                m_input.handle_key_event(e.key);
+            break;
+
         default:
             break;
         }
