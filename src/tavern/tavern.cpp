@@ -39,6 +39,8 @@ void tavern::run() {
 
         m_renderer.render(m_registry);
         m_renderer.swap_buffer(m_window);
+
+        m_input.update();
     }
     BOOST_LOG_TRIVIAL(trace)  << "Exited main engine loop";
     m_running = false;
@@ -70,6 +72,12 @@ bool tavern::handle_events()
         case SDL_KEYUP:
             if (m_window.compare_window_id(e.key.windowID))
                 m_input.handle_key_event(e.key);
+            break;
+
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+            if (m_window.compare_window_id(e.button.windowID))
+                m_input.handle_mouse_event(e.button);
             break;
 
         default:

@@ -1,4 +1,5 @@
 #include "tavern/core/input.h"
+#include <SDL_mouse.h>
 
 namespace tavern {
 
@@ -8,18 +9,17 @@ void input::handle_key_event(const SDL_KeyboardEvent& e)
     if (e.repeat)
         return;
 
-    key& key_state = m_keys[e.keysym.scancode];
+    update_key(e.keysym.scancode, e.state);
+}
 
-    if (e.state == SDL_PRESSED) {
-        //BOOST_LOG_TRIVIAL(trace) << "Key pressed: " << SDL_GetKeyName(e.keysym.sym);
-        key_state.state = key::PRESSED;
-        key_state.press_start = SDL_GetTicks64();
+void input::handle_mouse_event(const SDL_MouseButtonEvent& e)
+{
+    if (e.button > SDL_BUTTON_X2) {
+        BOOST_LOG_TRIVIAL(error) << "Unrecognized mouse button, out of range!";
+        return;
     }
 
-    else {
-        //BOOST_LOG_TRIVIAL(trace) << "Key released: " << SDL_GetKeyName(e.keysym.sym) << ", after " << SDL_GetTicks64() - key_state.press_start << "ms";
-        key_state.state = key::RELEASED;
-    }
+    update_key(e.button + SDL_NUM_SCANCODES - 1, e.state);
 }
 
 void input::update()

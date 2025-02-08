@@ -27,6 +27,7 @@ public:
 
     void update();
     void handle_key_event(const SDL_KeyboardEvent& e);
+    void handle_mouse_event(const SDL_MouseButtonEvent& e);
 
     bool is_key_pressed(const std::string& key_name) const {
         return get_key(key_name).state == key::PRESSED;
@@ -60,8 +61,22 @@ private:
         return m_keys[key_code];
     }
 
+    inline void update_key(const uint32_t id, const bool pressed) {
+        // check out of bounds?
+        key& key_state = m_keys[id];
+
+        if (pressed) {
+            key_state.state = key::PRESSED;
+            key_state.press_start = SDL_GetTicks64();
+        }
+
+        else
+            key_state.state = key::RELEASED;
+    }
+
+    // Store mouse buttons after keys
     // could save space by subtract 1 to ignore unknown?
-    key m_keys[SDL_NUM_SCANCODES];
+    key m_keys[SDL_NUM_SCANCODES + SDL_BUTTON_X2];
 
 }; /* end of class input */
 
