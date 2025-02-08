@@ -1,5 +1,8 @@
 #include "tavern/tavern.h"
 
+#include <imgui.h>
+#include <imgui_impl_sdl2.h>
+
 #include "tavern/resource/resource_manager.h"
 #include "tavern/components/drawable3d.h"
 
@@ -57,7 +60,10 @@ bool tavern::handle_events()
 {
     SDL_Event e;
 
-    while (SDL_PollEvent(&e)) {
+    while (SDL_PollEvent(&e))
+    {
+        ImGui_ImplSDL2_ProcessEvent(&e);
+
         switch (e.type)
         {
         case SDL_QUIT:

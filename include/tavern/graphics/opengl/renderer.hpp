@@ -45,6 +45,8 @@ public:
 
 private:
 
+    void imgui_draw();
+
     template<typename T>
     static uint32_t create_uniform_buffer(const T* data = nullptr) {
         return create_uniform_buffer(data, sizeof(T));

@@ -90,6 +90,8 @@ bool renderer::init(window& wnd) {
 
     ImGui_ImplSDL2_InitForOpenGL(wnd, m_glcontext);
     ImGui_ImplOpenGL3_Init();
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
     BOOST_LOG_TRIVIAL(trace) << "Initialized imgui";
 
     return true;
@@ -97,6 +99,13 @@ bool renderer::init(window& wnd) {
 
 void renderer::render(ecs::registry& registry)
 {
+    imgui_draw();
+
+    glEnable(GL_DEPTH_TEST);
+    // clear screen
+    glClearColor(0.f, 0.f, .2f, 1.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     auto cam_view = registry.create_view<component::transform, component::camera>();
 
     // no valid camera, skip rendering
@@ -142,11 +151,6 @@ void renderer::render(ecs::registry& registry)
         glNamedBufferSubData(m_camera_ub, 0, sizeof(camera_ub), &camera_data);
     }
 
-    glEnable(GL_DEPTH_TEST);
-    // clear screen
-    glClearColor(0.f, 0.f, .2f, 1.f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     // bind uniform buffer
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_camera_ub);
 
@@ -173,7 +177,24 @@ void renderer::swap_buffer(window& wnd) {
     while ((gl_error = glGetError()) != GL_NO_ERROR)
         BOOST_LOG_TRIVIAL(error) << "OpenGL Error: " << gl_error;
 
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(wnd);
+}
+
+void renderer::imgui_draw()
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
+    ImGuiIO& io = ImGui::GetIO();
+
+    {
+        ImGui::Begin("Perfomance");
+        ImGui::Text("Average: %.1f fps", io.Framerate);
+        ImGui::End();
+    }
+
+    ImGui::Render();
 }
 
 } /* end of namespace tavern::graphics */
