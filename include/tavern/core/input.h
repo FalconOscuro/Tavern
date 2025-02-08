@@ -5,6 +5,8 @@
 
 #include <boost/log/trivial.hpp>
 
+#include <glm/ext/vector_int2.hpp>
+
 #include "../platform/sdl.h"
 
 namespace tavern {
@@ -47,6 +49,12 @@ public:
             return 0;
 
         return SDL_GetTicks64() - k.press_start;
+    }
+
+    glm::ivec2 get_mouse_pos() const {
+        glm::ivec2 pos;
+        SDL_GetMouseState(&pos.x, &pos.y);
+        return pos;
     }
 
 private:
