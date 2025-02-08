@@ -48,33 +48,6 @@ bool window::init(const glm::ivec2& size, int flags) {
     return true;
 }
 
-bool window::update(graphics::renderer& renderer) {
-
-    if (!open())
-        return false;
-
-    SDL_Event e;
-
-    while (SDL_PollEvent(&e)) {
-        switch (e.type)
-        {
-        case(SDL_QUIT):
-            BOOST_LOG_TRIVIAL(trace) << "Recieved shutdown message";
-            m_open = false;
-            return false;
-
-        case(SDL_WINDOWEVENT):
-            handle_window_event(e.window, renderer);
-            break;
-
-        default:
-            break;
-        }
-    }
-
-    return true;
-}
-
 void window::clean() {
 
     if (!m_window)
@@ -94,20 +67,6 @@ void window::set_title(const std::string& name) {
         return;
 
     SDL_SetWindowTitle(m_window, m_name.c_str());
-}
-
-void window::handle_window_event(const SDL_WindowEvent& e, graphics::renderer& renderer) {
-
-    switch(e.event)
-    {
-    case(SDL_WINDOWEVENT_RESIZED):
-        BOOST_LOG_TRIVIAL(trace) << "Window resized: X = " << e.data1 << ", Y = " << e.data2;
-        renderer.set_viewport_size(get_size());
-        break;
-
-    default:
-        break;
-    }
 }
 
 } /* end of namespace tavern */

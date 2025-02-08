@@ -7,6 +7,7 @@
 #include "graphics/renderer.h"
 #include "resource/resource_manager.h"
 #include "systems/scene_tree.h"
+#include "platform/sdl.h"
 
 namespace tavern {
 
@@ -25,6 +26,10 @@ public:
         return m_ready;
     }
 
+    bool running() const {
+        return m_running;
+    }
+
     ecs::registry& get_registry() {
         return m_registry;
     }
@@ -36,7 +41,11 @@ public:
 
 private:
 
+    bool handle_events();
+    void handle_window_event(const SDL_WindowEvent& e);
+
     bool m_ready = false;
+    bool m_running = false;
 
     window m_window;
     graphics::renderer m_renderer;

@@ -6,8 +6,6 @@
 
 #include "../platform/sdl.h"
 
-#include "../graphics/renderer.h"
-
 namespace tavern {
 
 class window
@@ -18,7 +16,6 @@ public:
     ~window();
 
     bool init(const glm::ivec2& size, int flags = 0);
-    bool update(graphics::renderer& renderer);
     void clean();
 
     bool open() const {
@@ -46,8 +43,6 @@ public:
     }
 
 private:
-
-    void handle_window_event(const SDL_WindowEvent& e, graphics::renderer& renderer);
 
     bool m_open = false;
     SDL_Window* m_window = NULL;

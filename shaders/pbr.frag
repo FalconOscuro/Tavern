@@ -60,5 +60,5 @@ void main()
     if (mat.use_ambient_occlusion_tex)
         ambient_occlusion = texture(mat.ambient_occlusion_tex, vertex_in.tex_coords).r;
 
-    colour = vec4(albedo, 1.0f);
+    colour = vec4(albedo * ambient_occlusion, 1.0f);
 }

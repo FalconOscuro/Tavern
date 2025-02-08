@@ -27,13 +27,13 @@ bool tavern::init() {
 
 void tavern::run() {
 
-    if (!ready())
+    if (!ready() || m_running)
         return;
 
-    BOOST_LOG_TRIVIAL(trace) << "Entering main loop";
-    while (m_window.open()) {
+    m_running = true;
 
-        m_window.update(m_renderer);
+    BOOST_LOG_TRIVIAL(trace) << "Entering main loop";
+    while (handle_events()) {
 
         m_scene_tree.update(m_registry);
 
@@ -41,6 +41,7 @@ void tavern::run() {
         m_renderer.swap_buffer(m_window);
     }
     BOOST_LOG_TRIVIAL(trace)  << "Exited main engine loop";
+    m_running = false;
 }
 
 void tavern::clean() {
@@ -48,6 +49,44 @@ void tavern::clean() {
     m_registry.destroy_all();
     m_renderer.clean();
     m_window.clean();
+}
+
+bool tavern::handle_events()
+{
+    SDL_Event e;
+
+    while (SDL_PollEvent(&e)) {
+        switch (e.type)
+        {
+        case SDL_QUIT:
+            BOOST_LOG_TRIVIAL(trace) << "Recieved shutdown message";
+            return m_running = false;
+
+        case SDL_WINDOWEVENT:
+            handle_window_event(e.window);
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    return m_running;
+}
+
+void tavern::handle_window_event(const SDL_WindowEvent& e)
+{
+    switch (e.event)
+    {
+    case SDL_WINDOWEVENT_RESIZED:
+        BOOST_LOG_TRIVIAL(trace) << "Window resized: X = " << e.data1 << ", Y = " << e.data2;
+        // use window get_size as drawable size may differ from actual window size
+        m_renderer.set_viewport_size(m_window.get_size());
+        break;
+
+    default:
+        break;
+    }
 }
 
 } /* end of namespace tavern */
