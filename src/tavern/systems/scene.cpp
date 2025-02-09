@@ -1,6 +1,7 @@
 #include "tavern/systems/scene.h"
 
 #include <cassert>
+#include <unordered_map>
 
 #include <boost/log/trivial.hpp>
 
@@ -8,6 +9,9 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/material.h>
+
+#include <ryml.hpp>
+#include <ryml_std.hpp>
 
 #include "tavern/components/drawable3d.h"
 #include "tavern/components/transform3d.h"
@@ -200,6 +204,39 @@ void scene::load(const std::string& file, ecs::registry& reg)
     }
 
     load_node(scene->mRootNode, scene, reg, reg.tombstone(), file);
+}
+
+void scene::load_scene(const std::string& file, ecs::registry& reg)
+{
+    size_t size;
+    char* raw = resource::utility::read_file(file.c_str(), size);
+
+    if (raw == nullptr) 
+        return;
+
+    ryml::Tree tree = ryml::parse_in_place(raw);
+    delete[] raw; // ensure working
+
+    ryml::ConstNodeRef root = tree.crootref();
+
+    if (!root.is_map())
+        return;
+
+    // WARNING: std string likely slow...
+    std::unordered_map<std::string, ecs::entity_type> loaded_entity_map;
+
+    // create ids for all entities for smooth transition
+    for (auto entity = root.begin(); entity != root.end(); ++entity)
+    {
+        const std::string key = std::string((*entity).key().str);
+
+        if (loaded_entity_map.count((*entity).key().str)) {
+            BOOST_LOG_TRIVIAL(error) << "Found duplicate key \"" << key << "\" whilst loading scene from " << file;
+            continue;
+        }
+
+        loaded_entity_map.emplace(std::make_pair(reg.create(), (*entity).key()));
+    }
 }
 
 } /* end of namespace tavern::system */

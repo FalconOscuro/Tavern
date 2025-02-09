@@ -14,6 +14,7 @@ public:
     void update(ecs::registry& reg);
 
     void load(const std::string& file, ecs::registry& reg);
+    void load_scene(const std::string& file, ecs::registry& reg);
 
 private:
 
