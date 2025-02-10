@@ -11,7 +11,6 @@
 #include <assimp/material.h>
 
 #include <ryml.hpp>
-#include <ryml_std.hpp>
 
 #include "tavern/components/drawable3d.h"
 #include "tavern/components/transform3d.h"
@@ -206,6 +205,7 @@ void scene::load(const std::string& file, ecs::registry& reg)
     load_node(scene->mRootNode, scene, reg, reg.tombstone(), file);
 }
 
+// Note, could be built into ECS
 void scene::load_scene(const std::string& file, ecs::registry& reg)
 {
     size_t size;
@@ -223,7 +223,6 @@ void scene::load_scene(const std::string& file, ecs::registry& reg)
         return;
     }
 
-    // WARNING: std string likely slow...
     std::unordered_map<std::string_view, ecs::entity_type> loaded_entity_map;
 
     // create ids for all entities for smooth transition
@@ -238,6 +237,8 @@ void scene::load_scene(const std::string& file, ecs::registry& reg)
 
         loaded_entity_map.emplace(std::make_pair(key, reg.create()));
     }
+
+    // NOTE: need way of referring to loaded entity map for objects such as transforms which have reference to other entity id which at current is local to the serialized version
 
     delete[] raw;
 }

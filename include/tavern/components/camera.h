@@ -3,6 +3,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <ryml.hpp>
+
 namespace tavern::component {
 
 struct camera
@@ -24,6 +26,10 @@ struct camera
 
     bool active;
 }; /* end of struct camera */
+
+// ryml read/write
+bool read(const ryml::ConstNodeRef& n, camera* val);
+void write(ryml::NodeRef* n, const camera& val);
 
 } /* end of namespace tavern::component */
 
