@@ -215,28 +215,31 @@ void scene::load_scene(const std::string& file, ecs::registry& reg)
         return;
 
     ryml::Tree tree = ryml::parse_in_place(raw);
-    delete[] raw; // ensure working
 
     ryml::ConstNodeRef root = tree.crootref();
 
-    if (!root.is_map())
+    if (!root.is_map()) {
+        delete[] raw;
         return;
+    }
 
     // WARNING: std string likely slow...
-    std::unordered_map<std::string, ecs::entity_type> loaded_entity_map;
+    std::unordered_map<std::string_view, ecs::entity_type> loaded_entity_map;
 
     // create ids for all entities for smooth transition
     for (auto entity = root.begin(); entity != root.end(); ++entity)
     {
-        const std::string key = std::string((*entity).key().str);
+        const std::string_view key = (*entity).key().str;
 
-        if (loaded_entity_map.count((*entity).key().str)) {
+        if (loaded_entity_map.count(key)) {
             BOOST_LOG_TRIVIAL(error) << "Found duplicate key \"" << key << "\" whilst loading scene from " << file;
             continue;
         }
 
-        loaded_entity_map.emplace(std::make_pair(reg.create(), (*entity).key()));
+        loaded_entity_map.emplace(std::make_pair(key, reg.create()));
     }
+
+    delete[] raw;
 }
 
 } /* end of namespace tavern::system */
