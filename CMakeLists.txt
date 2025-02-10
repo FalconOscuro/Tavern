@@ -117,6 +117,7 @@ add_executable(tavern-bin
 target_link_libraries(tavern-bin PUBLIC
     Tavern
     Boost::program_options
+    Boost::log
 )
 
 add_custom_command(

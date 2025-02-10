@@ -5,10 +5,6 @@
 
 namespace tavern {
 
-window::window(const std::string& name) :
-    m_name(name)
-{}
-
 window::~window() {
     clean();
     SDL_Quit();

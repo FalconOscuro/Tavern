@@ -208,6 +208,8 @@ void scene::load(const std::string& file, ecs::registry& reg)
 // Note, could be built into ECS
 void scene::load_scene(const std::string& file, ecs::registry& reg)
 {
+    BOOST_LOG_TRIVIAL(info) << "Loading scene from " << file;
+
     size_t size;
     char* raw = resource::utility::read_file(file.c_str(), size);
 
@@ -219,6 +221,7 @@ void scene::load_scene(const std::string& file, ecs::registry& reg)
     ryml::ConstNodeRef root = tree.crootref();
 
     if (!root.is_map()) {
+        BOOST_LOG_TRIVIAL(error) << "Improper format for scene file, root node must be map of entities!";
         delete[] raw;
         return;
     }
@@ -241,6 +244,7 @@ void scene::load_scene(const std::string& file, ecs::registry& reg)
     // NOTE: need way of referring to loaded entity map for objects such as transforms which have reference to other entity id which at current is local to the serialized version
 
     delete[] raw;
+    BOOST_LOG_TRIVIAL(info) << "Scene loaded";
 }
 
 } /* end of namespace tavern::system */

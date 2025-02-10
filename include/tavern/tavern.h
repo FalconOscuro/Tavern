@@ -18,10 +18,12 @@ class tavern
 {
 public:
 
-    tavern();
-    ~tavern();
+    tavern(){}
+    ~tavern() {
+        clean();
+    }
 
-    bool init();
+    bool init(const uint16_t width, const uint16_t height, const std::string& name);
     void run();
     void clean();
 
@@ -35,6 +37,10 @@ public:
 
     ecs::registry& get_registry() {
         return m_registry;
+    }
+
+    system::scene& get_scene() {
+        return m_scene;
     }
 
 private:

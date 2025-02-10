@@ -8,19 +8,15 @@
 
 namespace tavern {
 
-tavern::tavern():
-    m_window("Tavern")
-{}
+bool tavern::init(const uint16_t width, const uint16_t height, const std::string& name)
+{
+    // ensure resource manager created
+    (void)resource_manager::get();
+    m_window.set_title(name);
 
-tavern::~tavern() {
-    clean();
-}
-
-bool tavern::init() {
-    resource_manager::get();
     m_ready =
            m_renderer.pre_window_init()
-        && m_window.init(glm::ivec2(800, 600))
+        && m_window.init(glm::ivec2(width, height))
         && m_renderer.init(m_window);
 
     BOOST_LOG_TRIVIAL(trace) << "Engine initialization complete";

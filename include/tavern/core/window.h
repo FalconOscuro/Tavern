@@ -12,7 +12,12 @@ class window
 {
 public:
 
-    window(const std::string& name);
+    window(){}
+
+    window(const std::string& name):
+        m_name(name)
+    {}
+
     ~window();
 
     bool init(const glm::ivec2& size, int flags = 0);

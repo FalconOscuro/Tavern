@@ -1,11 +1,58 @@
 #include <tavern/tavern.h>
 
-int main(int argc, char** argv) {
-    (void)argc;
-    (void)argv;
+#include <iostream>
+
+#include <boost/log/trivial.hpp>
+#include <boost/program_options.hpp>
+#include <boost/program_options/parsers.hpp>
+
+int main(int argc, char** argv)
+{
+    namespace po = boost::program_options;
+    po::options_description opts("Tavern Usage");
+    opts.add_options()
+        ("help,h", "display help message")
+        ("scene", po::value<std::string>(), "load scene from file")
+        ("title", po::value<std::string>()->default_value("Tavern"), "set window title")
+        ("width", po::value<uint16_t>()->default_value(800), "window width")
+        ("height", po::value<uint16_t>()->default_value(600), "window height")
+    ;
+
+    po::variables_map args;
+    try {
+        po::store(
+            po::command_line_parser(argc, argv).options(opts).run(),
+            args
+        );
+    }
+    catch (const po::error& e) {
+        BOOST_LOG_TRIVIAL(error) << "Failed to parse command-line args: " << e.what();
+    }
+
+    po::notify(args);
+
+    if (args.count("help")) {
+        opts.print(std::cout);
+        return 0;
+    }
+
     tavern::tavern engine;
 
-    engine.init();
+    if (!engine.init(
+            args["width"].as<uint16_t>(),
+            args["height"].as<uint16_t>(),
+            args["title"].as<std::string>()
+    )) {
+        BOOST_LOG_TRIVIAL(error) << "Initialization failed!";
+        return 1;
+    }
+
+    if (args.count("scene")) {
+        const std::string scene_file = args["scene"].as<std::string>();
+
+        engine.get_scene().load_scene(scene_file, engine.get_registry());
+    }
+
     engine.run();
     engine.clean();
 
