@@ -5,6 +5,8 @@ project(Tavern LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(BUILD_SHARED_LIBS OFF)
+
 set(RENDERER "gl" CACHE STRING "Renderering library used (default: OpenGL).")
 set_property(CACHE RENDERER PROPERTY STRINGS gl vk)
 
@@ -30,9 +32,21 @@ FetchContent_Declare(
     GIT_TAG v5.4.3
 )
 
+# assimp build options
+set(ASSIMP_BUILD_TESTS OFF)
+set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
+
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
+
+set(ASSIMP_BUILD_ASSBIN_IMPORTER ON)
+set(ASSIMP_BUILD_COLLADA_IMPORTER ON)
+set(ASSIMP_BUILD_OBJ_IMPORTER ON)
+set(ASSIMP_BUILD_GLTF_IMPORTER ON)
+
 FetchContent_MakeAvailable(ecs ryml assimp)
 
-find_package(Boost COMPONENTS log)
+find_package(Boost REQUIRED COMPONENTS log program_options)
 find_package(SDL2 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -102,6 +116,7 @@ add_executable(tavern-bin
 
 target_link_libraries(tavern-bin PUBLIC
     Tavern
+    Boost::program_options
 )
 
 add_custom_command(
