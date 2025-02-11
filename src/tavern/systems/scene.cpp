@@ -14,11 +14,23 @@
 
 #include "tavern/components/drawable3d.h"
 #include "tavern/components/transform3d.h"
+#include "tavern/components/camera.h"
+
 #include "tavern/graphics/material.h"
 #include "tavern/resource/resource_manager.h"
 #include "tavern/graphics/vertex.h"
 #include "tavern/graphics/mesh.h"
 #include "tavern/resource/util/file.hpp"
+
+template <>
+struct std::hash<c4::csubstr>
+{
+    std::size_t operator()(const c4::csubstr& s) const {
+        const std::string_view sv = std::string_view(s.data(), s.size());
+
+        return std::hash<std::string_view>()(sv);
+    }
+}; /* end of struct std::hash<c4::csubstr> */
 
 namespace tavern::system {
 
@@ -216,9 +228,8 @@ void scene::load_scene(const std::string& file, ecs::registry& reg)
     if (raw == nullptr) 
         return;
 
-    ryml::Tree tree = ryml::parse_in_place(raw);
-
-    ryml::ConstNodeRef root = tree.crootref();
+    const ryml::Tree tree = ryml::parse_in_place(raw);
+    const ryml::ConstNodeRef root = tree.crootref();
 
     if (!root.is_map()) {
         BOOST_LOG_TRIVIAL(error) << "Improper format for scene file, root node must be map of entities!";
@@ -226,12 +237,12 @@ void scene::load_scene(const std::string& file, ecs::registry& reg)
         return;
     }
 
-    std::unordered_map<std::string_view, ecs::entity_type> loaded_entity_map;
+    std::unordered_map<c4::csubstr, ecs::entity_type> loaded_entity_map;
 
     // create ids for all entities for smooth transition
     for (auto entity = root.begin(); entity != root.end(); ++entity)
     {
-        const std::string_view key = (*entity).key().str;
+        const c4::csubstr key = (*entity).key();
 
         if (loaded_entity_map.count(key)) {
             BOOST_LOG_TRIVIAL(error) << "Found duplicate key \"" << key << "\" whilst loading scene from " << file;
@@ -239,6 +250,25 @@ void scene::load_scene(const std::string& file, ecs::registry& reg)
         }
 
         loaded_entity_map.emplace(std::make_pair(key, reg.create()));
+    }
+
+    // iterate all entities now created and attatch components
+    for (auto entity = loaded_entity_map.cbegin(); entity != loaded_entity_map.end(); ++entity)
+    {
+        const ecs::entity_type eid = entity->second;
+        const ryml::ConstNodeRef node = root[entity->first];
+
+        // slow string comparison of individual component types, implementation could be nicer
+        // Factory?
+        if (node.has_child("camera")) {
+            node["camera"] >> reg.emplace<component::camera>(eid);
+        }
+
+        if (node.has_child("transform3d")) {
+        }
+
+        if (node.has_child("drawable3d")) {
+        }
     }
 
     // NOTE: need way of referring to loaded entity map for objects such as transforms which have reference to other entity id which at current is local to the serialized version
