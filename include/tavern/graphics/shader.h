@@ -2,7 +2,7 @@
 #define SHADER_H
 
 #include "opengl/shader.h"
-#include "../resource/fwd.h"
+#include "../resource/resource_ptr.hpp"
 
 namespace tavern::graphics {
 

@@ -2,7 +2,7 @@
 #define GRAPHICS_MESH_H
 
 #include "opengl/mesh.hpp"
-#include "../resource/fwd.h"
+#include "../resource/resource_ptr.hpp"
 
 namespace tavern::graphics {
 

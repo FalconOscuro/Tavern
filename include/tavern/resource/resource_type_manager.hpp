@@ -7,6 +7,8 @@
 
 #include <boost/log/trivial.hpp>
 
+#include "resource_ptr.hpp"
+
 namespace tavern::resource {
 
 template <typename Resource>
@@ -33,9 +35,6 @@ private:
     const std::size_t m_hash;
 
 }; /* end of class resource_deleter */
-
-template <typename Resource>
-class resource_ptr;
 
 template <typename Resource>
 class resource_type_manager
@@ -107,66 +106,6 @@ private:
 
     std::unordered_map<std::size_t, std::weak_ptr<Resource>> m_loaded;
 }; /* end of class resource_type_manager<Resource> */
-
-// basic wrapper around std::shared_ptr for reference management,
-// a bit hacky, but need to store resource id_name
-// Could use name LUT?
-template <typename Resource>
-class resource_ptr
-{
-public:
-    resource_ptr() = default;
-    resource_ptr(const resource_ptr& r):
-        m_ptr(r.m_ptr), m_name(r.m_name)
-    {}
-
-    ~resource_ptr() = default;
-
-    resource_ptr& operator=(const resource_ptr& r) {
-        m_ptr = r.m_ptr;
-        m_name = r.m_name;
-
-        return *this;
-    }
-
-    // reset to be nullptr
-    void reset() noexcept {
-        m_ptr.reset();
-        m_name = "";
-    }
-
-    const std::string& get_name() const {
-        return m_name;
-    }
-
-    Resource* get() const {
-        return m_ptr.get();
-    }
-
-    Resource& operator*() const noexcept {
-        return *m_ptr;
-    }
-
-    Resource* operator->() const noexcept {
-        return m_ptr.get();
-    }
-
-    operator bool() const {
-        return (bool)m_ptr;
-    }
-
-private:
-
-    resource_ptr(const std::shared_ptr<Resource>& ptr, const std::string& name):
-        m_ptr(ptr), m_name(ptr ? name : "") // empty name if nullptr
-    {}
-
-    std::shared_ptr<Resource> m_ptr;
-    // copy slow...
-    std::string m_name = "";
-
-    friend class resource_type_manager<Resource>;
-}; /* end of class resource_ptr */
 
 } /* end of namespace tavern::resource */
 

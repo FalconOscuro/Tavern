@@ -2,7 +2,7 @@
 #define TEXTURE2D_H
 
 #include "opengl/texture2d.hpp"
-#include "../resource/fwd.h"
+#include "../resource/resource_ptr.hpp"
 
 namespace tavern::graphics {
 
