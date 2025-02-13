@@ -101,11 +101,6 @@ void renderer::render(ecs::registry& registry)
 {
     imgui_draw();
 
-    glEnable(GL_DEPTH_TEST);
-    // clear screen
-    glClearColor(0.f, 0.f, .2f, 1.f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     auto cam_view = registry.create_view<component::transform, component::camera>();
 
     // no valid camera, skip rendering
@@ -137,6 +132,11 @@ void renderer::render(ecs::registry& registry)
         BOOST_LOG_TRIVIAL(warning) << "No camera found in scene";
         return;
     }
+
+    glEnable(GL_DEPTH_TEST);
+    // clear screen
+    glClearColor(0.f, 0.f, .2f, 1.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     auto draw_view = registry.create_view<component::drawable3d, component::transform>();
 

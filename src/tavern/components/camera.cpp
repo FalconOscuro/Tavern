@@ -4,13 +4,8 @@ namespace tavern::component {
 
 bool read(const ryml::ConstNodeRef& n, camera* val)
 {
-    if (!(n.is_map()
-        && n.has_child("fov") && n.has_child("near")
-        && n.has_child("far") && n.has_child("active")
-    ))
-        return false;
-
     // camera could be hardcoded?
+    // WARNING: Doesn't handle malformed data
     n["fov"] >> val->fov;
     n["near"] >> val->near;
     n["far"] >> val->far;

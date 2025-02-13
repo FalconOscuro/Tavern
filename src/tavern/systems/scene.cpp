@@ -249,6 +249,16 @@ void scene::load_scene(const std::string& file, ecs::registry& reg)
             continue;
         }
 
+        else if (key[0] == '-') {
+            BOOST_LOG_TRIVIAL(error) << "Invalid id name \"" << key << "\", cannot begin with '-' as negative values reserved for use as tombstone id reference";
+            continue;
+        }
+
+        else if (key == "none") {
+            BOOST_LOG_TRIVIAL(error) << "Invalid id name \"" << key << "\", reserved for use as tombstone id reference";
+            continue;
+        }
+
         loaded_entity_map.emplace(std::make_pair(key, reg.create()));
     }
 
@@ -260,11 +270,19 @@ void scene::load_scene(const std::string& file, ecs::registry& reg)
 
         // slow string comparison of individual component types, implementation could be nicer
         // Factory?
-        if (node.has_child("camera")) {
+        if (node.has_child("camera"))
             node["camera"] >> reg.emplace<component::camera>(eid);
-        }
 
-        if (node.has_child("transform3d")) {
+        if (node.has_child("transform")) {
+            auto& tf = reg.emplace<component::transform>(eid);
+            node["transform"] >> tf;
+
+            // manual read parent from idmap
+            auto parent = loaded_entity_map.find(node["transform"]["parent"].val());
+            if (parent != loaded_entity_map.end())
+                tf.parent = parent->second;
+            else
+                tf.parent = reg.tombstone();
         }
 
         if (node.has_child("drawable3d")) {

@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <ryml.hpp>
+
 #include <ecs/ecs.h>
 
 namespace tavern {
@@ -41,8 +43,25 @@ struct transform
 private:
 
     glm::mat4 m_global = glm::mat4(1.f);
-};
+}; /* end of struct transform */
+
+// ryml read/write
+bool read(const ryml::ConstNodeRef& n, transform* val);
+void write(ryml::NodeRef* n, const transform& val);
 
 }} /* end of namespace tavern::component */
+
+namespace glm {
+// NOTE: Move definition file?
+
+// ryml read/write for mat4 and vec4 (coltype for mat4)
+// requires definition in glm namespace
+bool read(const ryml::ConstNodeRef& n, mat4* val);
+void write(ryml::NodeRef* n, const mat4& val);
+
+bool read(const ryml::ConstNodeRef& n, vec4* val);
+void write(ryml::NodeRef* n, const vec4& val);
+
+} /* namespace glm */
 
 #endif /* end of define guard TRANSFORM3D_H */
