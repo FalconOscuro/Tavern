@@ -18,7 +18,7 @@ class mesh
 {
 public:
 
-    mesh(const std::vector<vertex>& vertices, const std::vector<uint32_t>& indices, std::shared_ptr<material>& mat):
+    mesh(const std::vector<vertex>& vertices, const std::vector<uint32_t>& indices, const material_resource& mat):
         mat(mat), m_index_count(indices.size())
     {
         glGenBuffers(1, &m_vertex_buffer);
@@ -72,7 +72,7 @@ public:
         glBindVertexArray(0);
     }
 
-    std::shared_ptr<material> mat;
+    material_resource mat;
 
 private:
 

@@ -6,25 +6,26 @@
 #include <glm/vec3.hpp>
 
 #include "texture2d.h"
+#include "../resource/fwd.h"
 
 namespace tavern::graphics {
 
 struct material
 {
-    typedef std::shared_ptr<texture2d> tex_ptr;
-
     glm::vec3 albedo;
     float metallic;
     float roughness;
     float ambient_occlusion;
     glm::vec3 emissive;
 
-    tex_ptr albedo_tex;
-    tex_ptr metallic_roughness_tex;
-    tex_ptr normal_tex;
-    tex_ptr ambient_occlusion_tex;
-    tex_ptr emissive_tex;
+    texture2d_resource albedo_tex;
+    texture2d_resource metallic_roughness_tex;
+    texture2d_resource normal_tex;
+    texture2d_resource ambient_occlusion_tex;
+    texture2d_resource emissive_tex;
 }; /* end of struct material */
+
+typedef resource::resource_ptr<material> material_resource;
 
 } /* end of namespace tavern::graphics::generic */
 

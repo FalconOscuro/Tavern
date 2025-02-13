@@ -17,9 +17,10 @@
 #include "tavern/components/camera.h"
 
 #include "tavern/graphics/material.h"
-#include "tavern/resource/resource_manager.h"
 #include "tavern/graphics/vertex.h"
 #include "tavern/graphics/mesh.h"
+
+#include "tavern/resource/resource_manager.h"
 #include "tavern/resource/util/file.hpp"
 
 template <>
@@ -78,10 +79,10 @@ void scene::update(ecs::registry& reg)
     }
 }
 
-[[nodiscard]] std::shared_ptr<graphics::texture2d> load_texture(aiMaterial* material, aiTextureType type, const std::string& dir)
+[[nodiscard]] graphics::texture2d_resource load_texture(aiMaterial* material, aiTextureType type, const std::string& dir)
 {
     if (material->GetTextureCount(type) == 0)
-        return nullptr;
+        return graphics::texture2d_resource();
 
     aiString img_path;
     material->GetTexture(type, 0, &img_path);
@@ -104,7 +105,7 @@ void scene::update(ecs::registry& reg)
     return mat;
 }
 
-[[nodiscard]] std::shared_ptr<graphics::mesh> load_mesh(uint32_t mesh_id, const aiScene* scene, const std::string& path)
+[[nodiscard]] graphics::mesh_resource load_mesh(uint32_t mesh_id, const aiScene* scene, const std::string& path)
 {
     const std::string mesh_name = path + ";mesh:" + std::to_string(mesh_id);
     auto & resource_mgr = resource_manager::get();
@@ -149,7 +150,7 @@ void scene::update(ecs::registry& reg)
             indices.push_back(face.mIndices[j]);
     }
 
-    std::shared_ptr<graphics::material> material_ptr;
+    graphics::material_resource material_ptr;
     std::string material_name = path + ";material:" + std::to_string(mesh->mMaterialIndex);
     
     if (resource_mgr.materials.is_loaded(material_name))
@@ -191,7 +192,7 @@ void load_node(aiNode* node, const aiScene* scene, ecs::registry& reg, ecs::enti
         ecs::entity_type eid = reg.create();
         reg.set(eid, t);
 
-        std::shared_ptr<graphics::mesh> mesh = load_mesh(node->mMeshes[i], scene, path);
+        graphics::mesh_resource mesh = load_mesh(node->mMeshes[i], scene, path);
 
         reg.emplace<component::drawable3d>(eid, mesh);
 

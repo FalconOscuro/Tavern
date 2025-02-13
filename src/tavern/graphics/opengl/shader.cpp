@@ -107,11 +107,11 @@ void shader::set_transform(const glm::mat4& t) {
 void shader::set_material(const material& m)
 {
     // check if textures set and useable
-    const bool use_albedo_tex = m.albedo_tex != nullptr;
-    const bool use_metallic_roughness_tex = m.metallic_roughness_tex != nullptr;
-    const bool use_normal_tex = m.normal_tex != nullptr;
-    const bool use_ambient_occlusion_tex = m.ambient_occlusion_tex != nullptr;
-    const bool use_emissive_tex = m.emissive_tex != nullptr;
+    const bool use_albedo_tex = m.albedo_tex;
+    const bool use_metallic_roughness_tex = m.metallic_roughness_tex;
+    const bool use_normal_tex = m.normal_tex;
+    const bool use_ambient_occlusion_tex = m.ambient_occlusion_tex;
+    const bool use_emissive_tex = m.emissive_tex;
 
     set_bool("mat.use_albedo_tex", use_albedo_tex);
     set_bool("mat.use_metallic_roughness_tex", use_metallic_roughness_tex);

@@ -1,23 +1,26 @@
 #ifndef DRAWABLE3D_H
 #define DRAWABLE3D_H
 
-#include "../resource/shader_manager.hpp"
-#include "../resource/mesh_manager.h"
+#include "../graphics/mesh.h"
+#include "../graphics/shader.h"
 
 namespace tavern::component {
 
-struct drawable3d {
+struct drawable3d
+{
 
     drawable3d()
     {}
 
-    drawable3d(std::shared_ptr<graphics::mesh>& mesh, std::shared_ptr<graphics::shader> shader = nullptr):
-        mesh(mesh), shader(shader)
+    drawable3d(graphics::mesh_resource& mesh):
+        mesh(mesh)
     {}
 
-    resource::mesh_manager::resource_handle mesh;
-    resource::shader_manager::resource_handle shader = nullptr;
+    graphics::mesh_resource mesh;
+    graphics::shader_resource shader;
 };
+
+// pain...
 
 } /* namespace tavern::component */
 

@@ -4,7 +4,7 @@
 
 namespace tavern::resource {
 
-mesh_manager::resource_ptr mesh_manager::load_new(const std::string& path)
+graphics::mesh* mesh_manager::load_new(const std::string& path)
 {
     (void)path;
     BOOST_LOG_TRIVIAL(error) << "Direct loading model mesh from file is no longer supported";

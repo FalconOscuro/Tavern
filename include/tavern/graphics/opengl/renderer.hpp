@@ -7,7 +7,7 @@
 #include <GL/glew.h>
 
 #include "../generic/renderer.h"
-#include "shader.h"
+#include "../shader.h"
 
 namespace tavern::graphics::opengl {
 
@@ -66,7 +66,7 @@ private:
     ecs::entity_type m_camera = UINT32_MAX;
     float m_aspect_ratio = 1.f;
 
-    std::shared_ptr<shader> m_default_shader;
+    shader_resource m_default_shader;
 
 }; /* end of class opengl_renderer final : public a_renderer */
 

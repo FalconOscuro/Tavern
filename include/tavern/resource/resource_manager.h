@@ -31,6 +31,10 @@ private:
     {}
 }; /* end of class resource_manager */
 
+// serialization here is going to be a bit of a pain,
+// need custom shared pointer type, or other method by which to retrieve
+// resource id/name to be written to file, yippee...
+
 } /* end of namespace tavern */
 
 #endif /* end of define guard RESOURCE_MANAGER_H */

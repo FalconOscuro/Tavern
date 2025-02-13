@@ -13,7 +13,7 @@ class material_manager : public resource_type_manager<graphics::material>
 
 protected:
 
-    resource_ptr load_new(const std::string& path) override {
+    graphics::material* load_new(const std::string& path) override {
         (void)path;
         BOOST_LOG_TRIVIAL(error) << "loading materials from direct from file is currently not supported";
 

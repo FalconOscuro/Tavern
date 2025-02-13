@@ -17,7 +17,7 @@ class shader_manager : public resource_type_manager<graphics::shader>
 {
 protected:
 
-    resource_ptr load_new(const std::string& path) override
+    resource_type* load_new(const std::string& path) override
     {
         size_t size;
         char* raw = utility::read_file(path.c_str(), size);

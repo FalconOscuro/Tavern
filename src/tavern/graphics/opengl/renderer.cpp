@@ -36,7 +36,7 @@ void renderer::clean() {
     ImGui::DestroyContext();
 
     // release ownership of default shader
-    m_default_shader.reset((shader*)nullptr);
+    m_default_shader.reset();
     glDeleteBuffers(1, &m_camera_ub);
 
     SDL_GL_DeleteContext(m_glcontext);
