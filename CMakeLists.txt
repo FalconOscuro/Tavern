@@ -79,6 +79,9 @@ target_sources(Tavern PUBLIC
     src/tavern/components/camera.cpp
     src/tavern/components/drawable3d.cpp
     src/tavern/components/transform3d.cpp
+
+    src/tavern/file/physical_mount.cpp
+    src/tavern/file/physical_file.cpp
 )
 
 target_link_libraries(Tavern

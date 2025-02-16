@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 
+#include <ryml.hpp>
+
 #include "shader_manager.hpp"
 #include "mesh_manager.h"
 #include "texture2d_manager.h"
@@ -25,15 +27,20 @@ public:
     resource::texture2d_manager tex2ds;
     resource::material_manager  materials;
 
+    // get from templated managed type?
+    // makes easier w/ templating resource r/w
+    // change managers to pure templated instances, instead of using inheritance
+    // following similar structure to ecs component pools
+
 private:
 
     resource_manager()
     {}
 }; /* end of class resource_manager */
 
-// serialization here is going to be a bit of a pain,
-// need custom shared pointer type, or other method by which to retrieve
-// resource id/name to be written to file, yippee...
+namespace resource {
+
+} /* namespace resource */
 
 } /* end of namespace tavern */
 
