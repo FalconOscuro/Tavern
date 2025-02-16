@@ -43,8 +43,10 @@ public:
     typedef Resource resource_type;
     using resource_handle = resource_ptr<resource_type>;
 
-    resource_type_manager()
-    {}
+    resource_type_manager() {
+        // None reserved for nullptr, hack
+        m_loaded.emplace(get_hash("None"), std::weak_ptr<resource_type>());
+    }
 
     resource_handle load(const std::string& path)
     {

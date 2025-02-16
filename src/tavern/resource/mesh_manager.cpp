@@ -1,5 +1,7 @@
 #include "tavern/resource/mesh_manager.h"
 
+#include <assimp/Importer.hpp>
+
 #include <boost/log/trivial.hpp>
 
 namespace tavern::resource {

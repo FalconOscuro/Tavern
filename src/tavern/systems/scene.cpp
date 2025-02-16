@@ -287,6 +287,7 @@ void scene::load_scene(const std::string& file, ecs::registry& reg)
         }
 
         if (node.has_child("drawable3d")) {
+            node["drawable3d"] >> reg.emplace<component::drawable3d>(eid);
         }
     }
 

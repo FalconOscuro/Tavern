@@ -4,6 +4,8 @@
 #include "../graphics/mesh.h"
 #include "../graphics/shader.h"
 
+#include <ryml.hpp>
+
 namespace tavern::component {
 
 struct drawable3d
@@ -20,7 +22,8 @@ struct drawable3d
     graphics::shader_resource shader;
 };
 
-// pain...
+bool read(const ryml::ConstNodeRef& n, drawable3d* val);
+void write(ryml::NodeRef* n, const drawable3d& val);
 
 } /* namespace tavern::component */
 

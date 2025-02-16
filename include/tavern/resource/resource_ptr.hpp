@@ -36,8 +36,11 @@ public:
         m_name = "";
     }
 
-    const std::string& get_name() const {
-        return m_name;
+    const std::string& get_name() const
+    {
+        // need static var as return by ref not by val
+        static const std::string none_str = "None";
+        return m_name.empty() ? none_str : m_name;
     }
 
     Resource* get() const {
