@@ -12,7 +12,7 @@ bool physical_file::open()
     if (is_open())
         return true;
 
-    m_file = std::fopen(get_filename().c_str(), "r");
+    m_file = std::fopen(get_filename().c_str(), "rb");
 
     return is_open();
 }

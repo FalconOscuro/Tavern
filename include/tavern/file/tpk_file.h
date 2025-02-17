@@ -22,6 +22,7 @@ class tpk_file : public file
 {
 public:
     tpk_file(const std::string& tpk_path, const tpk_file_info& info);
+    ~tpk_file();
 
     bool open() override;
     void close() override;
@@ -32,6 +33,8 @@ public:
     size_t get_str(char* s, const size_t len) override;
 
 private:
+   
+    size_t get_file_pos() const;
 
     std::FILE* m_file = NULL;
     const tpk_file_info m_info;
