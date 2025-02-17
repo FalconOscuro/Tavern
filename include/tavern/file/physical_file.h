@@ -23,7 +23,7 @@ public:
     bool is_open() const override;
 
     char get_char() override;
-    size_t get_str(char* s, size_t len) override;
+    size_t get_str(char* s, const size_t len) override;
 
 private:
 

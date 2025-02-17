@@ -82,6 +82,8 @@ target_sources(Tavern PUBLIC
 
     src/tavern/file/physical_mount.cpp
     src/tavern/file/physical_file.cpp
+    src/tavern/file/tpk_mount.cpp
+    src/tavern/file/tpk_file.cpp
 )
 
 target_link_libraries(Tavern

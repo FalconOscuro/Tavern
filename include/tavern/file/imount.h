@@ -20,6 +20,8 @@ public:
     virtual bool has_file(const std::string& path) const = 0;
     virtual std::unique_ptr<file> load_file(const std::string& path) = 0;
 
+    virtual bool valid() const = 0;
+
     const std::string& get_path() const {
         return m_path;
     }

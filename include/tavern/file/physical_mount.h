@@ -16,6 +16,8 @@ public:
 
     bool has_file(const std::string& path) const override;
     std::unique_ptr<file> load_file(const std::string& path) override;
+
+    bool valid() const override;
 }; /* end of class physical_mount : public mount */
 
 } /* end of namespace tavern */

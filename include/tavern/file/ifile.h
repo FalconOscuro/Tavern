@@ -23,7 +23,7 @@ public:
     virtual bool is_open() const = 0;
 
     virtual char get_char() = 0;
-    virtual size_t get_str(char* s, size_t len) = 0;
+    virtual size_t get_str(char* s, const size_t len) = 0;
 
     const std::string& get_filename() const {
         return m_filename;
