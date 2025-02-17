@@ -37,10 +37,10 @@ bool tpk_mount::has_file(const std::string& path) const {
 
 std::unique_ptr<file> tpk_mount::load_file(const std::string& path)
 {
-    if (!valid())
+    if (!valid() || !has_file(path))
         return nullptr;
 
-    return nullptr;
+    return std::make_unique<tpk_file>(get_path(), m_file_table[path]);
 }
 
 bool tpk_mount::valid() const {
