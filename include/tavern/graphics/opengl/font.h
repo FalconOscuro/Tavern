@@ -1,5 +1,5 @@
-#ifndef FONT_H
-#define FONT_H
+#ifndef OPENGL_FONT_H
+#define OPENGL_FONT_H
 
 #include <string>
 
@@ -30,4 +30,4 @@ private:
 
 } /* namespace tavern::graphics */
 
-#endif /* end of include guard: FONT_H */
+#endif /* end of include guard: OPENGL_FONT_H */
