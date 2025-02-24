@@ -16,7 +16,13 @@ FetchContent_Declare(
     ecs
     GIT_REPOSITORY git@github.com:FalconOscuro/Tavern-ECS.git
     GIT_TAG origin/main
-    GIT_PROGRESS TRUE
+)
+
+FetchContent_Declare(
+    ttf2bmp
+    GIT_REPOSITORY git@github.com:FalconOscuro/ttf2bmp.git
+    GIT_TAG v1.0
+    GIT_SHALLOW FALSE
 )
 
 FetchContent_Declare(
@@ -44,7 +50,7 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
 #set(ASSIMP_BUILD_OBJ_IMPORTER ON)
 set(ASSIMP_BUILD_GLTF_IMPORTER ON)
 
-FetchContent_MakeAvailable(ecs ryml assimp)
+FetchContent_MakeAvailable(ecs ttf2bmp ryml assimp)
 
 find_package(Boost REQUIRED COMPONENTS log program_options)
 find_package(SDL2 REQUIRED)
@@ -68,6 +74,7 @@ target_sources(Tavern PUBLIC
     src/tavern/core/window.cpp
     src/tavern/core/input.cpp
 
+    src/tavern/graphics/opengl/font.cpp
     src/tavern/graphics/opengl/renderer.cpp
     src/tavern/graphics/opengl/shader.cpp
 
@@ -88,6 +95,7 @@ target_sources(Tavern PUBLIC
 
 target_link_libraries(Tavern
     PUBLIC ecs
+    PUBLIC ttf2bmp
     PUBLIC SDL2::SDL2
     PUBLIC Boost::log
     PUBLIC ryml::ryml
