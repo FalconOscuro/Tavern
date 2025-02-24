@@ -8,9 +8,9 @@
 #include <ttf2bmp/ttf2bmp.h>
 
 #include "shader.h"
-#include "texture.h"
+#include "texture_atlas.h"
 
-namespace tavern::graphics {
+namespace tavern::graphics::opengl {
 
 class font
 {

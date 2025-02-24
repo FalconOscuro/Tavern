@@ -1,12 +1,11 @@
 #ifdef USE_OPENGL
-
-#include "tavern/graphics/font.h"
+#include "tavern/graphics/opengl/font.h"
 
 #include <GL/glew.h>
 
 #include <glm/mat3x3.hpp>
 
-namespace tavern::graphics {
+namespace tavern::graphics::opengl {
 
 font::font(const ttf2bmp::bmp_font& bmp_font):
     m_atlas(
