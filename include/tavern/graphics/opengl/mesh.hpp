@@ -55,12 +55,14 @@ public:
         // texture coordinates
         glEnableVertexAttribArray(4);
         glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, texture_coordinates));
+
+        glBindVertexArray(0);
     }
 
     ~mesh() {
-        glDeleteVertexArrays(1, &m_id);
         glDeleteBuffers(1, &m_vertex_buffer);
         glDeleteBuffers(1, &m_index_buffer);
+        glDeleteVertexArrays(1, &m_id);
     }
 
     void draw(shader& s) {

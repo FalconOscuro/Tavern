@@ -15,15 +15,51 @@ font::font(const ttf2bmp::bmp_font& bmp_font):
     m_font = bmp_font;
     // nullify data in copied char map, data is not needed and should be discarded
     m_font.data = nullptr;
+
+    // create basic vertex info useable with all indices
+    const float vertices[] = {
+        0.f, 0.f,                                               0.f, 0.f,
+        0.f, (float)m_font.frame_height,                        0.f, 1.f,
+        (float)m_font.frame_width, 0.f,                         1.f, 0.f,
+
+        0.f, (float)m_font.frame_height,                        0.f, 1.f,
+        (float)m_font.frame_width, 0.f,                         1.f, 0.f,
+        (float)m_font.frame_width, (float)m_font.frame_height,  1.f, 1.f
+    };
+
+    glGenBuffers(1, &m_vbo);
+
+    glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 4 * 6, vertices, GL_STATIC_DRAW);
+
+    // position
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+
+    // texture coord
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)(2 * sizeof(float)));
+
+    glBindVertexArray(0);
+}
+
+font::~font() {
+    glDeleteBuffers(1, &m_vbo);
+    glDeleteVertexArrays(1, &m_vao);
 }
 
 // text colour?
 void font::draw_text(const std::string& text, shader& s, const glm::vec2& pos, const float scale) const
 {
     s.use();
+    glActiveTexture(GL_TEXTURE0);
     m_atlas.use();
 
     glm::vec3 offset;
+    glBindVertexArray(m_vao);
 
     // iterate characters in string
     for (auto c = text.begin(); c != text.end(); ++c)
@@ -54,7 +90,13 @@ void font::draw_text(const std::string& text, shader& s, const glm::vec2& pos, c
         s.set_transform(transf);
 
         offset.x += found->second.advance;
+
+        // could use GL_QUADS
+        glDrawArrays(GL_TRIANGLES, 0, 6);
     }
+
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 } /* namespace tavern::graphics */

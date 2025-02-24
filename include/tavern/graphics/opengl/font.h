@@ -15,7 +15,7 @@ namespace tavern::graphics::opengl {
 class font
 {
     font(const ttf2bmp::bmp_font& bmp_font);
-    ~font() = default;
+    ~font();
 
     void draw_text(const std::string& text, shader& s, const glm::vec2& pos, const float scale) const;
 
@@ -25,6 +25,8 @@ private:
 
     // doesn't need to be resource, texture should be unique to font
     texture_atlas m_atlas;
+
+    unsigned int m_vao, m_vbo;
 
 }; /* end of class font */
 
