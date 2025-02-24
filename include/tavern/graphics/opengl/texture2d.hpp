@@ -6,7 +6,8 @@
 
 #include <glm/vec3.hpp>
 
-namespace tavern::graphics::opengl {
+namespace tavern::graphics::opengl
+{
 
 class texture2d
 {
@@ -31,15 +32,17 @@ public:
             GL_UNSIGNED_BYTE, data
         );
         glGenerateMipmap(GL_TEXTURE_2D);
+
+        // unbind texture
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     ~texture2d() {
         glDeleteTextures(1, &m_texture);
     }
 
-    texture2d& use() {
+    void use() const {
         glBindTexture(GL_TEXTURE_2D, m_texture);
-        return *this;
     }
 
 private:

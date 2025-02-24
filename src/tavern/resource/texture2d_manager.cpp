@@ -1,6 +1,5 @@
 #include "tavern/resource/texture2d_manager.h"
 
-#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
 #include <boost/log/trivial.hpp>

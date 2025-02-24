@@ -3,9 +3,12 @@
 
 #include <string>
 
+#include <glm/vec2.hpp>
+
 #include <ttf2bmp/ttf2bmp.h>
 
-#include "texture2d.h"
+#include "shader.h"
+#include "texture.h"
 
 namespace tavern::graphics {
 
@@ -14,14 +17,14 @@ class font
     font(const ttf2bmp::bmp_font& bmp_font);
     ~font() = default;
 
-    void draw_text(const std::string& text) const;
+    void draw_text(const std::string& text, shader& s, const glm::vec2& pos, const float scale) const;
 
 private:
 
     ttf2bmp::bmp_font m_font;
 
     // doesn't need to be resource, texture should be unique to font
-    texture2d m_texture;
+    texture_atlas m_atlas;
 
 }; /* end of class font */
 

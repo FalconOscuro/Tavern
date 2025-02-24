@@ -74,10 +74,6 @@ target_sources(Tavern PUBLIC
     src/tavern/core/window.cpp
     src/tavern/core/input.cpp
 
-    src/tavern/graphics/opengl/font.cpp
-    src/tavern/graphics/opengl/renderer.cpp
-    src/tavern/graphics/opengl/shader.cpp
-
     src/tavern/resource/mesh_manager.cpp
     src/tavern/resource/texture2d_manager.cpp
 
@@ -111,6 +107,13 @@ if(${RENDERER} STREQUAL "gl")
         GLEW::glew
         OpenGL::GL
         OpenGL::GLU
+    )
+
+    target_sources(Tavern PUBLIC
+        src/tavern/graphics/opengl/font.cpp
+        src/tavern/graphics/opengl/renderer.cpp
+        src/tavern/graphics/opengl/shader.cpp
+        src/tavern/graphics/opengl/texture_atlas.cpp
     )
 
     target_compile_definitions(Tavern
