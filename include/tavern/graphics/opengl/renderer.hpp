@@ -46,6 +46,8 @@ public:
 private:
 
     void imgui_draw();
+    bool update_camera(ecs::registry& registry);
+    void render_geometry(ecs::registry& registry);
 
     template<typename T>
     static uint32_t create_uniform_buffer(const T* data = nullptr) {

@@ -101,11 +101,47 @@ void renderer::render(ecs::registry& registry)
 {
     imgui_draw();
 
+    if (!update_camera(registry)) {
+        BOOST_LOG_TRIVIAL(warning) << "No camera found in scene";
+        return;
+    }
+
+    render_geometry(registry);
+}
+
+void renderer::swap_buffer(window& wnd) {
+
+    GLenum gl_error;
+    while ((gl_error = glGetError()) != GL_NO_ERROR)
+        BOOST_LOG_TRIVIAL(error) << "OpenGL Error: " << gl_error;
+
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    SDL_GL_SwapWindow(wnd);
+}
+
+void renderer::imgui_draw()
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
+    ImGuiIO& io = ImGui::GetIO();
+
+    {
+        ImGui::Begin("Perfomance");
+        ImGui::Text("Average: %.1f fps", io.Framerate);
+        ImGui::End();
+    }
+
+    ImGui::Render();
+}
+
+bool renderer::update_camera(ecs::registry& registry)
+{
     auto cam_view = registry.create_view<component::transform, component::camera>();
 
     // no valid camera, skip rendering
     if (cam_view.size() == 0)
-        return;
+        return false;
 
     for (auto it = cam_view.begin(); it != cam_view.end(); ++it) {
         ecs::entity_type cam_id = *it;
@@ -128,11 +164,11 @@ void renderer::render(ecs::registry& registry)
     }
 
     // no camera to draw to, skip rendering
-    if (!registry.has<component::transform, component::camera>(m_camera)) {
-        BOOST_LOG_TRIVIAL(warning) << "No camera found in scene";
-        return;
-    }
+    return registry.has<component::transform, component::camera>(m_camera);
+}
 
+void renderer::render_geometry(ecs::registry& registry)
+{
     glEnable(GL_DEPTH_TEST);
     // clear screen
     glClearColor(0.f, 0.f, .2f, 1.f);
@@ -169,32 +205,6 @@ void renderer::render(ecs::registry& registry)
 
         drawable.mesh->draw(*shader.get());
     }
-}
-
-void renderer::swap_buffer(window& wnd) {
-
-    GLenum gl_error;
-    while ((gl_error = glGetError()) != GL_NO_ERROR)
-        BOOST_LOG_TRIVIAL(error) << "OpenGL Error: " << gl_error;
-
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    SDL_GL_SwapWindow(wnd);
-}
-
-void renderer::imgui_draw()
-{
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
-    ImGui::NewFrame();
-    ImGuiIO& io = ImGui::GetIO();
-
-    {
-        ImGui::Begin("Perfomance");
-        ImGui::Text("Average: %.1f fps", io.Framerate);
-        ImGui::End();
-    }
-
-    ImGui::Render();
 }
 
 } /* end of namespace tavern::graphics */
