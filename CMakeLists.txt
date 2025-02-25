@@ -75,6 +75,7 @@ target_sources(Tavern PUBLIC
     src/tavern/core/input.cpp
 
     src/tavern/resource/mesh_manager.cpp
+    src/tavern/resource/shader_manager.cpp
     src/tavern/resource/texture2d_manager.cpp
 
     src/tavern/systems/scene.cpp
