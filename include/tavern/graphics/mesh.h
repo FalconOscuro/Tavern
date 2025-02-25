@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_MESH_H
 #define GRAPHICS_MESH_H
 
-#include "opengl/mesh.hpp"
+#include "opengl/mesh.h"
 #include "../resource/resource_ptr.hpp"
 
 namespace tavern::graphics {

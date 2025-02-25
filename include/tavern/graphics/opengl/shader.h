@@ -34,11 +34,11 @@ public:
     void set_mat4x4(const std::string& name, const glm::mat4x4& val);
 
     void set_transform(const glm::mat4& t);
-    void set_material(const material& m);
+    void set_material(const material_resource& m);
 
 private:
 
-    GLint get_attribute_location(const std::string& name);
+    int get_attribute_location(const std::string& name);
 
     uint32_t compile_shader(const char* src, int type);
 
@@ -46,7 +46,7 @@ private:
 
     // store shader uniform names and associated locations to reduce queries to Opengl api
     // WARNING: Thread safety?
-    std::unordered_map<std::string, GLint> m_attribute_map;
+    std::unordered_map<std::string, int> m_attribute_map;
 }; /* end of class shader */
 
 } /* end of namespace tavern::graphics::opengl */

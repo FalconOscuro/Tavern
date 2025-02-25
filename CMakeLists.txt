@@ -114,6 +114,8 @@ if(${RENDERER} STREQUAL "gl")
         src/tavern/graphics/opengl/renderer.cpp
         src/tavern/graphics/opengl/shader.cpp
         src/tavern/graphics/opengl/texture_atlas.cpp
+        src/tavern/graphics/opengl/mesh.cpp
+        src/tavern/graphics/opengl/texture2d.cpp
     )
 
     target_compile_definitions(Tavern

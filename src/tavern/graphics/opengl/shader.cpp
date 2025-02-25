@@ -104,14 +104,17 @@ void shader::set_transform(const glm::mat4& t) {
     glUniformMatrix4fv(shader_loc::model, 1, GL_FALSE, glm::value_ptr(t));
 }
 
-void shader::set_material(const material& m)
+void shader::set_material(const material_resource& m)
 {
+    if (!m)
+        return;
+
     // check if textures set and useable
-    const bool use_albedo_tex = m.albedo_tex;
-    const bool use_metallic_roughness_tex = m.metallic_roughness_tex;
-    const bool use_normal_tex = m.normal_tex;
-    const bool use_ambient_occlusion_tex = m.ambient_occlusion_tex;
-    const bool use_emissive_tex = m.emissive_tex;
+    const bool use_albedo_tex = m->albedo_tex;
+    const bool use_metallic_roughness_tex = m->metallic_roughness_tex;
+    const bool use_normal_tex = m->normal_tex;
+    const bool use_ambient_occlusion_tex = m->ambient_occlusion_tex;
+    const bool use_emissive_tex = m->emissive_tex;
 
     set_bool("mat.use_albedo_tex", use_albedo_tex);
     set_bool("mat.use_metallic_roughness_tex", use_metallic_roughness_tex);
@@ -120,41 +123,41 @@ void shader::set_material(const material& m)
     set_bool("mat.use_emissive_tex", use_emissive_tex);
 
     if (!use_albedo_tex)
-        set_vec3("mat.albedo", m.albedo);
+        set_vec3("mat.albedo", m->albedo);
     else {
         glActiveTexture(GL_TEXTURE0 + shader_loc::albedo_tex_num);
         set_int("mat.albedo_tex", shader_loc::albedo_tex_num);
-        m.albedo_tex->use();
+        m->albedo_tex->use();
     }
 
     if (!use_metallic_roughness_tex) {
-        set_float("mat.metallic", m.metallic);
-        set_float("mat.roughness", m.roughness);
+        set_float("mat.metallic", m->metallic);
+        set_float("mat.roughness", m->roughness);
     }
     else {
         glActiveTexture(GL_TEXTURE0 + shader_loc::metallic_roughness_tex_num);
         set_int("mat.metallic_roughness_tex", shader_loc::metallic_roughness_tex_num);
-        m.metallic_roughness_tex->use();
+        m->metallic_roughness_tex->use();
     }
 
     if (!use_ambient_occlusion_tex)
-        set_float("mat.ambient_occlusion", m.ambient_occlusion);
+        set_float("mat.ambient_occlusion", m->ambient_occlusion);
     else {
         glActiveTexture(GL_TEXTURE0 + shader_loc::ambient_occlusion_tex_num);
         set_int("mat.ambient_occlusion_tex", shader_loc::ambient_occlusion_tex_num);
-        m.ambient_occlusion_tex->use();
+        m->ambient_occlusion_tex->use();
     }
 
     if (!use_emissive_tex)
-        set_vec3("mat.emissive", m.emissive);
+        set_vec3("mat.emissive", m->emissive);
     else {
         glActiveTexture(GL_TEXTURE0 + shader_loc::emissive_tex_num);
         set_int("mat.emissive_tex", shader_loc::emissive_tex_num);
-        m.emissive_tex->use();
+        m->emissive_tex->use();
     }
 }
 
-GLint shader::get_attribute_location(const std::string& name)
+int shader::get_attribute_location(const std::string& name)
 {
     if (m_attribute_map.count(name))
         return m_attribute_map[name];

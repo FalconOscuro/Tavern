@@ -1,7 +1,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "opengl/texture2d.hpp"
+#include "opengl/texture2d.h"
 #include "opengl/texture_atlas.h"
 
 #include "../resource/resource_ptr.hpp"
