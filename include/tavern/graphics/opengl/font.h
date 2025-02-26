@@ -14,10 +14,14 @@ namespace tavern::graphics::opengl {
 
 class font
 {
+public:
     font(const ttf2bmp::bmp_font& bmp_font);
     ~font();
 
     void draw_text(const std::string& text, shader& s, const glm::vec2& pos, const float scale) const;
+
+    // get size for bounding box of rendered text
+    glm::vec2 get_text_size(const std::string& text, const float scale = 1.f) const;
 
 private:
 

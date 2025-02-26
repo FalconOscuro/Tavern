@@ -13,6 +13,7 @@
 #include "tavern/core/window.h"
 
 #include "tavern/components/drawable3d.h"
+#include "tavern/components/gui_comp.h"
 #include "tavern/components/transform3d.h"
 #include "tavern/components/camera.h"
 
@@ -204,6 +205,18 @@ void renderer::render_geometry(ecs::registry& registry)
         // Default material?
 
         drawable.mesh->draw(*shader.get());
+    }
+}
+
+void renderer::render_gui(ecs::registry& registry)
+{
+    auto gui_view = registry.create_view<component::gui_comp>();
+
+    for (auto it = gui_view.begin(); it != gui_view.end(); ++it) {
+        auto& gui_comp = it.get<component::gui_comp>();
+
+        if (gui_comp.control)
+            gui_comp.control->draw();
     }
 }
 

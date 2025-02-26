@@ -75,7 +75,7 @@ void font::draw_text(const std::string& text, shader& s, const glm::vec2& pos, c
 
         // should assert nullchar always exists
         if (found == m_font.character_map.end())
-            found = m_font.character_map.find('\0');
+            found = m_font.character_map.begin();
 
         const glm::mat4 transf =
             glm::translate(
@@ -97,6 +97,32 @@ void font::draw_text(const std::string& text, shader& s, const glm::vec2& pos, c
 
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+glm::vec2 font::get_text_size(const std::string& text, const float scale) const
+{
+    glm::vec2 size;
+
+    for (auto c = text.begin(); c != text.end(); ++c)
+    {
+        if (*c == '\n') {
+            // if \n is last character then no need for new line
+            if (c != text.end() - 1)
+                size.y += m_font.line_height;
+
+            continue;
+        }
+
+        auto glyph = m_font.character_map.find(*c);
+
+        if (glyph == m_font.character_map.end())
+            glyph = m_font.character_map.begin();
+
+        // may not be fully accurate
+        size.x += glyph->second.advance;
+    }
+
+    return size * scale;
 }
 
 } /* namespace tavern::graphics */

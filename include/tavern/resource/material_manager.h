@@ -2,7 +2,7 @@
 #define MATERIAL_MANAGER_H
 
 #include "resource_type_manager.hpp"
-#include "../graphics/material.h"
+#include "tavern/graphics/material.h"
 
 #include <boost/log/trivial.hpp>
 
@@ -10,7 +10,6 @@ namespace tavern::resource {
 
 class material_manager : public resource_type_manager<graphics::material>
 {
-
 protected:
 
     graphics::material* load_new(const std::string& path) override {

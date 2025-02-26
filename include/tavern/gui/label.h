@@ -5,6 +5,9 @@
 
 #include <string>
 
+#include "tavern/graphics/font.h"
+#include "tavern/graphics/shader.h"
+
 namespace tavern::gui {
 
 class label : public control
@@ -20,7 +23,13 @@ public:
 
     ~label() = default;
 
+    void draw() const override;
+
     std::string text;
+
+    float size = 1.f;
+    graphics::font_resource font;
+    graphics::shader_resource shader;
 
 }; /* end of class label : public control */
 

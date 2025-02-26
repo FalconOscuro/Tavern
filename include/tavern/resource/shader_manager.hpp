@@ -4,13 +4,6 @@
 #include "resource_type_manager.hpp"
 #include "../graphics/shader.h"
 
-#include <boost/log/trivial.hpp>
-
-#include <ryml.hpp>
-#include <ryml_std.hpp>
-
-#include "util/file.hpp"
-
 namespace tavern::resource {
 
 class shader_manager : public resource_type_manager<graphics::shader>

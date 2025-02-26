@@ -46,8 +46,10 @@ public:
 private:
 
     void imgui_draw();
+    // singleton instead of passing by argument?
     bool update_camera(ecs::registry& registry);
     void render_geometry(ecs::registry& registry);
+    void render_gui(ecs::registry& registry);
 
     template<typename T>
     static uint32_t create_uniform_buffer(const T* data = nullptr) {

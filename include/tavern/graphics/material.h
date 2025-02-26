@@ -1,8 +1,6 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include <memory>
-
 #include <glm/vec3.hpp>
 
 #include "texture.h"

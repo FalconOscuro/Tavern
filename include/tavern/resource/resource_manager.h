@@ -34,7 +34,7 @@ public:
 
 private:
 
-    resource_manager()
+    explicit resource_manager()
     {}
 }; /* end of class resource_manager */
 

@@ -1,5 +1,7 @@
 #include "tavern/components/drawable3d.h"
 
+#include <ryml_std.hpp>
+
 #include "tavern/resource/resource_manager.h"
 
 namespace tavern::component {
