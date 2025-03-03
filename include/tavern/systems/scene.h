@@ -11,10 +11,17 @@ class scene
 {
 public:
 
-    void update(ecs::registry& reg);
+    scene() {}
+    ~scene() = default;
 
-    void load(const std::string& file, ecs::registry& reg);
-    void load_scene(const std::string& file, ecs::registry& reg);
+    // prevent copy
+    scene(const scene&) = delete;
+    void operator=(const scene&) = delete;
+
+    void update();
+
+    void load(const std::string& file);
+    void load_scene(const std::string& file);
 
 private:
 

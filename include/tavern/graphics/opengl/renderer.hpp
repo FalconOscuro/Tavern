@@ -2,12 +2,14 @@
 #define OPENGL_RENDERER_HPP
 #ifdef USE_OPENGL
 
-#include <memory>
-
 #include <GL/glew.h>
 
-#include "../generic/renderer.h"
-#include "../shader.h"
+#include <ecs/ecs.h>
+
+#include "tavern/graphics/generic/renderer.h"
+#include "tavern/graphics/shader.h"
+
+#include "tavern/platform/sdl.h"
 
 namespace tavern::graphics::opengl {
 
@@ -20,19 +22,13 @@ public:
         clean();
     }
 
-    bool pre_window_init() override {
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+    // prevent copy
+    renderer(const renderer&) = delete;
+    void operator=(const renderer&) = delete;
 
-#ifndef NDEBUG
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
-#endif // NDEBUG
+    bool pre_window_init() override;
 
-        return true;
-    }
-
-    bool init(window& window) override;
+    bool init() override;
     void clean() override;
 
     void set_viewport_size(const glm::ivec2& view_size) override {
@@ -40,16 +36,16 @@ public:
         glViewport(0, 0, view_size.x, view_size.y);
     }
 
-    void render(ecs::registry& registry) override;
-    void swap_buffer(window& wnd) override;
+    void render() override;
+    void swap_buffer() override;
 
 private:
 
     void imgui_draw();
     // singleton instead of passing by argument?
-    bool update_camera(ecs::registry& registry);
-    void render_geometry(ecs::registry& registry);
-    void render_gui(ecs::registry& registry);
+    bool update_camera();
+    void render_geometry();
+    void render_gui();
 
     template<typename T>
     static uint32_t create_uniform_buffer(const T* data = nullptr) {

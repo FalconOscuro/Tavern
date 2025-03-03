@@ -9,7 +9,7 @@ namespace tavern {
 
 namespace system {
 
-class gui;
+class gui_sys;
 
 } /* end of namespace system */
 
@@ -17,9 +17,11 @@ namespace gui {
 
 struct bounds
 {
-    friend class system::gui;
+    friend class system::gui_sys;
 
-    // pos & size measured in screen space coordinates?
+    // pos & size measured in relative screen space coordinates
+    // used for manual positioning only, all calcs done unsing privated absolute coords
+    // can be ignored by anchor/sizing flags, or by parent container
     glm::vec2 pos;
     glm::vec2 size;
 
@@ -55,11 +57,20 @@ struct bounds
         return m_parent;
     }
 
+    const glm::ivec2& get_min_size() const {
+        return m_min_size;
+    }
+
 private:
 
     // controlled by system only
     // Helps ensure single parent only
+    // attempting to change ownership can lead to undefined behaviour as no current inbuilt way to remove child references dynamically
     ecs::entity_type m_parent = UINT32_MAX;
+
+    glm::vec2 m_screen_pos;
+    glm::vec2 m_screen_size;
+    glm::ivec2 m_min_size;
 
 }; /* end of struct bounds */
 

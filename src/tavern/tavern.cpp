@@ -17,7 +17,7 @@ bool tavern::init(const uint16_t width, const uint16_t height, const std::string
     m_ready =
            m_renderer.pre_window_init()
         && m_window.init(glm::ivec2(width, height))
-        && m_renderer.init(m_window);
+        && m_renderer.init();
 
     BOOST_LOG_TRIVIAL(trace) << "Engine initialization complete";
 
@@ -34,10 +34,12 @@ void tavern::run() {
     BOOST_LOG_TRIVIAL(trace) << "Entering main loop";
     while (handle_events()) {
 
-        m_scene.update(m_registry);
+        m_scene.update();
 
-        m_renderer.render(m_registry);
-        m_renderer.swap_buffer(m_window);
+        m_gui.update();
+
+        m_renderer.render();
+        m_renderer.swap_buffer();
 
         m_input.update();
     }

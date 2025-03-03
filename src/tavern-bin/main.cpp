@@ -36,7 +36,7 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    tavern::tavern engine;
+    tavern::tavern& engine = tavern::tavern::singleton();
 
     if (!engine.init(
             args["width"].as<uint16_t>(),
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
     if (args.count("scene")) {
         const std::string scene_file = args["scene"].as<std::string>();
 
-        engine.get_scene().load_scene(scene_file, engine.get_registry());
+        engine.get_scene().load_scene(scene_file);
     }
 
     engine.run();

@@ -3,15 +3,24 @@
 
 #include <ecs/ecs.h>
 
+#include "tavern/gui/bounds.h"
+
 namespace tavern::system {
 
-class gui
+class gui_sys
 {
 public:
 
-    void update(ecs::registry& reg);
+    void update();
 
-}; /* end of class gui */
+private:
+
+    void update_containers();
+    void update_screen_coords();
+
+    void update_bound(ecs::entity_type eid, gui::bounds& bound, const glm::ivec2& container_pos, const glm::ivec2& container_size, ecs::registry& reg);
+
+}; /* end of class gui_sys */
 
 } /* end of namespace tavern::system */
 

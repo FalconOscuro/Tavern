@@ -10,6 +10,7 @@
 #include "resource/resource_manager.h"
 #include "platform/sdl.h"
 
+#include "systems/gui.h"
 #include "systems/scene.h"
 
 namespace tavern {
@@ -18,7 +19,10 @@ class tavern
 {
 public:
 
-    tavern(){}
+    // delete copy construction, should only be accessed through singleton
+    tavern(const tavern&) = delete;
+    void operator=(const tavern&) = delete;
+
     ~tavern() {
         clean();
     }
@@ -35,15 +39,31 @@ public:
         return m_running;
     }
 
-    ecs::registry& get_registry() {
+    // these could be built in as singletons too
+    [[nodiscard]] ecs::registry& get_registry() {
         return m_registry;
     }
 
-    system::scene& get_scene() {
+    [[nodiscard]] system::scene& get_scene() {
         return m_scene;
     }
 
+    [[nodiscard]] window& get_window() {
+        return m_window;
+    }
+
+    [[nodiscard]] graphics::renderer& get_renderer() {
+        return m_renderer;
+    }
+
+    [[nodiscard]] static tavern& singleton() {
+        static tavern t;
+        return t;
+    }
+
 private:
+
+    explicit tavern(){}
 
     bool handle_events();
     void handle_window_event(const SDL_WindowEvent& e);
@@ -55,6 +75,7 @@ private:
     input m_input;
     graphics::renderer m_renderer;
 
+    system::gui_sys m_gui;
     // TODO: Should be integrated into physics system
     system::scene m_scene;
 

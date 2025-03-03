@@ -7,10 +7,16 @@
 
 namespace tavern::gui {
 
-class container
+struct container
 {
     std::vector<ecs::entity_type> children;
-}; /* end of class container */
+
+    enum {
+        STACK = 0, // hack to create effective sub-viewport, maybe un-necessary?
+        HORIZONTAL,
+        VERTICAL,
+    } strategy;
+}; /* end of class struct */
 
 } /* end of namespace tavern::gui */
 

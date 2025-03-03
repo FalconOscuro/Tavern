@@ -14,6 +14,10 @@ public:
 
     window(){}
 
+    // prevent copy
+    window(const window&) = delete;
+    void operator=(const window&) = delete;
+
     window(const std::string& name):
         m_name(name)
     {}

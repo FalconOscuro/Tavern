@@ -10,6 +10,8 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl2.h>
 
+#include "tavern/tavern.h"
+
 #include "tavern/core/window.h"
 
 #include "tavern/components/drawable3d.h"
@@ -24,6 +26,19 @@ struct camera_ub {
     glm::mat4 projection;
     glm::mat4 view;
 }; /* end of struct camera_ub */
+
+bool renderer::pre_window_init()
+{
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+
+#ifndef NDEBUG
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+#endif // NDEBUG
+
+    return true;
+}
 
 void renderer::clean() {
 
@@ -44,9 +59,10 @@ void renderer::clean() {
     m_glcontext = NULL;
 }
 
-bool renderer::init(window& wnd) {
+bool renderer::init() {
 
     // init opengl context
+    window& wnd = tavern::singleton().get_window();
     m_glcontext = SDL_GL_CreateContext(wnd);
 
     if (!m_glcontext) {
@@ -97,26 +113,26 @@ bool renderer::init(window& wnd) {
     return true;
 }
 
-void renderer::render(ecs::registry& registry)
+void renderer::render()
 {
     imgui_draw();
 
-    if (!update_camera(registry)) {
+    if (!update_camera()) {
         BOOST_LOG_TRIVIAL(warning) << "No camera found in scene";
         return;
     }
 
-    render_geometry(registry);
+    render_geometry();
 }
 
-void renderer::swap_buffer(window& wnd) {
+void renderer::swap_buffer() {
 
     GLenum gl_error;
     while ((gl_error = glGetError()) != GL_NO_ERROR)
         BOOST_LOG_TRIVIAL(error) << "OpenGL Error: " << gl_error;
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    SDL_GL_SwapWindow(wnd);
+    SDL_GL_SwapWindow(tavern::singleton().get_window());
 }
 
 void renderer::imgui_draw()
@@ -135,8 +151,10 @@ void renderer::imgui_draw()
     ImGui::Render();
 }
 
-bool renderer::update_camera(ecs::registry& registry)
+bool renderer::update_camera()
 {
+    ecs::registry& registry = tavern::singleton().get_registry();
+
     auto cam_view = registry.create_view<component::transform, component::camera>();
 
     // no valid camera, skip rendering
@@ -167,13 +185,14 @@ bool renderer::update_camera(ecs::registry& registry)
     return registry.has<component::transform, component::camera>(m_camera);
 }
 
-void renderer::render_geometry(ecs::registry& registry)
+void renderer::render_geometry()
 {
     glEnable(GL_DEPTH_TEST);
     // clear screen
     glClearColor(0.f, 0.f, .2f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    auto& registry = tavern::singleton().get_registry();
     auto draw_view = registry.create_view<component::drawable3d, component::transform>();
 
     auto& camera = registry.get<component::camera>(m_camera);
@@ -207,7 +226,7 @@ void renderer::render_geometry(ecs::registry& registry)
     }
 }
 
-void renderer::render_gui(ecs::registry& registry)
+void renderer::render_gui()
 {
     // Need to posistion ui elements on screen
 

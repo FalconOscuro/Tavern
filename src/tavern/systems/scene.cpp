@@ -23,6 +23,8 @@
 #include "tavern/resource/resource_manager.h"
 #include "tavern/resource/util/file.hpp"
 
+#include "tavern/tavern.h"
+
 template <>
 struct std::hash<c4::csubstr>
 {
@@ -35,8 +37,9 @@ struct std::hash<c4::csubstr>
 
 namespace tavern::system {
 
-void scene::update(ecs::registry& reg)
+void scene::update()
 {
+    auto& reg = tavern::singleton().get_registry();
     auto& pool = reg.get_pool<component::transform>();
 
     // add untracked entities
@@ -205,7 +208,7 @@ void load_node(aiNode* node, const aiScene* scene, ecs::registry& reg, ecs::enti
         load_node(node->mChildren[i], scene, reg, parent, path);
 }
 
-void scene::load(const std::string& file, ecs::registry& reg)
+void scene::load(const std::string& file)
 {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(file, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
@@ -215,12 +218,16 @@ void scene::load(const std::string& file, ecs::registry& reg)
         return;
     }
 
+    auto& reg = tavern::singleton().get_registry();
+
     load_node(scene->mRootNode, scene, reg, reg.tombstone(), file);
 }
 
 // Note, could be built into ECS
-void scene::load_scene(const std::string& file, ecs::registry& reg)
+void scene::load_scene(const std::string& file)
 {
+    auto& reg = tavern::singleton().get_registry();
+
     BOOST_LOG_TRIVIAL(info) << "Loading scene from " << file;
 
     size_t size;
