@@ -1,0 +1,21 @@
+#ifndef ANCHOR_H
+#define ANCHOR_H
+
+#include <glm/vec2.hpp>
+
+namespace tavern::gui {
+
+struct anchor
+{
+
+    // position in relative screen space coordinates 0-1
+    glm::vec2 pos;
+
+    enum {
+    } point;
+
+}; /* end of struct anchor */
+
+} /* end of namespace tavern::gui */
+
+#endif /* end of define guard ANCHOR_H */
