@@ -7,6 +7,7 @@
 
 namespace tavern::gui {
 
+// is this necessary?
 struct container
 {
     std::vector<ecs::entity_type> children;

@@ -61,24 +61,27 @@ void gui_sys::update_screen_coords()
     // don't need view as single arg
     auto gui_objs = reg.get_pool<gui::bounds>();
 
-    for (auto it = gui_objs.begin(); it != gui_objs.end(); ++it)
-        update_bound(it->second, it->first, wnd_pos, wnd_size, reg);
+    for (auto it = gui_objs.begin(); it != gui_objs.end(); ++it) {
+        auto& bound = it->first;
+
+        // skip all objects with parents, positioning controlled by parent container
+        // WARNING: Possibility of child ownership being removed without bounds knowledge causing possible leak
+        if (bound.m_parent >= reg.tombstone() || !reg.has<gui::container>(bound.m_parent))
+            bound.m_parent = reg.tombstone();
+
+        else
+            update_bound(it->second, bound, wnd_pos, wnd_size, reg);
+    }
 }
 
-void gui_sys::update_bound(const ecs::entity_type eid, gui::bounds& bound, const glm::ivec2& container_pos, const glm::ivec2& container_size, ecs::registry& reg)
+glm::vec2 gui_sys::update_bound(const ecs::entity_type eid, gui::bounds& bound, const glm::vec2 container_pos, const glm::vec2 container_size, ecs::registry& reg)
 {
-    // skip all objects with parents, positioning controlled by parent container
-    // WARNING: Possibility of child ownership being removed without bounds knowledge causing possible leak
-    if (bound.m_parent >= reg.tombstone() || !reg.has<gui::container>(bound.m_parent)) {
-        bound.m_parent = reg.tombstone();
-        return;
-    }
 
     // Sizing
     // X
     if ((bound.sizing & gui::bounds::X_STRETCH_PREFER_MIN) == gui::bounds::X_STRETCH_PREFER_MIN) {
         // does not update screen space coords for size
-        bound.m_screen_size.x = glm::max(container_size.x, bound.get_min_size().x);
+        bound.m_screen_size.x = glm::max(container_size.x, static_cast<float>(bound.get_min_size().x));
     }
 
     else if (bound.sizing & gui::bounds::X_STRETCH) {
@@ -96,7 +99,7 @@ void gui_sys::update_bound(const ecs::entity_type eid, gui::bounds& bound, const
     // Y
     if ((bound.sizing & gui::bounds::Y_STRETCH_PREFER_MIN) == gui::bounds::Y_STRETCH_PREFER_MIN) {
         // does not update screen space coords for size
-        bound.m_screen_size.y = glm::max(container_size.y, bound.get_min_size().y);
+        bound.m_screen_size.y = glm::max(container_size.y, static_cast<float>(bound.get_min_size().y));
     }
 
     else if (bound.sizing & gui::bounds::Y_STRETCH) {
@@ -151,9 +154,31 @@ void gui_sys::update_bound(const ecs::entity_type eid, gui::bounds& bound, const
     // offset from container start
     bound.m_screen_pos += container_pos;
 
-    // update children if container
+    // continue on to update children if is container entity
     if (!reg.has<gui::container>(eid))
-        return;
+        return bound.m_screen_size;
+
+    auto& container = reg.get<gui::container>(eid);
+
+    // stack containers have no additional positioning beyond passing on posision
+    // vertical/horizontal containers need to assign based on which children can stretch and which are fixed in size 
+
+    for (auto it = container.children.begin(); it != container.children.end();)
+    {
+        // should never fail, update containers should remove any invalid eids
+        auto& child = reg.get<gui::bounds>(*it);
+
+        // edge case, check if another entity has claimed ownership
+        if (child.m_parent != eid) {
+            continue;
+            it = container.children.erase(it);
+        }
+
+        else
+            ++it;
+    }
+
+    return bound.m_screen_size;
 }
 
 } /* end of namespace tavern::system */

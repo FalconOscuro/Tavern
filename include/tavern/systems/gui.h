@@ -18,7 +18,8 @@ private:
     void update_containers();
     void update_screen_coords();
 
-    void update_bound(ecs::entity_type eid, gui::bounds& bound, const glm::ivec2& container_pos, const glm::ivec2& container_size, ecs::registry& reg);
+    // update single bound and then iterate through any children, returns bound used size
+    glm::vec2 update_bound(ecs::entity_type eid, gui::bounds& bound, const glm::vec2 container_pos, const glm::vec2 container_size, ecs::registry& reg);
 
 }; /* end of class gui_sys */
 
