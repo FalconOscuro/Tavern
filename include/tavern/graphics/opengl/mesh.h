@@ -13,6 +13,7 @@
 
 namespace tavern::graphics::opengl {
 
+// generic mesh?
 class mesh
 {
 public:
