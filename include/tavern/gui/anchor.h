@@ -12,6 +12,11 @@ struct anchor
     glm::vec2 pos;
 
     enum {
+        CENTER = 0,
+        TOP = 1,
+        BOTTOM = 1 << 1,
+        LEFT = 1 << 2,
+        RIGHT = 1 << 3,
     } point;
 
 }; /* end of struct anchor */

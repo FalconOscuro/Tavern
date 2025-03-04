@@ -33,6 +33,12 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
+    RmlUi
+    GIT_REPOSITORY git@github.com:mikke89/RmlUi.git
+    GIT_TAG 6.0
+)
+
+FetchContent_Declare(
     assimp
     GIT_REPOSITORY git@github.com:assimp/assimp.git
     GIT_TAG v5.4.3
@@ -50,7 +56,7 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
 #set(ASSIMP_BUILD_OBJ_IMPORTER ON)
 set(ASSIMP_BUILD_GLTF_IMPORTER ON)
 
-FetchContent_MakeAvailable(ecs ttf2bmp ryml assimp)
+FetchContent_MakeAvailable(ecs ttf2bmp ryml RmlUi assimp)
 
 find_package(Boost REQUIRED COMPONENTS log program_options)
 find_package(SDL2 REQUIRED)
@@ -73,6 +79,7 @@ target_sources(Tavern PUBLIC
 
     src/tavern/core/window.cpp
     src/tavern/core/input.cpp
+    src/tavern/core/gui.cpp
 
     src/tavern/resource/mesh_manager.cpp
     src/tavern/resource/shader_manager.cpp
@@ -95,13 +102,14 @@ target_sources(Tavern PUBLIC
 
 target_link_libraries(Tavern
     PUBLIC ecs
-    PUBLIC ttf2bmp
-    PUBLIC SDL2::SDL2
-    PUBLIC Boost::log
-    PUBLIC ryml::ryml
-    PUBLIC assimp
     PUBLIC glm::glm
+    PUBLIC SDL2::SDL2
+    PUBLIC ryml::ryml
+    PUBLIC ttf2bmp
     PUBLIC imgui
+    PUBLIC RmlUi::RmlUi
+    PRIVATE assimp
+    PRIVATE Boost::log
 )
 
 if(${RENDERER} STREQUAL "gl")
@@ -126,6 +134,13 @@ if(${RENDERER} STREQUAL "gl")
         PUBLIC USE_OPENGL RENDERER_NS=opengl
     )
 
+    target_include_directories(Tavern PUBLIC ${PROJECT_BINARY_DIR}/configure/)
+
+    file(READ shaders/pbr.vert PBR_VERT)
+    file(READ shaders/pbr.frag PBR_FRAG)
+    configure_file(shaders/pbr.hpp.in configure/shaders/pbr.hpp @ONLY)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS shaders/pbr.vert shaders/pbr.frag shaders/pbr.hpp.in)
+
 elseif(${RENDERER} STREQUAL "vk")
     message(FATAL_ERROR "Vulkan is not currently supported")
 else()
@@ -142,9 +157,9 @@ target_link_libraries(tavern-bin PUBLIC
     Boost::log
 )
 
-add_custom_command(
-    TARGET tavern-bin PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${PROJECT_SOURCE_DIR}/shaders"
-        "${PROJECT_BINARY_DIR}/shaders"
-)
+# add_custom_command(
+#     TARGET tavern-bin PRE_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy_directory
+#         "${PROJECT_SOURCE_DIR}/shaders"
+#         "${PROJECT_BINARY_DIR}/shaders"
+# )

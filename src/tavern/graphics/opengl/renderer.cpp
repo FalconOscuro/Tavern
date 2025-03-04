@@ -20,6 +20,8 @@
 
 #include "tavern/resource/resource_manager.h"
 
+#include "shaders/pbr.hpp"
+
 namespace tavern::graphics::opengl {
 
 struct camera_ub {
@@ -94,7 +96,7 @@ bool renderer::init() {
 
     // load default shader
     // Check to ensure successful completion?
-    m_default_shader = resource_manager::get().shaders.load("./shaders/pbr.yml");
+    m_default_shader = resource_manager::get().shaders.register_new("default", pbr::vert, pbr::frag);
 
     // create uniform buffer for camera data
     m_camera_ub = create_uniform_buffer<camera_ub>();

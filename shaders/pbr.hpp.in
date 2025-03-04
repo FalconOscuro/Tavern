@@ -1,0 +1,14 @@
+#ifndef OPENGL_PBR_SHADER_HPP
+#define OPENGL_PBR_SHADER_HPP
+
+namespace tavern::graphics::opengl {
+
+struct pbr
+{
+    static constexpr const char* vert = R"(@PBR_VERT@)";
+    static constexpr const char* frag = R"(@PBR_FRAG@)";
+}; /* end of struct pbr */
+
+} /* end of namespace tavern::graphics::opengl */
+
+#endif /* end of define guard OPENGL_PBR_SHADER_HPP */
