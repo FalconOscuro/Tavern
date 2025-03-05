@@ -4,8 +4,8 @@
 
 namespace tavern::graphics::opengl {
 
-mesh::mesh(const std::vector<vertex>& vertices, const std::vector<uint32_t>& indices, const material_resource& mat):
-    mat(mat), m_index_count(indices.size())
+mesh::mesh(const std::vector<vertex>& vertices, const std::vector<uint32_t>& indices):
+    m_index_count(indices.size())
 {
     glGenBuffers(1, &m_vertex_buffer);
     glGenBuffers(1, &m_index_buffer);
@@ -51,10 +51,7 @@ mesh::~mesh() {
     glDeleteVertexArrays(1, &m_id);
 }
 
-void mesh::draw(shader& s) const {
-    if (mat)
-        s.set_material(mat);
-
+void mesh::draw() const {
     glBindVertexArray(m_id);
     glDrawElements(GL_TRIANGLES, m_index_count, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);

@@ -222,9 +222,9 @@ void renderer::render_geometry()
             continue;
 
         shader->set_transform(transform.get_global());
-        // Default material?
+        shader->set_material(drawable.material);
 
-        drawable.mesh->draw(*shader.get());
+        drawable.mesh->draw();
     }
 }
 

@@ -7,24 +7,19 @@
 
 #include <GL/glew.h>
 
-#include "shader.h"
-#include "../material.h"
-#include "../vertex.h"
+#include "tavern/graphics/vertex.h"
 
 namespace tavern::graphics::opengl {
 
-// generic mesh?
 class mesh
 {
 public:
 
-    mesh(const std::vector<vertex>& vertices, const std::vector<uint32_t>& indices, const material_resource& mat);
-    
+    mesh(const std::vector<vertex>& vertices, const std::vector<uint32_t>& indices);
+
     ~mesh();
 
-    void draw(shader& s) const;
-
-    material_resource mat;
+    void draw() const;
 
 private:
 

@@ -93,19 +93,22 @@ void scene::update()
     return resource_manager::get().tex2ds.load(dir + std::string(img_path.C_Str()));
 }
 
-[[nodiscard]] graphics::material load_material(aiMaterial* material, const std::string& dir)
+[[nodiscard]] graphics::material_resource load_material(aiMaterial* material, const std::string& material_name)
 {
+    if (resource_manager::get().materials.is_loaded(material_name))
+        return resource_manager::get().materials.load(material_name);
+
     graphics::material mat;
 
     // TODO: Read non texture properties
 
-    mat.albedo_tex = load_texture(material, aiTextureType_DIFFUSE, dir);
-    mat.metallic_roughness_tex = load_texture(material, aiTextureType_UNKNOWN, dir);
-    mat.normal_tex = load_texture(material, aiTextureType_NORMALS, dir);
-    mat.ambient_occlusion_tex = load_texture(material, aiTextureType_LIGHTMAP, dir);
-    mat.emissive_tex = load_texture(material, aiTextureType_EMISSIVE, dir);
+    mat.albedo_tex = load_texture(material, aiTextureType_DIFFUSE, material_name);
+    mat.metallic_roughness_tex = load_texture(material, aiTextureType_UNKNOWN, material_name);
+    mat.normal_tex = load_texture(material, aiTextureType_NORMALS, material_name);
+    mat.ambient_occlusion_tex = load_texture(material, aiTextureType_LIGHTMAP, material_name);
+    mat.emissive_tex = load_texture(material, aiTextureType_EMISSIVE, material_name);
 
-    return mat;
+    return resource_manager::get().materials.register_new(material_name, mat);
 }
 
 [[nodiscard]] graphics::mesh_resource load_mesh(uint32_t mesh_id, const aiScene* scene, const std::string& path)
@@ -154,17 +157,8 @@ void scene::update()
     }
 
     graphics::material_resource material_ptr;
-    std::string material_name = path + ";material:" + std::to_string(mesh->mMaterialIndex);
-    
-    if (resource_mgr.materials.is_loaded(material_name))
-        material_ptr = resource_mgr.materials.load(material_name);
 
-    else {
-        graphics::material material = load_material(scene->mMaterials[mesh->mMaterialIndex], std::string(resource::utility::get_file_parent_dir(path)));
-        material_ptr = resource_mgr.materials.register_new(material_name, material);
-    }
-
-    return resource_mgr.meshes.register_new(mesh_name, vertices, indices, material_ptr);
+    return resource_mgr.meshes.register_new(mesh_name, vertices, indices);
 }
 
 [[nodiscard]] glm::mat4 convert_matrix(const aiMatrix4x4& m)
@@ -195,9 +189,13 @@ void load_node(aiNode* node, const aiScene* scene, ecs::registry& reg, ecs::enti
         ecs::entity_type eid = reg.create();
         reg.set(eid, t);
 
-        graphics::mesh_resource mesh = load_mesh(node->mMeshes[i], scene, path);
+        const auto mesh_idx = node->mMeshes[i];
+        graphics::mesh_resource mesh = load_mesh(mesh_idx, scene, path);
 
-        reg.emplace<component::drawable3d>(eid, mesh);
+        const auto material_idx = scene->mMeshes[mesh_idx]->mMaterialIndex;
+        graphics::material_resource material = load_material(scene->mMaterials[material_idx], path + ";material:" + std::to_string(material_idx));
+
+        reg.emplace<component::drawable3d>(eid, mesh, material);
 
         if (i == 0 && node->mNumMeshes == 1)
             parent = eid;

@@ -1,8 +1,9 @@
 #ifndef DRAWABLE3D_H
 #define DRAWABLE3D_H
 
-#include "../graphics/mesh.h"
-#include "../graphics/shader.h"
+#include "tavern/graphics/material.h"
+#include "tavern/graphics/mesh.h"
+#include "tavern/graphics/shader.h"
 
 #include <ryml.hpp>
 
@@ -14,11 +15,12 @@ struct drawable3d
     drawable3d()
     {}
 
-    drawable3d(graphics::mesh_resource& mesh):
-        mesh(mesh)
+    drawable3d(const graphics::mesh_resource& mesh, const graphics::material_resource& material):
+        mesh(mesh), material(material)
     {}
 
     graphics::mesh_resource mesh;
+    graphics::material_resource material;
     graphics::shader_resource shader;
 };
 
