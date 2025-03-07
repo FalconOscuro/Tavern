@@ -46,12 +46,25 @@ void gui_render_interface::ReleaseGeometry(Rml::CompiledGeometryHandle geometry)
     delete ((mesh*)geometry);
 }
 
-Rml::TextureHandle gui_render_interface::LoadTexture(Rml::Vector2i& texture_dimensions, const Rml::String& source) {
-    return 0;
+Rml::TextureHandle gui_render_interface::LoadTexture(Rml::Vector2i& texture_dimensions, const Rml::String& source)
+{
+    glm::ivec3 dimensions;
+    auto img_data = load_image_data(source.c_str(), dimensions);
+
+    texture_dimensions.x = dimensions.x;
+    texture_dimensions.y = dimensions.y;
+
+    if (!img_data)
+        return 0;
+
+    return (Rml::TextureHandle)new texture2d(img_data.get(), dimensions);
 }
 
-Rml::TextureHandle gui_render_interface::GenerateTexture(Rml::Span<const Rml::byte> source, Rml::Vector2i source_dimensions) {
-    return 0;
+Rml::TextureHandle gui_render_interface::GenerateTexture(Rml::Span<const Rml::byte> source, Rml::Vector2i source_dimensions)
+{
+    const glm::ivec3 dimensions(source_dimensions.x, source_dimensions.y, 4);
+
+    return (Rml::TextureHandle)new texture2d(source.data(), dimensions);
 }
 
 void gui_render_interface::ReleaseTexture(Rml::TextureHandle texture) {

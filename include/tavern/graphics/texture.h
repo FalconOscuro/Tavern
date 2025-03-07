@@ -1,6 +1,8 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include "generic/texture.h"
+
 #include "opengl/texture2d.h"
 #include "opengl/texture_atlas.h"
 

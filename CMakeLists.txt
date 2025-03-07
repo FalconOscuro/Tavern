@@ -98,6 +98,8 @@ target_sources(Tavern PUBLIC
     src/tavern/file/tpk_file.cpp
 
     src/tavern/gui/label.cpp
+
+    src/tavern/graphics/generic/texture.cpp
 )
 
 target_link_libraries(Tavern
@@ -157,10 +159,3 @@ target_link_libraries(tavern-bin PUBLIC
     Boost::program_options
     Boost::log
 )
-
-# add_custom_command(
-#     TARGET tavern-bin PRE_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_directory
-#         "${PROJECT_SOURCE_DIR}/shaders"
-#         "${PROJECT_BINARY_DIR}/shaders"
-# )
