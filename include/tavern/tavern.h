@@ -5,12 +5,13 @@
 
 #include "core/window.h"
 #include "core/input.h"
+#include "core/gui.h"
+
 #include "graphics/renderer.h"
 
 #include "resource/resource_manager.h"
 #include "platform/sdl.h"
 
-#include "systems/gui.h"
 #include "systems/scene.h"
 
 namespace tavern {
@@ -24,12 +25,12 @@ public:
     void operator=(const tavern&) = delete;
 
     ~tavern() {
-        clean();
+        shutdown();
     }
 
     bool init(const uint16_t width, const uint16_t height, const std::string& name);
     void run();
-    void clean();
+    void shutdown();
 
     bool ready() const {
         return m_ready;
@@ -73,9 +74,10 @@ private:
 
     window m_window;
     input m_input;
+    gui m_gui;
+
     graphics::renderer m_renderer;
 
-    system::gui_sys m_gui;
     // TODO: Should be integrated into physics system
     system::scene m_scene;
 

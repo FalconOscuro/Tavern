@@ -22,10 +22,12 @@ public:
         m_name(name)
     {}
 
-    ~window();
+    ~window() {
+        shutdown();
+    }
 
     bool init(const glm::ivec2& size, int flags = 0);
-    void clean();
+    void shutdown();
 
     bool open() const {
         return m_open;

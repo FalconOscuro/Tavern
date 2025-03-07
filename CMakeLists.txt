@@ -86,7 +86,6 @@ target_sources(Tavern PUBLIC
     src/tavern/resource/texture2d_manager.cpp
 
     src/tavern/systems/scene.cpp
-    src/tavern/systems/gui.cpp
 
     src/tavern/components/camera.cpp
     src/tavern/components/drawable3d.cpp
@@ -100,6 +99,7 @@ target_sources(Tavern PUBLIC
     src/tavern/gui/label.cpp
 
     src/tavern/graphics/generic/texture.cpp
+    src/tavern/graphics/generic/renderer.cpp
 )
 
 target_link_libraries(Tavern

@@ -6,8 +6,13 @@ namespace tavern {
 
 bool gui::init()
 {
+    Rml::SetRenderInterface(&m_render_interface);
 
-    return true;
+    return Rml::Initialise();
+}
+
+void gui::shutdown() {
+    Rml::Shutdown();
 }
 
 } /* end of namespace tavern */

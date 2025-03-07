@@ -13,7 +13,7 @@ public:
     gui() {}
 
     ~gui() {
-        clean();
+        shutdown();
     }
 
     // disable copy
@@ -21,7 +21,7 @@ public:
     void operator=(const gui&) = delete;
 
     bool init();
-    void clean();
+    void shutdown();
 
 private:
 

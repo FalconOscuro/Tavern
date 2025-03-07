@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     }
 
     engine.run();
-    engine.clean();
+    engine.shutdown();
 
     return 0;
 }

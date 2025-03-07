@@ -5,13 +5,6 @@
 
 namespace tavern {
 
-window::~window() {
-    clean();
-    SDL_Quit();
-
-    BOOST_LOG_TRIVIAL(trace) << "Shutdown SDL";
-}
-
 bool window::init(const glm::ivec2& size, int flags) {
 
     if (open())
@@ -44,7 +37,7 @@ bool window::init(const glm::ivec2& size, int flags) {
     return true;
 }
 
-void window::clean() {
+void window::shutdown() {
 
     if (!m_window)
         return;
@@ -54,6 +47,10 @@ void window::clean() {
     m_open = false;
 
     BOOST_LOG_TRIVIAL(trace) << "Closed SDL Window";
+
+    SDL_Quit();
+
+    BOOST_LOG_TRIVIAL(trace) << "Shutdown SDL";
 }
 
 void window::set_title(const std::string& name) {

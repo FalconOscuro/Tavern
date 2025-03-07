@@ -19,7 +19,7 @@ public:
 
     renderer() = default;
     ~renderer() {
-        clean();
+        shutdown();
     }
 
     // prevent copy
@@ -29,7 +29,7 @@ public:
     bool pre_window_init() override;
 
     bool init() override;
-    void clean() override;
+    void shutdown() override;
 
     void set_viewport_size(const glm::ivec2& view_size) override {
         m_aspect_ratio = (float)view_size.x / (float)view_size.y;
@@ -43,7 +43,6 @@ private:
 
     void imgui_draw();
     // singleton instead of passing by argument?
-    bool update_camera();
     void render_geometry();
     void render_gui();
 
@@ -63,7 +62,6 @@ private:
 
     uint32_t m_camera_ub;
 
-    ecs::entity_type m_camera = UINT32_MAX;
     float m_aspect_ratio = 1.f;
 
     shader_resource m_default_shader;

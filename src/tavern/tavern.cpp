@@ -4,7 +4,6 @@
 #include <imgui_impl_sdl2.h>
 
 #include "tavern/resource/resource_manager.h"
-#include "tavern/components/drawable3d.h"
 
 namespace tavern {
 
@@ -17,7 +16,7 @@ bool tavern::init(const uint16_t width, const uint16_t height, const std::string
     m_ready =
            m_renderer.pre_window_init()
         && m_window.init(glm::ivec2(width, height))
-        && m_renderer.init();
+        && m_renderer.init() && m_gui.init();
 
     BOOST_LOG_TRIVIAL(trace) << "Engine initialization complete";
 
@@ -36,8 +35,7 @@ void tavern::run() {
 
         m_scene.update();
 
-        m_gui.update();
-
+        m_renderer.update();
         m_renderer.render();
         m_renderer.swap_buffer();
 
@@ -47,11 +45,11 @@ void tavern::run() {
     m_running = false;
 }
 
-void tavern::clean() {
+void tavern::shutdown() {
     m_ready = false;
     m_registry.destroy_all();
-    m_renderer.clean();
-    m_window.clean();
+    m_renderer.shutdown();
+    m_window.shutdown();
 }
 
 bool tavern::handle_events()

@@ -42,7 +42,7 @@ bool renderer::pre_window_init()
     return true;
 }
 
-void renderer::clean() {
+void renderer::shutdown() {
 
     if (!m_glcontext)
         return;
@@ -118,12 +118,6 @@ bool renderer::init() {
 void renderer::render()
 {
     imgui_draw();
-
-    if (!update_camera()) {
-        BOOST_LOG_TRIVIAL(warning) << "No camera found in scene";
-        return;
-    }
-
     render_geometry();
 }
 
@@ -153,52 +147,22 @@ void renderer::imgui_draw()
     ImGui::Render();
 }
 
-bool renderer::update_camera()
-{
-    ecs::registry& registry = tavern::singleton().get_registry();
-
-    auto cam_view = registry.create_view<component::transform, component::camera>();
-
-    // no valid camera, skip rendering
-    if (cam_view.size() == 0)
-        return false;
-
-    for (auto it = cam_view.begin(); it != cam_view.end(); ++it) {
-        ecs::entity_type cam_id = *it;
-        auto& camera = it.get<component::camera>();
-
-        // active camera becomes inactive
-        if (cam_id == m_camera && !camera.active)
-            m_camera = UINT32_MAX;
-
-        // discover new active camera
-        else if (cam_id != m_camera && camera.active) {
-            // unset previous camera active state
-            // prioritize new cameras over current
-            // avoid setting multiple cameras as active during a single frame, as outcome can be non-deterministic from user perspective
-            if (registry.has<component::camera>(m_camera))
-                registry.get<component::camera>(m_camera).active = false;
-
-            m_camera = cam_id;
-        }
-    }
-
-    // no camera to draw to, skip rendering
-    return registry.has<component::transform, component::camera>(m_camera);
-}
-
 void renderer::render_geometry()
 {
+    if (!camera_exists())
+        return;
+
+    auto& registry = tavern::singleton().get_registry();
+
     glEnable(GL_DEPTH_TEST);
     // clear screen
     glClearColor(0.f, 0.f, .2f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    auto& registry = tavern::singleton().get_registry();
     auto draw_view = registry.create_view<component::drawable3d, component::transform>();
 
-    auto& camera = registry.get<component::camera>(m_camera);
-    auto& camera_transf = registry.get<component::transform>(m_camera);
+    auto& camera = registry.get<component::camera>(get_active_camera());
+    auto& camera_transf = registry.get<component::transform>(get_active_camera());
 
     // update camera uniform buffer
     {
