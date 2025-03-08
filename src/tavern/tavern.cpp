@@ -33,13 +33,18 @@ void tavern::run() {
     BOOST_LOG_TRIVIAL(trace) << "Entering main loop";
     while (handle_events()) {
 
-        m_scene.update();
-
-        m_renderer.update();
-        m_renderer.render();
-        m_renderer.swap_buffer();
-
+        // system updates
         m_input.update();
+        m_gui.update();
+        m_scene.update();
+        m_renderer.update();
+
+        // rendering
+        m_renderer.render();
+        m_gui.render();
+
+        // present frame
+        m_renderer.swap_buffer();
     }
     BOOST_LOG_TRIVIAL(trace)  << "Exited main engine loop";
     m_running = false;
@@ -48,6 +53,7 @@ void tavern::run() {
 void tavern::shutdown() {
     m_ready = false;
     m_registry.destroy_all();
+    m_gui.shutdown();
     m_renderer.shutdown();
     m_window.shutdown();
 }
@@ -98,6 +104,7 @@ void tavern::handle_window_event(const SDL_WindowEvent& e)
         BOOST_LOG_TRIVIAL(trace) << "Window resized: X = " << e.data1 << ", Y = " << e.data2;
         // use window get_size as drawable size may differ from actual window size
         m_renderer.set_viewport_size(m_window.get_size());
+        m_gui.resize(m_window.get_size());
         break;
 
     default:

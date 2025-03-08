@@ -77,6 +77,9 @@ void gui_render_interface::EnableScissorRegion(bool enable) {
 void gui_render_interface::SetScissorRegion(Rml::Rectanglei region) {
 }
 
+void gui_render_interface::resize(const glm::ivec2& size) {
+}
+
 } /* end of namespace tavern::graphics::opengl */
 
 #endif // USE_OPENGL

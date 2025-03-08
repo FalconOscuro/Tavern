@@ -3,6 +3,8 @@
 #ifndef OPENGL_GUI_RENDER_INTERFACE_H
 #define OPENGL_GUI_RENDER_INTERFACE_H
 
+#include <glm/vec2.hpp>
+
 #include <RmlUi/Core/RenderInterface.h>
 
 namespace tavern::graphics::opengl {
@@ -24,6 +26,8 @@ public:
 
     void EnableScissorRegion(bool enable) override;
     void SetScissorRegion(Rml::Rectanglei region) override;
+
+    void resize(const glm::ivec2& size);
 
 }; /* end of class gui_render_interface final : public Rml::RenderInterface */
 
