@@ -44,7 +44,7 @@ void scene::update()
 
     // add untracked entities
     for (auto it = pool.begin(); it != pool.end(); ++it) {
-        m_entities.emplace(it->second);
+        m_entities.emplace(it->id);
     }
 
     // sort entities and remove deleted

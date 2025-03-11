@@ -19,6 +19,12 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
+    cantrip
+    GIT_REPOSITORY git@github.com:FalconOscuro/Cantrip.git
+    GIT_TAG origin/main
+)
+
+FetchContent_Declare(
     ttf2bmp
     GIT_REPOSITORY git@github.com:FalconOscuro/ttf2bmp.git
     GIT_TAG v1.0
@@ -56,7 +62,7 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
 #set(ASSIMP_BUILD_OBJ_IMPORTER ON)
 set(ASSIMP_BUILD_GLTF_IMPORTER ON)
 
-FetchContent_MakeAvailable(ecs ttf2bmp ryml RmlUi assimp)
+FetchContent_MakeAvailable(ecs cantrip ttf2bmp ryml RmlUi assimp)
 
 find_package(Boost REQUIRED COMPONENTS log program_options)
 find_package(SDL2 REQUIRED)
@@ -104,6 +110,7 @@ target_sources(Tavern PUBLIC
 
 target_link_libraries(Tavern
     PUBLIC ecs
+    PUBLIC Cantrip
     PUBLIC glm::glm
     PUBLIC SDL2::SDL2
     PUBLIC ryml::ryml
@@ -139,9 +146,9 @@ if(${RENDERER} STREQUAL "gl")
 
     target_include_directories(Tavern PUBLIC ${PROJECT_BINARY_DIR}/configure/)
 
-    file(READ shaders/pbr.vert PBR_VERT)
-    file(READ shaders/pbr.frag PBR_FRAG)
-    configure_file(shaders/pbr.hpp.in configure/shaders/pbr.hpp @ONLY)
+    file(READ data/shaders/pbr.vert PBR_VERT)
+    file(READ data/shaders/pbr.frag PBR_FRAG)
+    configure_file(data/shaders/pbr.hpp.in configure/shaders/pbr.hpp @ONLY)
     set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS shaders/pbr.vert shaders/pbr.frag shaders/pbr.hpp.in)
 
 elseif(${RENDERER} STREQUAL "vk")

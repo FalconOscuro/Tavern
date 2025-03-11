@@ -4,7 +4,7 @@
 #include <glm/vec3.hpp>
 
 #include "texture.h"
-#include "../resource/resource_ptr.hpp"
+#include "tavern/resource/resource_ptr.hpp"
 
 namespace tavern::graphics {
 

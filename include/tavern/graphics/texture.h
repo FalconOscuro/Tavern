@@ -6,7 +6,7 @@
 #include "opengl/texture2d.h"
 #include "opengl/texture_atlas.h"
 
-#include "../resource/resource_ptr.hpp"
+#include "tavern/resource/resource_ptr.hpp"
 
 namespace tavern::graphics {
 
