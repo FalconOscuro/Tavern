@@ -9,8 +9,6 @@
 #include "tavern/graphics/generic/renderer.h"
 #include "tavern/graphics/shader.h"
 
-#include "tavern/platform/sdl.h"
-
 namespace tavern::graphics::opengl {
 
 class renderer : public generic::renderer
@@ -28,7 +26,7 @@ public:
 
     bool pre_window_init() override;
 
-    bool init() override;
+    bool init(void* window, const glm::ivec2 size) override;
     void shutdown() override;
 
     void set_viewport_size(const glm::ivec2& view_size) override {
@@ -36,8 +34,9 @@ public:
         glViewport(0, 0, view_size.x, view_size.y);
     }
 
+    void clear() override;
     void render() override;
-    void swap_buffer() override;
+    void swap_buffer(void* window) override;
 
 private:
 
@@ -58,7 +57,7 @@ private:
         return buffer;
     }
 
-    SDL_GLContext m_glcontext = NULL;
+    void* m_glcontext = NULL;
 
     uint32_t m_camera_ub;
 

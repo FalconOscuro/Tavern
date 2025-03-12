@@ -7,7 +7,7 @@
 
 namespace tavern {
 
-bool tavern::init(const uint16_t width, const uint16_t height, const std::string& name)
+bool engine::init(const uint16_t width, const uint16_t height, const std::string& name)
 {
     // ensure resource manager created
     (void)resource_manager::get();
@@ -16,14 +16,14 @@ bool tavern::init(const uint16_t width, const uint16_t height, const std::string
     m_ready =
            m_renderer.pre_window_init()
         && m_window.init(glm::ivec2(width, height))
-        && m_renderer.init() && m_gui.init();
+        && m_renderer.init(m_window.get_wnd(), m_window.get_size()) && m_gui.init(m_window.get_size());
 
     BOOST_LOG_TRIVIAL(trace) << "Engine initialization complete";
 
     return m_ready;
 }
 
-void tavern::run() {
+void engine::run() {
 
     if (!ready() || m_running)
         return;
@@ -40,25 +40,26 @@ void tavern::run() {
         m_renderer.update();
 
         // rendering
+        m_renderer.clear();
         m_renderer.render();
         m_gui.render();
 
         // present frame
-        m_renderer.swap_buffer();
+        m_renderer.swap_buffer(m_window.get_wnd());
     }
     BOOST_LOG_TRIVIAL(trace)  << "Exited main engine loop";
     m_running = false;
 }
 
-void tavern::shutdown() {
+void engine::shutdown() {
     m_ready = false;
-    m_registry.destroy_all();
+    m_scene.shutdown();
     m_gui.shutdown();
     m_renderer.shutdown();
     m_window.shutdown();
 }
 
-bool tavern::handle_events()
+bool engine::handle_events()
 {
     SDL_Event e;
 
@@ -96,7 +97,7 @@ bool tavern::handle_events()
     return m_running;
 }
 
-void tavern::handle_window_event(const SDL_WindowEvent& e)
+void engine::handle_window_event(const SDL_WindowEvent& e)
 {
     switch (e.event)
     {

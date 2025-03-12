@@ -50,11 +50,7 @@ public:
         return size;
     }
 
-    operator SDL_Window*&() {
-        return m_window;
-    }
-
-    operator SDL_Window*() const {
+    SDL_Window* get_wnd() {
         return m_window;
     }
 

@@ -27,6 +27,10 @@ public:
     void EnableScissorRegion(bool enable) override;
     void SetScissorRegion(Rml::Rectanglei region) override;
 
+    Rml::CompiledShaderHandle CompileShader(const Rml::String& name, const Rml::Dictionary& parameters) override { return 0; }
+    void RenderShader(Rml::CompiledShaderHandle shader_handle, Rml::CompiledGeometryHandle geometry_handle, Rml::Vector2f translation, Rml::TextureHandle texture_handle) override {};
+    void ReleaseShader(Rml::CompiledShaderHandle shader_handle) override {};
+
     void resize(const glm::ivec2& size);
 
 }; /* end of class gui_render_interface final : public Rml::RenderInterface */

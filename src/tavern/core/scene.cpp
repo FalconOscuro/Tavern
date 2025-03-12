@@ -1,7 +1,6 @@
-#include "tavern/systems/scene.h"
+#include "tavern/core/scene.h"
 
 #include <cassert>
-#include <unordered_map>
 
 #include <boost/log/trivial.hpp>
 
@@ -12,18 +11,7 @@
 
 #include <ryml.hpp>
 
-#include "tavern/components/drawable3d.h"
 #include "tavern/components/transform3d.h"
-#include "tavern/components/camera.h"
-
-#include "tavern/graphics/material.h"
-#include "tavern/graphics/vertex.h"
-#include "tavern/graphics/mesh.h"
-
-#include "tavern/resource/resource_manager.h"
-#include "tavern/resource/util/file.hpp"
-
-#include "tavern/tavern.h"
 
 template <>
 struct std::hash<c4::csubstr>
@@ -35,12 +23,19 @@ struct std::hash<c4::csubstr>
     }
 }; /* end of struct std::hash<c4::csubstr> */
 
-namespace tavern::system {
+namespace tavern {
+
+scene::~scene() {
+    shutdown();
+}
+
+void scene::shutdown() {
+    get_registry().destroy_all();
+}
 
 void scene::update()
 {
-    auto& reg = tavern::singleton().get_registry();
-    auto& pool = reg.get_pool<component::transform>();
+    auto& pool = get_registry().get_pool<component::transform>();
 
     // add untracked entities
     for (auto it = pool.begin(); it != pool.end(); ++it) {
@@ -82,6 +77,7 @@ void scene::update()
     }
 }
 
+/*
 [[nodiscard]] graphics::texture2d_resource load_texture(aiMaterial* material, aiTextureType type, const std::string& dir)
 {
     if (material->GetTextureCount(type) == 0)
@@ -216,12 +212,9 @@ void scene::load(const std::string& file)
         return;
     }
 
-    auto& reg = tavern::singleton().get_registry();
-
     load_node(scene->mRootNode, scene, reg, reg.tombstone(), file);
 }
 
-// Note, could be built into ECS
 void scene::load_scene(const std::string& file)
 {
     auto& reg = tavern::singleton().get_registry();
@@ -300,6 +293,6 @@ void scene::load_scene(const std::string& file)
 
     delete[] raw;
     BOOST_LOG_TRIVIAL(info) << "Scene loaded";
-}
+}*/
 
-} /* end of namespace tavern::system */
+} /* end of namespace tavern */

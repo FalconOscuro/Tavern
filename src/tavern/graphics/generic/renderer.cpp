@@ -2,10 +2,10 @@
 
 #include <boost/log/trivial.hpp>
 
-#include "tavern/tavern.h"
-
 #include "tavern/components/camera.h"
 #include "tavern/components/transform3d.h"
+
+#include "tavern/core/scene.h"
 
 namespace tavern::graphics::generic {
 
@@ -14,7 +14,7 @@ void renderer::update() {
 }
 
 bool renderer::camera_exists() const {
-    const ecs::registry& registry = tavern::singleton().get_registry();
+    const ecs::registry& registry = scene::get_registry();
     
     // NOTE has should check for exitance first, causes error
     return registry.exists(m_camera) && registry.has<component::camera, component::transform>(m_camera);
@@ -22,7 +22,7 @@ bool renderer::camera_exists() const {
 
 void renderer::update_camera()
 {
-    ecs::registry& registry = tavern::singleton().get_registry();
+    ecs::registry& registry = scene::get_registry();
 
     auto cam_view = registry.create_view<component::transform, component::camera>();
 

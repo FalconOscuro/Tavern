@@ -86,12 +86,11 @@ target_sources(Tavern PUBLIC
     src/tavern/core/window.cpp
     src/tavern/core/input.cpp
     src/tavern/core/gui.cpp
+    src/tavern/core/scene.cpp
 
     src/tavern/resource/mesh_manager.cpp
     src/tavern/resource/shader_manager.cpp
     src/tavern/resource/texture2d_manager.cpp
-
-    src/tavern/systems/scene.cpp
 
     src/tavern/components/camera.cpp
     src/tavern/components/drawable3d.cpp
@@ -101,8 +100,6 @@ target_sources(Tavern PUBLIC
     src/tavern/file/physical_file.cpp
     src/tavern/file/tpk_mount.cpp
     src/tavern/file/tpk_file.cpp
-
-    src/tavern/gui/label.cpp
 
     src/tavern/graphics/generic/texture.cpp
     src/tavern/graphics/generic/renderer.cpp

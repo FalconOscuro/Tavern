@@ -1,18 +1,18 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include <string>
-
 #include <ecs/ecs.h>
 
-namespace tavern::system {
+namespace tavern {
 
 class scene
 {
 public:
 
     scene() {}
-    ~scene() = default;
+    ~scene();
+
+    void shutdown();
 
     // prevent copy
     scene(const scene&) = delete;
@@ -20,8 +20,13 @@ public:
 
     void update();
 
-    void load(const std::string& file);
-    void load_scene(const std::string& file);
+    [[nodiscard]] static ecs::registry& get_registry() {
+        static ecs::registry registry;
+        return registry;
+    }
+
+    //void load(const std::string& file);
+    //void load_scene(const std::string& file);
 
 private:
 
@@ -31,6 +36,6 @@ private:
     ecs::container::sparse_set<> m_entities;
 }; /* end of class scene */
 
-} /* end of namespace tavern::system */
+} /* end of namespace tavern */
 
 #endif /* end of define guard SCENE_H */

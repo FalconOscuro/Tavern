@@ -22,13 +22,15 @@ public:
     gui(const gui&) = delete;
     void operator=(const gui&) = delete;
 
-    bool init();
+    bool init(const glm::ivec2& size);
     void shutdown();
 
     void update();
     void render();
 
     void resize(const glm::ivec2& size);
+
+    bool load_document(const char* path);
 
 private:
 

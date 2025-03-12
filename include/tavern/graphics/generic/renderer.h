@@ -15,16 +15,16 @@ class renderer
 {
 public:
     virtual bool pre_window_init() = 0;
-    virtual bool init() = 0;
+    virtual bool init(void* window, const glm::ivec2 size) = 0;
     virtual void shutdown() = 0;
 
     virtual void set_viewport_size(const glm::ivec2& view_size) = 0;
 
     virtual void update();
 
+    virtual void clear() = 0;
     virtual void render() = 0;
-
-    virtual void swap_buffer() = 0;
+    virtual void swap_buffer(void* window) = 0;
 
     ecs::entity_type get_active_camera() const {
         return m_camera;

@@ -10,15 +10,15 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl2.h>
 
-#include "tavern/tavern.h"
-
-#include "tavern/core/window.h"
+#include "tavern/core/scene.h"
 
 #include "tavern/components/drawable3d.h"
 #include "tavern/components/transform3d.h"
 #include "tavern/components/camera.h"
 
 #include "tavern/resource/resource_manager.h"
+
+#include "tavern/platform/sdl.h"
 
 #include "shaders/pbr.hpp"
 
@@ -61,11 +61,9 @@ void renderer::shutdown() {
     m_glcontext = NULL;
 }
 
-bool renderer::init() {
-
-    // init opengl context
-    window& wnd = tavern::singleton().get_window();
-    m_glcontext = SDL_GL_CreateContext(wnd);
+bool renderer::init(void* window, const glm::ivec2 size)
+{
+    m_glcontext = SDL_GL_CreateContext((SDL_Window*)window);
 
     if (!m_glcontext) {
         BOOST_LOG_TRIVIAL(error) << "Failed to create OpenGL context:\n"
@@ -92,7 +90,7 @@ bool renderer::init() {
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glFrontFace(GL_CCW);
 
-    set_viewport_size(wnd.get_size());
+    set_viewport_size(size);
 
     // load default shader
     // Check to ensure successful completion?
@@ -106,7 +104,7 @@ bool renderer::init() {
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
 
-    ImGui_ImplSDL2_InitForOpenGL(wnd, m_glcontext);
+    ImGui_ImplSDL2_InitForOpenGL((SDL_Window*)window, m_glcontext);
     ImGui_ImplOpenGL3_Init();
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
@@ -115,20 +113,26 @@ bool renderer::init() {
     return true;
 }
 
-void renderer::render()
+void renderer::clear()
 {
-    imgui_draw();
-    render_geometry();
+    glClearColor(0.f, 0.f, .2f, 1.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void renderer::swap_buffer() {
+void renderer::render()
+{
+    render_geometry();
+    imgui_draw();
+}
+
+void renderer::swap_buffer(void* window) {
 
     GLenum gl_error;
     while ((gl_error = glGetError()) != GL_NO_ERROR)
         BOOST_LOG_TRIVIAL(error) << "OpenGL Error: " << gl_error;
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    SDL_GL_SwapWindow(tavern::singleton().get_window());
+    SDL_GL_SwapWindow((SDL_Window*)(window));
 }
 
 void renderer::imgui_draw()
@@ -152,12 +156,9 @@ void renderer::render_geometry()
     if (!camera_exists())
         return;
 
-    auto& registry = tavern::singleton().get_registry();
+    auto& registry = scene::get_registry();
 
     glEnable(GL_DEPTH_TEST);
-    // clear screen
-    glClearColor(0.f, 0.f, .2f, 1.f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     auto draw_view = registry.create_view<component::drawable3d, component::transform>();
 

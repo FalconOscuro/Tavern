@@ -10,17 +10,13 @@
 
 namespace tavern {
 
-namespace system {
-
 class scene;
-
-} /* end of namespace system */
 
 namespace component {
 
 struct transform
 {
-    friend class system::scene;
+    friend class tavern::scene;
 
     transform()
     {}

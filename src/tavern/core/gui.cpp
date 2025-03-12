@@ -4,11 +4,9 @@
 
 #include <RmlUi/Debugger.h>
 
-#include "tavern/tavern.h"
-
 namespace tavern {
 
-bool gui::init()
+bool gui::init(const glm::ivec2& size)
 {
     if (m_initialized)
         return true;
@@ -20,8 +18,7 @@ bool gui::init()
         return false;
     }
 
-    const glm::ivec2 screen_size = tavern::singleton().get_window().get_size();
-    m_context = Rml::CreateContext("main", Rml::Vector2i(screen_size.x, screen_size.y));
+    m_context = Rml::CreateContext("main", Rml::Vector2i(size.x, size.y));
 
     if (!m_context) {
         BOOST_LOG_TRIVIAL(error) << "Failed to create Rml context";
@@ -55,7 +52,17 @@ void gui::render() {
 }
 
 void gui::resize(const glm::ivec2& size) {
+    m_context->SetDimensions(Rml::Vector2i(size.x, size.y));
     m_render_interface.resize(size);
+}
+
+bool gui::load_document(const char* path) {
+    Rml::ElementDocument* document = m_context->LoadDocument(path);
+
+    if (document)
+        document->Show();
+
+    return document;
 }
 
 } /* end of namespace tavern */

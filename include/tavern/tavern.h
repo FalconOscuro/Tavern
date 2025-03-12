@@ -1,30 +1,30 @@
 #ifndef TAVERN_H
 #define TAVERN_H
 
-#include <ecs/ecs.h>
-
 #include "core/window.h"
 #include "core/input.h"
 #include "core/gui.h"
+#include "core/scene.h"
 
 #include "graphics/renderer.h"
 
 #include "resource/resource_manager.h"
 #include "platform/sdl.h"
 
-#include "systems/scene.h"
 
 namespace tavern {
 
-class tavern
+class engine
 {
 public:
 
-    // delete copy construction, should only be accessed through singleton
-    tavern(const tavern&) = delete;
-    void operator=(const tavern&) = delete;
+    engine(){}
 
-    ~tavern() {
+    // delete copy construction, should only be accessed through singleton
+    engine(const engine&) = delete;
+    void operator=(const engine&) = delete;
+
+    ~engine() {
         shutdown();
     }
 
@@ -40,12 +40,7 @@ public:
         return m_running;
     }
 
-    // these could be built in as singletons too
-    [[nodiscard]] ecs::registry& get_registry() {
-        return m_registry;
-    }
-
-    [[nodiscard]] system::scene& get_scene() {
+    [[nodiscard]] scene& get_scene() {
         return m_scene;
     }
 
@@ -57,14 +52,11 @@ public:
         return m_renderer;
     }
 
-    [[nodiscard]] static tavern& singleton() {
-        static tavern t;
-        return t;
+    [[nodiscard]] gui& get_gui() {
+        return m_gui;
     }
 
 private:
-
-    explicit tavern(){}
 
     bool handle_events();
     void handle_window_event(const SDL_WindowEvent& e);
@@ -75,13 +67,10 @@ private:
     window m_window;
     input m_input;
     gui m_gui;
+    scene m_scene;
 
     graphics::renderer m_renderer;
 
-    // TODO: Should be integrated into physics system
-    system::scene m_scene;
-
-    ecs::registry m_registry;
 }; /* end of class tavern */
 
 } /* end of namespace tavern */

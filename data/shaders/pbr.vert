@@ -31,5 +31,6 @@ void main()
     // Tangent space vectors for normal mapping
     vertex_out.tangent_basis = mat3(model) * mat3(tangent, bi_tangent, normal);
 
+    // position in screen space
     gl_Position = projection * view * model * vec4(position, 1.0f);
 }
