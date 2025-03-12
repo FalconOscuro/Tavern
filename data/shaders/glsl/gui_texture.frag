@@ -1,13 +1,13 @@
-#version core 450
+#version 450 core
 
-layout (location = 0) in vec2 tex_coord;
-layout (location = 1) in vec4 colour;
+in vec2 frag_tex_coord;
+in vec4 frag_colour;
 
 uniform sampler2D tex;
 
-out vec4 out_colour;
+out vec4 colour;
 
 void main() {
-    vec4 tex_colour = texture(tex, tex_coord);
-    out_colour = colour * tex_colour;
+    vec4 tex_colour = texture(tex, frag_tex_coord);
+    colour = frag_colour * tex_colour;
 }

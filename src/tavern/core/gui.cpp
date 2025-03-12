@@ -11,6 +11,11 @@ bool gui::init(const glm::ivec2& size)
     if (m_initialized)
         return true;
 
+    if (!m_render_interface.init()) {
+        BOOST_LOG_TRIVIAL(error) << "Failed whilst setting up renderer interface";
+        return false;
+    }
+
     Rml::SetRenderInterface(&m_render_interface);
 
     if (!Rml::Initialise()) {
@@ -35,6 +40,7 @@ void gui::shutdown() {
         return;
 
     m_initialized = false;
+    m_render_interface.shutdown();
     Rml::Shutdown();
     m_context = nullptr;
 

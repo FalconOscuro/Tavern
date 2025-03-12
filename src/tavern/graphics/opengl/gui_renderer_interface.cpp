@@ -9,9 +9,14 @@
 
 namespace tavern::graphics::opengl {
 
-gui_render_interface::gui_render_interface():
-    m_default_shader(glsl::gui::main_vert, glsl::gui::texture_frag)
-{}
+bool gui_render_interface::init() {
+    m_default_shader = std::make_unique<shader>(glsl::gui::main_vert, glsl::gui::texture_frag);
+    return true;
+}
+
+void gui_render_interface::shutdown() {
+    m_default_shader.reset();
+}
 
 Rml::CompiledGeometryHandle gui_render_interface::CompileGeometry(Rml::Span<const Rml::Vertex> vertices, Rml::Span<const int> indices)
 {
@@ -44,8 +49,8 @@ void gui_render_interface::RenderGeometry(Rml::CompiledGeometryHandle geometry, 
     mesh* m = (mesh*)geometry;
     texture2d* t = (texture2d*)texture;
 
-    m_default_shader.use();
-    m_default_shader.set_vec2("translate", glm::vec2(translation.x, translation.y));
+    m_default_shader->use();
+    m_default_shader->set_vec2("translate", glm::vec2(translation.x, translation.y));
 
     t->use();
     m->draw();

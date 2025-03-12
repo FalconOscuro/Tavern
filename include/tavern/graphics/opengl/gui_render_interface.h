@@ -15,8 +15,11 @@ class gui_render_interface final : public Rml::RenderInterface
 {
 public:
 
-    gui_render_interface();
+    gui_render_interface() = default;
     ~gui_render_interface() = default;
+
+    bool init();
+    void shutdown();
 
     Rml::CompiledGeometryHandle CompileGeometry(Rml::Span<const Rml::Vertex> vertices, Rml::Span<const int> indices) override;
     void RenderGeometry(Rml::CompiledGeometryHandle geometry, Rml::Vector2f translation, Rml::TextureHandle texture) override;
@@ -37,7 +40,7 @@ public:
 
 private:
 
-    shader m_default_shader;
+    std::unique_ptr<shader> m_default_shader;
 
 }; /* end of class gui_render_interface final : public Rml::RenderInterface */
 
