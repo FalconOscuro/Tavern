@@ -143,10 +143,23 @@ if(${RENDERER} STREQUAL "gl")
 
     target_include_directories(Tavern PUBLIC ${PROJECT_BINARY_DIR}/configure/)
 
-    file(READ data/shaders/pbr.vert PBR_VERT)
-    file(READ data/shaders/pbr.frag PBR_FRAG)
-    configure_file(data/shaders/pbr.hpp.in configure/shaders/pbr.hpp @ONLY)
-    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS shaders/pbr.vert shaders/pbr.frag shaders/pbr.hpp.in)
+    file(READ data/shaders/glsl/pbr.vert PBR_VERT)
+    file(READ data/shaders/glsl/pbr.frag PBR_FRAG)
+
+    file(READ data/shaders/glsl/gui_main.vert GUI_MAIN_VERT)
+    file(READ data/shaders/glsl/gui_texture.frag GUI_TEXTURE_FRAG)
+
+    configure_file(data/shaders/glsl/glsl_shaders.hpp.in configure/shaders/glsl_shaders.hpp @ONLY)
+
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+        data/shaders/glsl/pbr.vert
+        data/shaders/glsl/pbr.frag
+
+        data/shaders/glsl/gui_main.vert
+        data/shaders/glsl/gui_texture.frag
+
+        data/shaders/glsl/glsl_shaders.hpp.in
+    )
 
 elseif(${RENDERER} STREQUAL "vk")
     message(FATAL_ERROR "Vulkan is not currently supported")

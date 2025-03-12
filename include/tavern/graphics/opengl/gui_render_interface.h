@@ -7,13 +7,15 @@
 
 #include <RmlUi/Core/RenderInterface.h>
 
+#include "shader.h"
+
 namespace tavern::graphics::opengl {
 
 class gui_render_interface final : public Rml::RenderInterface
 {
 public:
 
-    gui_render_interface() {}
+    gui_render_interface();
     ~gui_render_interface() = default;
 
     Rml::CompiledGeometryHandle CompileGeometry(Rml::Span<const Rml::Vertex> vertices, Rml::Span<const int> indices) override;
@@ -27,11 +29,15 @@ public:
     void EnableScissorRegion(bool enable) override;
     void SetScissorRegion(Rml::Rectanglei region) override;
 
-    Rml::CompiledShaderHandle CompileShader(const Rml::String& name, const Rml::Dictionary& parameters) override { return 0; }
-    void RenderShader(Rml::CompiledShaderHandle shader_handle, Rml::CompiledGeometryHandle geometry_handle, Rml::Vector2f translation, Rml::TextureHandle texture_handle) override {};
-    void ReleaseShader(Rml::CompiledShaderHandle shader_handle) override {};
+    //Rml::CompiledShaderHandle CompileShader(const Rml::String& name, const Rml::Dictionary& parameters) override { return 0; }
+    //void RenderShader(Rml::CompiledShaderHandle shader_handle, Rml::CompiledGeometryHandle geometry_handle, Rml::Vector2f translation, Rml::TextureHandle texture_handle) override {};
+    //void ReleaseShader(Rml::CompiledShaderHandle shader_handle) override {};
 
     void resize(const glm::ivec2& size);
+
+private:
+
+    shader m_default_shader;
 
 }; /* end of class gui_render_interface final : public Rml::RenderInterface */
 

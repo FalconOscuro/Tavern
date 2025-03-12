@@ -1,0 +1,22 @@
+#ifndef GLSL_PBR_SHADER_HPP
+#define GLSL_PBR_SHADER_HPP
+
+namespace tavern::graphics::glsl {
+
+namespace pbr {
+
+static constexpr const char* vert = R"(@PBR_VERT@)";
+static constexpr const char* frag = R"(@PBR_FRAG@)";
+
+} /* end of namespace pbr */
+
+namespace gui {
+
+static constexpr const char* main_vert = R"(@GUI_MAIN_VERT@)";
+static constexpr const char* texture_frag = R"(@GUI_TEXTURE_FRAG@)";
+
+} /* end of namespace gui */
+
+} /* end of namespace tavern::graphics::glsl */
+
+#endif /* end of define guard GLSL_PBR_SHADER_HPP */

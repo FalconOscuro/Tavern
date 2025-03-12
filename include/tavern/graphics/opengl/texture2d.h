@@ -15,7 +15,7 @@ public:
 
     ~texture2d();
 
-    void use() const;
+    void use(const int tex_num = 0) const;
     static void disable();
 
 private:

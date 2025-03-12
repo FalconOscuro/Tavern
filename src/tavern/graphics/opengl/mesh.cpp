@@ -23,24 +23,28 @@ mesh::mesh(const std::vector<vertex>& vertices, const std::vector<uint32_t>& ind
 
     // locations for vertex attribute data
     // position
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)0);
+    glEnableVertexAttribArray(vertex_attributes::POSITION);
+    glVertexAttribPointer(vertex_attributes::POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)0);
 
     // normal
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, normal));
+    glEnableVertexAttribArray(vertex_attributes::NORMAL);
+    glVertexAttribPointer(vertex_attributes::NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, normal));
 
     // tangent
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, tangent));
+    glEnableVertexAttribArray(vertex_attributes::TANGENT);
+    glVertexAttribPointer(vertex_attributes::TANGENT, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, tangent));
 
     // bitangent
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, bi_tangent));
+    glEnableVertexAttribArray(vertex_attributes::BI_TANGENT);
+    glVertexAttribPointer(vertex_attributes::BI_TANGENT, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, bi_tangent));
 
     // texture coordinates
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, texture_coordinates));
+    glEnableVertexAttribArray(vertex_attributes::TEXTURE_COORDINATE);
+    glVertexAttribPointer(vertex_attributes::TEXTURE_COORDINATE, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, texture_coordinates));
+
+    // colour
+    glEnableVertexAttribArray(vertex_attributes::COLOUR);
+    glVertexAttribPointer(vertex_attributes::COLOUR, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, colour));
 
     glBindVertexArray(0);
 }

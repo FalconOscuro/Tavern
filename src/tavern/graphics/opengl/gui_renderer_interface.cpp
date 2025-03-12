@@ -5,7 +5,13 @@
 #include "tavern/graphics/mesh.h"
 #include "tavern/graphics/texture.h"
 
+#include "shaders/glsl_shaders.hpp"
+
 namespace tavern::graphics::opengl {
+
+gui_render_interface::gui_render_interface():
+    m_default_shader(glsl::gui::main_vert, glsl::gui::texture_frag)
+{}
 
 Rml::CompiledGeometryHandle gui_render_interface::CompileGeometry(Rml::Span<const Rml::Vertex> vertices, Rml::Span<const int> indices)
 {
@@ -15,10 +21,11 @@ Rml::CompiledGeometryHandle gui_render_interface::CompileGeometry(Rml::Span<cons
     for (auto v = vertices.begin(); v != vertices.end(); ++v) {
         vertex conv_vertex;
 
-        // normal tangent & bitangent un-used!!
+        // most of vertex is un-used!
         // wasted space
         conv_vertex.position = glm::vec3(v->position.x, v->position.y, 0.f);
         conv_vertex.texture_coordinates = glm::vec2(v->position.x, v->position.y);
+        conv_vertex.colour = glm::vec4(v->colour.red, v->colour.green, v->colour.blue, v->colour.alpha);
 
         conv_vertices.push_back(conv_vertex);
     }
@@ -37,7 +44,10 @@ void gui_render_interface::RenderGeometry(Rml::CompiledGeometryHandle geometry, 
     mesh* m = (mesh*)geometry;
     texture2d* t = (texture2d*)texture;
 
-    // need shader
+    m_default_shader.use();
+    m_default_shader.set_vec2("translate", glm::vec2(translation.x, translation.y));
+
+    t->use();
     m->draw();
 }
 

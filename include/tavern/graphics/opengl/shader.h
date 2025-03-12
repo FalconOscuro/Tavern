@@ -17,6 +17,7 @@ class shader
 {
 public:
 
+    // currently invidual shaders are discarded and only program is kept, could re-do so shaders are kept and formed into programs?
     shader(const char* vertex_src, const char* fragment_src);
     ~shader();
 

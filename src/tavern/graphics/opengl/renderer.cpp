@@ -20,7 +20,7 @@
 
 #include "tavern/platform/sdl.h"
 
-#include "shaders/pbr.hpp"
+#include "shaders/glsl_shaders.hpp"
 
 namespace tavern::graphics::opengl {
 
@@ -94,7 +94,7 @@ bool renderer::init(void* window, const glm::ivec2 size)
 
     // load default shader
     // Check to ensure successful completion?
-    m_default_shader = resource_manager::get().shaders.register_new("default", pbr::vert, pbr::frag);
+    m_default_shader = resource_manager::get().shaders.register_new("default", glsl::pbr::vert, glsl::pbr::frag);
 
     // create uniform buffer for camera data
     m_camera_ub = create_uniform_buffer<camera_ub>();

@@ -34,7 +34,8 @@ texture2d::~texture2d() {
     glDeleteTextures(1, &m_texture);
 }
 
-void texture2d::use() const {
+void texture2d::use(const int tex_num) const {
+    glActiveTexture(GL_TEXTURE0 + tex_num);
     glBindTexture(GL_TEXTURE_2D, m_texture);
 }
 
