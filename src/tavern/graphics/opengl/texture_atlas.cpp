@@ -50,6 +50,10 @@ void texture_atlas::use() const {
     glBindTexture(GL_TEXTURE_2D_ARRAY, m_atlas);
 }
 
+void texture_atlas::disable() {
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 } /* end of namespace tavern::graphics::opengl
  */
 

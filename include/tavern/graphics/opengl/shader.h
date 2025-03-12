@@ -21,6 +21,7 @@ public:
     ~shader();
 
     void use() const;
+    static void disable();
 
     // utility functions for accessing shader uniforms
     // NOTE: All assume shader has already been set active

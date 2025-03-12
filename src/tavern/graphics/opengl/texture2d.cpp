@@ -38,6 +38,10 @@ void texture2d::use() const {
     glBindTexture(GL_TEXTURE_2D, m_texture);
 }
 
+void texture2d::disable() {
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 } /* end of namespace tavern::graphics::opengl */
 
 #endif // USE_OPENGL

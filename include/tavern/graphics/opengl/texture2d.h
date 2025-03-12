@@ -16,6 +16,7 @@ public:
     ~texture2d();
 
     void use() const;
+    static void disable();
 
 private:
 

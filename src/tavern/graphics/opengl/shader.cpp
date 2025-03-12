@@ -72,6 +72,10 @@ void shader::use() const {
     glUseProgram(m_id);
 }
 
+void shader::disable() {
+    glUseProgram(0);
+}
+
 void shader::set_bool(const std::string& name, bool val) {
     glUniform1i(get_attribute_location(name), (int)val);
 }

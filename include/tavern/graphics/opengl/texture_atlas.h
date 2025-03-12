@@ -19,6 +19,7 @@ public:
     ~texture_atlas();
 
     void use() const;
+    static void disable();
 
 private:
 
