@@ -14,6 +14,7 @@ namespace gui {
 
 static constexpr const char* main_vert = R"(@GUI_MAIN_VERT@)";
 static constexpr const char* texture_frag = R"(@GUI_TEXTURE_FRAG@)";
+static constexpr const char* gradient_frag = R"(@GUI_GRADIENT_FRAG@)";
 
 } /* end of namespace gui */
 

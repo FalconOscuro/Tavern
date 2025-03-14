@@ -148,6 +148,7 @@ if(${RENDERER} STREQUAL "gl")
 
     file(READ data/shaders/glsl/gui_main.vert GUI_MAIN_VERT)
     file(READ data/shaders/glsl/gui_texture.frag GUI_TEXTURE_FRAG)
+    file(READ data/shaders/glsl/gui_gradient.frag GUI_GRADIENT_FRAG)
 
     configure_file(data/shaders/glsl/glsl_shaders.hpp.in configure/shaders/glsl_shaders.hpp @ONLY)
 
@@ -157,6 +158,7 @@ if(${RENDERER} STREQUAL "gl")
 
         data/shaders/glsl/gui_main.vert
         data/shaders/glsl/gui_texture.frag
+        data/shaders/glsl/gui_gradient.frag
 
         data/shaders/glsl/glsl_shaders.hpp.in
     )

@@ -30,24 +30,27 @@ public:
     void set_int(const std::string& name, int val);
     void set_float(const std::string& name, float val);
 
+    void set_float_arr(const std::string& name, const float* val, const size_t num = 1);
+
+    // these type casts are cursed, there must be a better way?
     inline void set_vec2(const std::string& name, const glm::vec2& val) {
-        set_vec2_arr(name, glm::value_ptr(val));
+        set_vec2_arr(name, reinterpret_cast<const glm::vec2*>(glm::value_ptr(val)));
     }
 
     inline void set_vec3(const std::string& name, const glm::vec3& val) {
-        set_vec3_arr(name, glm::value_ptr(val));
+        set_vec3_arr(name, reinterpret_cast<const glm::vec3*>(glm::value_ptr(val)));
     }
 
     inline void set_vec4(const std::string& name, const glm::vec4& val) {
-        set_vec4_arr(name, glm::value_ptr(val));
+        set_vec4_arr(name, reinterpret_cast<const glm::vec4*>(glm::value_ptr(val)));
     }
 
     void set_mat4x4(const std::string& name, const glm::mat4x4& val);
 
     // NOTE: May run into issues with glm? unsure
-    void set_vec2_arr(const std::string& name, const float* val, const size_t num = 1);
-    void set_vec3_arr(const std::string& name, const float* val, const size_t num = 1);
-    void set_vec4_arr(const std::string& name, const float* val, const size_t num = 1);
+    void set_vec2_arr(const std::string& name, const glm::vec2* val, const size_t num = 1);
+    void set_vec3_arr(const std::string& name, const glm::vec3* val, const size_t num = 1);
+    void set_vec4_arr(const std::string& name, const glm::vec4* val, const size_t num = 1);
 
     void set_transform(const glm::mat4& t);
     void set_material(const material_resource& m);

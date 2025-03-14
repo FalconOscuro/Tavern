@@ -1,4 +1,3 @@
-#include "RmlUi/Core/Types.h"
 #ifdef USE_OPENGL
 #ifndef OPENGL_GUI_RENDER_INTERFACE_H
 #define OPENGL_GUI_RENDER_INTERFACE_H
@@ -6,6 +5,7 @@
 #include <glm/vec2.hpp>
 
 #include <RmlUi/Core/RenderInterface.h>
+#include <RmlUi/Core/Types.h>
 
 #include "shader.h"
 
@@ -16,7 +16,7 @@ class gui_render_interface final : public Rml::RenderInterface
 public:
 
     gui_render_interface() = default;
-    ~gui_render_interface() = default;
+    ~gui_render_interface();
 
     bool init();
     void shutdown();
@@ -32,15 +32,22 @@ public:
     void EnableScissorRegion(bool enable) override;
     void SetScissorRegion(Rml::Rectanglei region) override;
 
-    //Rml::CompiledShaderHandle CompileShader(const Rml::String& name, const Rml::Dictionary& parameters) override { return 0; }
-    //void RenderShader(Rml::CompiledShaderHandle shader_handle, Rml::CompiledGeometryHandle geometry_handle, Rml::Vector2f translation, Rml::TextureHandle texture_handle) override {};
-    //void ReleaseShader(Rml::CompiledShaderHandle shader_handle) override {};
+    Rml::CompiledShaderHandle CompileShader(const Rml::String& name, const Rml::Dictionary& parameters) override;
+    void RenderShader(Rml::CompiledShaderHandle shader_handle, Rml::CompiledGeometryHandle geometry_handle, Rml::Vector2f translation, Rml::TextureHandle texture_handle) override;
+    void ReleaseShader(Rml::CompiledShaderHandle shader_handle) override;
 
     void resize(const glm::ivec2& size);
 
 private:
 
-    std::unique_ptr<shader> m_default_shader;
+    glm::ivec2 m_screen_size;
+
+    glm::ivec2 m_scissor_rect_pos;
+    glm::ivec2 m_scissor_rect_size;
+
+    shader* m_texture_shader  = nullptr;
+    shader* m_gradient_shader = nullptr;
+    shader* m_creation_shader = nullptr;
 
 }; /* end of class gui_render_interface final : public Rml::RenderInterface */
 
