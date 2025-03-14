@@ -88,16 +88,16 @@ void shader::set_float(const std::string& name, float val) {
     glUniform1f(get_attribute_location(name), val);
 }
 
-void shader::set_vec2(const std::string& name, const glm::vec2& val) {
-    glUniform2fv(get_attribute_location(name), 1, glm::value_ptr(val));
+void shader::set_vec2_arr(const std::string& name, const float* val, const size_t num) {
+    glUniform2fv(get_attribute_location(name), num, val);
 }
 
-void shader::set_vec3(const std::string& name, const glm::vec3& val) {
-    glUniform3fv(get_attribute_location(name), 1, glm::value_ptr(val));
+void shader::set_vec3_arr(const std::string& name, const float* val, const size_t num) {
+    glUniform3fv(get_attribute_location(name), num, val);
 }
 
-void shader::set_vec4(const std::string& name, const glm::vec4& val) {
-    glUniform4fv(get_attribute_location(name), 1, glm::value_ptr(val));
+void shader::set_vec4_arr(const std::string& name, const float* val, const size_t num) {
+    glUniform4fv(get_attribute_location(name), num, val);
 }
 
 void shader::set_mat4x4(const std::string& name, const glm::mat4x4& val) {
