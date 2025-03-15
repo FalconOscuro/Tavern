@@ -12,9 +12,23 @@ static constexpr const char* frag = R"(@PBR_FRAG@)";
 
 namespace gui {
 
-static constexpr const char* main_vert = R"(@GUI_MAIN_VERT@)";
-static constexpr const char* texture_frag = R"(@GUI_TEXTURE_FRAG@)";
-static constexpr const char* gradient_frag = R"(@GUI_GRADIENT_FRAG@)";
+static constexpr const char* main_vert          = R"(@GUI_MAIN_VERT@)";
+
+static constexpr const char* texture_frag       = R"(@GUI_TEXTURE_FRAG@)";
+static constexpr const char* colour_frag        = R"(@GUI_COLOUR_FRAG@)";
+static constexpr const char* gradient_frag      = R"(@GUI_GRADIENT_FRAG@)";
+static constexpr const char* creation_frag      = R"(@GUI_CREATION_FRAG@)";
+
+static constexpr const char* passthrough_vert   = R"(@GUI_PASSTHROUGH_VERT@)";
+static constexpr const char* passthrough_frag   = R"(@GUI_PASSTHROUGH_FRAG@)";
+
+static constexpr const char* colour_matrix_frag = R"(@GUI_COLOUR_MATRIX_FRAG@)";
+static constexpr const char* blend_mask_frag    = R"(@GUI_BLEND_MASK_FRAG@)";
+
+static constexpr const char* blur_vert          = R"(@GUI_BLUR_VERT@)";
+static constexpr const char* blur_frag          = R"(@GUI_BLUR_FRAG@)";
+
+static constexpr const char* drop_shadow_frag   = R"(@GUI_DROP_SHADOW_FRAG@)";
 
 } /* end of namespace gui */
 

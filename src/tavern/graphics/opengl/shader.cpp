@@ -20,6 +20,8 @@ struct shader_loc
 
 shader::shader(const char* vertex_src, const char* fragment_src)
 {
+    assert(vertex_src != fragment_src && "Passing same input for both vertex and fragment shaders!");
+
     uint32_t v = compile_shader(vertex_src, GL_VERTEX_SHADER);
     uint32_t f = compile_shader(fragment_src, GL_FRAGMENT_SHADER);
 

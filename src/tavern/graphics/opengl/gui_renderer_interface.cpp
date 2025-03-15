@@ -62,20 +62,48 @@ gui_render_interface::~gui_render_interface() {
     shutdown();
 }
 
-bool gui_render_interface::init() {
-    m_texture_shader = new shader(glsl::gui::main_vert, glsl::gui::texture_frag);
-    m_gradient_shader = new shader(glsl::gui::main_vert, glsl::gui::gradient_frag);
+bool gui_render_interface::init()
+{
+    // could just use a simple init flag, this is v. verbose
+    // check if any shaders are still nullptr, if not initialization already completed, re-creation not needed
+    if (m_colour_shader && m_texture_shader && m_gradient_shader && m_creation_shader && m_passthrough_shader && m_colour_matrix_shader && m_blend_mask_shader && m_blur_shader && m_drop_shadow_shader)
+        return true;
+
+    // shutdown first just incase of partial initialization, should be impossible
+    shutdown();
+
+    m_colour_shader        = new shader(glsl::gui::main_vert       , glsl::gui::colour_frag       );
+    m_texture_shader       = new shader(glsl::gui::main_vert       , glsl::gui::texture_frag      );
+    m_gradient_shader      = new shader(glsl::gui::main_vert       , glsl::gui::gradient_frag     );
+    m_creation_shader      = new shader(glsl::gui::main_vert       , glsl::gui::creation_frag     );
+    m_passthrough_shader   = new shader(glsl::gui::passthrough_vert, glsl::gui::passthrough_frag  );
+    m_colour_matrix_shader = new shader(glsl::gui::passthrough_vert, glsl::gui::colour_matrix_frag);
+    m_blend_mask_shader    = new shader(glsl::gui::passthrough_vert, glsl::gui::blend_mask_frag   );
+    m_blur_shader          = new shader(glsl::gui::blur_vert       , glsl::gui::blur_frag         );
+    m_drop_shadow_shader   = new shader(glsl::gui::passthrough_vert, glsl::gui::drop_shadow_frag  );
     return true;
 }
 
 void gui_render_interface::shutdown() {
+    delete m_colour_shader;
     delete m_texture_shader;
     delete m_gradient_shader;
     delete m_creation_shader;
+    delete m_passthrough_shader;
+    delete m_colour_matrix_shader;
+    delete m_blend_mask_shader;
+    delete m_blur_shader;
+    delete m_drop_shadow_shader;
 
-    m_texture_shader = nullptr;
-    m_gradient_shader = nullptr;
-    m_creation_shader = nullptr;
+    m_colour_shader        = nullptr;
+    m_texture_shader       = nullptr;
+    m_gradient_shader      = nullptr;
+    m_creation_shader      = nullptr;
+    m_passthrough_shader   = nullptr;
+    m_colour_matrix_shader = nullptr;
+    m_blend_mask_shader    = nullptr;
+    m_blur_shader          = nullptr;
+    m_drop_shadow_shader   = nullptr;
 }
 
 Rml::CompiledGeometryHandle gui_render_interface::CompileGeometry(Rml::Span<const Rml::Vertex> vertices, Rml::Span<const int> indices)

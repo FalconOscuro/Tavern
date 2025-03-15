@@ -143,12 +143,27 @@ if(${RENDERER} STREQUAL "gl")
 
     target_include_directories(Tavern PUBLIC ${PROJECT_BINARY_DIR}/configure/)
 
+    # could be simplified w/ function
     file(READ data/shaders/glsl/pbr.vert PBR_VERT)
     file(READ data/shaders/glsl/pbr.frag PBR_FRAG)
 
     file(READ data/shaders/glsl/gui_main.vert GUI_MAIN_VERT)
+
     file(READ data/shaders/glsl/gui_texture.frag GUI_TEXTURE_FRAG)
+    file(READ data/shaders/glsl/gui_colour.frag GUI_COLOUR_FRAG)
     file(READ data/shaders/glsl/gui_gradient.frag GUI_GRADIENT_FRAG)
+    file(READ data/shaders/glsl/gui_creation.frag GUI_CREATION_FRAG)
+    
+    file(READ data/shaders/glsl/gui_passthrough.vert GUI_PASSTHROUGH_VERT)
+    file(READ data/shaders/glsl/gui_passthrough.frag GUI_PASSTHROUGH_FRAG)
+
+    file(READ data/shaders/glsl/gui_colour_matrix.frag GUI_COLOUR_MATRIX_FRAG)
+    file(READ data/shaders/glsl/gui_blend_mask.frag GUI_BLEND_MASK_FRAG)
+
+    file(READ data/shaders/glsl/gui_blur.vert GUI_BLUR_VERT)
+    file(READ data/shaders/glsl/gui_blur.frag GUI_BLUR_FRAG)
+
+    file(READ data/shaders/glsl/gui_drop_shadow.frag GUI_DROP_SHADOW_FRAG)
 
     configure_file(data/shaders/glsl/glsl_shaders.hpp.in configure/shaders/glsl_shaders.hpp @ONLY)
 
@@ -157,8 +172,22 @@ if(${RENDERER} STREQUAL "gl")
         data/shaders/glsl/pbr.frag
 
         data/shaders/glsl/gui_main.vert
+
         data/shaders/glsl/gui_texture.frag
+        data/shaders/glsl/gui_colour.frag
         data/shaders/glsl/gui_gradient.frag
+        data/shaders/glsl/gui_creation.frag
+
+        data/shaders/glsl/gui_passthrough.vert
+        data/shaders/glsl/gui_passthrough.frag
+
+        data/shaders/glsl/gui_colour_matrix.frag
+        data/shaders/glsl/gui_blend_mask.frag
+
+        data/shaders/glsl/gui_blur.vert
+        data/shaders/glsl/gui_blur.frag
+
+        data/shaders/glsl/gui_drop_shadow.frag
 
         data/shaders/glsl/glsl_shaders.hpp.in
     )

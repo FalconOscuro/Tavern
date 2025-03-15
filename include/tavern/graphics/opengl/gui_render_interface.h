@@ -45,9 +45,15 @@ private:
     glm::ivec2 m_scissor_rect_pos;
     glm::ivec2 m_scissor_rect_size;
 
-    shader* m_texture_shader  = nullptr;
-    shader* m_gradient_shader = nullptr;
-    shader* m_creation_shader = nullptr;
+    shader* m_colour_shader        = nullptr;
+    shader* m_texture_shader       = nullptr;
+    shader* m_gradient_shader      = nullptr;
+    shader* m_creation_shader      = nullptr;
+    shader* m_passthrough_shader   = nullptr;
+    shader* m_colour_matrix_shader = nullptr;
+    shader* m_blend_mask_shader    = nullptr;
+    shader* m_blur_shader          = nullptr;
+    shader* m_drop_shadow_shader   = nullptr;
 
 }; /* end of class gui_render_interface final : public Rml::RenderInterface */
 
