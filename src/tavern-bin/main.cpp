@@ -14,8 +14,8 @@ int main(int argc, char** argv)
         ("help,h", "display help message")
         ("scene", po::value<std::string>(), "load scene from file")
         ("title", po::value<std::string>()->default_value("Tavern"), "set window title")
-        ("width", po::value<uint16_t>()->default_value(800), "window width")
-        ("height", po::value<uint16_t>()->default_value(600), "window height")
+        ("width", po::value<uint16_t>()->default_value(1920), "window width")
+        ("height", po::value<uint16_t>()->default_value(1080), "window height")
     ;
 
     po::variables_map args;
@@ -52,6 +52,8 @@ int main(int argc, char** argv)
 
     //    engine.get_scene().load_scene(scene_file);
     //}
+
+    engine.get_gui().load_document("rml/tutorial.rml");
 
     engine.run();
     engine.shutdown();

@@ -106,6 +106,36 @@ void gui_render_interface::shutdown() {
     m_drop_shadow_shader   = nullptr;
 }
 
+void gui_render_interface::begin_frame()
+{
+    glViewport(0, 0, m_screen_size.x, m_screen_size.y);
+
+    glClearStencil(0);
+    glClearColor(0, 0, 0, 0);
+
+    glActiveTexture(GL_TEXTURE0);
+
+    glDisable(GL_SCISSOR_TEST);
+    glDisable(GL_CULL_FACE);
+
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_ALWAYS, 1, GLuint(-1));
+    glStencilMask(GLuint(-1));
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+    glDisable(GL_DEPTH_TEST);
+
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void gui_render_interface::end_frame()
+{
+}
+
 Rml::CompiledGeometryHandle gui_render_interface::CompileGeometry(Rml::Span<const Rml::Vertex> vertices, Rml::Span<const int> indices)
 {
     std::vector<vertex> conv_vertices;
@@ -134,18 +164,22 @@ Rml::CompiledGeometryHandle gui_render_interface::CompileGeometry(Rml::Span<cons
 
 void gui_render_interface::RenderGeometry(Rml::CompiledGeometryHandle geometry, Rml::Vector2f translation, Rml::TextureHandle texture)
 {
-    //glDisable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
 
     const mesh* m = reinterpret_cast<const mesh*>(geometry);
     const texture2d* t = reinterpret_cast<const texture2d*>(texture);
 
+    //BOOST_LOG_TRIVIAL(trace) << "Drawing geometry at: x(" << translation.x << "), y(" << translation.y << ")";
+
     m_texture_shader->use();
     m_texture_shader->set_vec2("screen_pos", rml_to_glm_vec2(translation));
+    m_texture_shader->set_int("tex", 0);
+    m_texture_shader->set_mat4x4("transform", m_projection);
 
     t->use();
     m->draw();
-    //t->disable();
-    //m_texture_shader->disable();
+    t->disable();
+    m_texture_shader->disable();
 }
 
 void gui_render_interface::ReleaseGeometry(Rml::CompiledGeometryHandle geometry)
@@ -165,6 +199,8 @@ Rml::TextureHandle gui_render_interface::LoadTexture(Rml::Vector2i& texture_dime
         BOOST_LOG_TRIVIAL(error) << "Failed to load image: " << source;
         return 0;
     }
+
+    BOOST_LOG_TRIVIAL(trace) << "Loaded image: " << source;
 
     return reinterpret_cast<Rml::TextureHandle>(new texture2d(img_data.get(), dimensions));
 }
@@ -197,9 +233,55 @@ void gui_render_interface::SetScissorRegion(Rml::Rectanglei region)
     EnableScissorRegion(true);
 }
 
+void gui_render_interface::EnableClipMask(bool enable) {
+    BOOST_LOG_TRIVIAL(trace) << "Recieved call to enable clip mask: " << (enable ? "true" : "false");
+}
+
+void gui_render_interface::RenderToClipMask(Rml::ClipMaskOperation mask_operation, Rml::CompiledShaderHandle geometry, Rml::Vector2f translation) {
+    BOOST_LOG_TRIVIAL(trace) << "Recieved call to render to clip mask";
+}
+
+void gui_render_interface::SetTransform(const Rml::Matrix4f* transform) {
+    BOOST_LOG_TRIVIAL(trace) << "Recieved call to set transform";
+}
+
+Rml::LayerHandle gui_render_interface::PushLayer() {
+    BOOST_LOG_TRIVIAL(trace) << "Recieved call to PushLayer";
+    return 0;
+}
+
+void gui_render_interface::CompositeLayers(Rml::LayerHandle source, Rml::LayerHandle destination, Rml::BlendMode blend_mode, Rml::Span<const Rml::CompiledFilterHandle> filters) {
+    BOOST_LOG_TRIVIAL(trace) << "Recieved call to CompositeLayers";
+}
+
+void gui_render_interface::PopLayer() {
+    BOOST_LOG_TRIVIAL(trace) << "Recieved call to PopLayer";
+}
+
+Rml::TextureHandle gui_render_interface::SaveLayerAsTexture() {
+    BOOST_LOG_TRIVIAL(trace) << "Recieved call to SaveLayerAsTexture";
+    return 0;
+}
+
+Rml::CompiledFilterHandle gui_render_interface::SaveLayerAsMaskImage() {
+    BOOST_LOG_TRIVIAL(trace) << "Recieved call to SaveLayerAsMaskImage";
+    return 0;
+}
+
+Rml::CompiledFilterHandle gui_render_interface::CompileFilter(const Rml::String& name, const Rml::Dictionary& parameters) {
+    BOOST_LOG_TRIVIAL(trace) << "Recieved call to CompileFilter";
+    return 0;
+}
+
+void gui_render_interface::ReleaseFilter(Rml::CompiledFilterHandle filter) {
+    BOOST_LOG_TRIVIAL(trace) << "Recieved call to ReleaseFilter";
+}
+
 Rml::CompiledShaderHandle gui_render_interface::CompileShader(const Rml::String& name, const Rml::Dictionary& parameters)
 {
     shader_data sd = {};
+
+    BOOST_LOG_TRIVIAL(trace) << "Compiling gui shader: " << name;
 
     // WARNING: Stop colours not handled
     if (name == "linear-gradient")
@@ -323,6 +405,7 @@ void gui_render_interface::ReleaseShader(Rml::CompiledShaderHandle shader_handle
 
 void gui_render_interface::resize(const glm::ivec2& size) {
     m_screen_size = size;
+    m_projection = glm::ortho(0, size.x, size.y, 0, -10000, 10000);
 }
 
 } /* end of namespace tavern::graphics::opengl */

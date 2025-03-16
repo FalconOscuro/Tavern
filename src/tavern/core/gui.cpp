@@ -16,6 +16,7 @@ bool gui::init(const glm::ivec2& size)
         return false;
     }
 
+    m_render_interface.resize(size);
     Rml::SetRenderInterface(&m_render_interface);
 
     if (!Rml::Initialise()) {
@@ -54,7 +55,9 @@ void gui::update() {
 
 void gui::render() {
     // check if init?
+    m_render_interface.begin_frame();
     m_context->Render();
+    m_render_interface.end_frame();
 }
 
 void gui::resize(const glm::ivec2& size) {

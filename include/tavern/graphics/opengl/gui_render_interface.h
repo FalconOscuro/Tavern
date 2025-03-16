@@ -21,6 +21,9 @@ public:
     bool init();
     void shutdown();
 
+    void begin_frame();
+    void end_frame();
+
     Rml::CompiledGeometryHandle CompileGeometry(Rml::Span<const Rml::Vertex> vertices, Rml::Span<const int> indices) override;
     void RenderGeometry(Rml::CompiledGeometryHandle geometry, Rml::Vector2f translation, Rml::TextureHandle texture) override;
     void ReleaseGeometry(Rml::CompiledGeometryHandle geometry) override;
@@ -32,6 +35,21 @@ public:
     void EnableScissorRegion(bool enable) override;
     void SetScissorRegion(Rml::Rectanglei region) override;
 
+    void EnableClipMask(bool enable) override;
+    void RenderToClipMask(Rml::ClipMaskOperation mask_operation, Rml::CompiledShaderHandle geometry, Rml::Vector2f translation) override;
+
+    void SetTransform(const Rml::Matrix4f* transform) override;
+
+    Rml::LayerHandle PushLayer() override;
+    void CompositeLayers(Rml::LayerHandle source, Rml::LayerHandle destination, Rml::BlendMode blend_mode, Rml::Span<const Rml::CompiledFilterHandle> filters) override;
+    void PopLayer() override;
+
+    Rml::TextureHandle SaveLayerAsTexture() override;
+    Rml::CompiledFilterHandle SaveLayerAsMaskImage() override;
+
+    Rml::CompiledFilterHandle CompileFilter(const Rml::String& name, const Rml::Dictionary& parameters) override;
+    void ReleaseFilter(Rml::CompiledFilterHandle filter) override;
+
     Rml::CompiledShaderHandle CompileShader(const Rml::String& name, const Rml::Dictionary& parameters) override;
     void RenderShader(Rml::CompiledShaderHandle shader_handle, Rml::CompiledGeometryHandle geometry_handle, Rml::Vector2f translation, Rml::TextureHandle texture_handle) override;
     void ReleaseShader(Rml::CompiledShaderHandle shader_handle) override;
@@ -41,6 +59,7 @@ public:
 private:
 
     glm::ivec2 m_screen_size;
+    glm::mat4 m_projection;
 
     glm::ivec2 m_scissor_rect_pos;
     glm::ivec2 m_scissor_rect_size;
