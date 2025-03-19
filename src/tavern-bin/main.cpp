@@ -53,7 +53,7 @@ int main(int argc, char** argv)
     //    engine.get_scene().load_scene(scene_file);
     //}
 
-    engine.get_gui().load_document("rml/tutorial.rml");
+    //engine.get_gui().load_document("rml/tutorial.rml");
 
     engine.run();
     engine.shutdown();

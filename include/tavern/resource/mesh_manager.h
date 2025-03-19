@@ -2,7 +2,7 @@
 #define MESH_MANAGER_H
 
 #include "resource_type_manager.hpp"
-#include "../graphics/mesh.h"
+#include "tavern/graphics/mesh.h"
 
 namespace tavern::resource {
 

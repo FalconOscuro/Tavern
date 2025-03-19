@@ -9,7 +9,7 @@ namespace tavern::graphics::opengl
 {
 
 // inheritance/relationship with texture2d?
-class texture_atlas
+class texture_atlas final
 {
 public:
 

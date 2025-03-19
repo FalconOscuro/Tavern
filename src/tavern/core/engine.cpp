@@ -1,4 +1,5 @@
-#include "tavern/tavern.h"
+
+#include "tavern/core/engine.h"
 
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
@@ -16,7 +17,7 @@ bool engine::init(const uint16_t width, const uint16_t height, const std::string
     m_ready =
            m_renderer.pre_window_init()
         && m_window.init(glm::ivec2(width, height))
-        && m_renderer.init(m_window.get_wnd(), m_window.get_size()) && m_gui.init(m_window.get_size());
+        && m_renderer.init(m_window.get_wnd(), m_window.get_size());
 
     BOOST_LOG_TRIVIAL(trace) << "Engine initialization complete";
 
@@ -35,14 +36,14 @@ void engine::run() {
 
         // system updates
         m_input.update();
-        m_gui.update();
+        //m_gui.update();
         m_scene.update();
         m_renderer.update();
 
         // rendering
         m_renderer.clear();
         m_renderer.render();
-        m_gui.render();
+        //m_gui.render();
 
         // present frame
         m_renderer.swap_buffer(m_window.get_wnd());
@@ -54,7 +55,7 @@ void engine::run() {
 void engine::shutdown() {
     m_ready = false;
     m_scene.shutdown();
-    m_gui.shutdown();
+    //m_gui.shutdown();
     m_renderer.shutdown();
     m_window.shutdown();
 }
@@ -105,7 +106,7 @@ void engine::handle_window_event(const SDL_WindowEvent& e)
         BOOST_LOG_TRIVIAL(trace) << "Window resized: X = " << e.data1 << ", Y = " << e.data2;
         // use window get_size as drawable size may differ from actual window size
         m_renderer.set_viewport_size(m_window.get_size());
-        m_gui.resize(m_window.get_size());
+        //m_gui.resize(m_window.get_size());
         break;
 
     default:

@@ -2,7 +2,7 @@
 #define SHADER_MANAGER_HPP
 
 #include "resource_type_manager.hpp"
-#include "../graphics/shader.h"
+#include "tavern/graphics/shader.h"
 
 namespace tavern::resource {
 

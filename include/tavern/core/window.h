@@ -4,7 +4,7 @@
 #include <string>
 #include <glm/vec2.hpp>
 
-#include "../platform/sdl.h"
+#include "tavern/platform/sdl.h"
 
 namespace tavern {
 

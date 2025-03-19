@@ -2,7 +2,8 @@
 #define OPENGL_MESH_H
 #ifdef USE_OPENGL
 
-#include <cstdint>
+#include "tavern/graphics/generic/mesh.h"
+
 #include <vector>
 
 #include <GL/glew.h>
@@ -11,15 +12,19 @@
 
 namespace tavern::graphics::opengl {
 
-class mesh
+class mesh final : generic::mesh
 {
 public:
 
     mesh(const std::vector<vertex>& vertices, const std::vector<uint32_t>& indices);
 
+    // no copy
+    mesh(const mesh&) = delete;
+    void operator=(const mesh&) = delete;
+
     ~mesh();
 
-    void draw() const;
+    void draw() const override;
 
 private:
 

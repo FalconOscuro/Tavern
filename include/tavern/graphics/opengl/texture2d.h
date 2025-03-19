@@ -7,7 +7,7 @@
 namespace tavern::graphics::opengl
 {
 
-class texture2d
+class texture2d final
 {
 public:
 

@@ -81,8 +81,7 @@ target_include_directories(Tavern
 )
 
 target_sources(Tavern PUBLIC
-    src/tavern/tavern.cpp
-
+    src/tavern/core/engine.cpp
     src/tavern/core/window.cpp
     src/tavern/core/input.cpp
     src/tavern/core/gui.cpp

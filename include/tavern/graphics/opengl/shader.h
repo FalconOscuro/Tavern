@@ -9,11 +9,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../material.h"
+#include "tavern/graphics/material.h"
 
 namespace tavern::graphics::opengl {
 
-class shader
+class shader final
 {
 public:
 

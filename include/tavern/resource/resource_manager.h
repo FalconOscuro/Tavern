@@ -1,9 +1,6 @@
 #ifndef RESOURCE_MANAGER_H
 #define RESOURCE_MANAGER_H
 
-#include <memory>
-#include <string>
-
 #include <ryml.hpp>
 
 #include "shader_manager.hpp"

@@ -7,7 +7,7 @@
 
 #include <glm/ext/vector_int2.hpp>
 
-#include "../platform/sdl.h"
+#include "tavern/platform/sdl.h"
 
 namespace tavern {
 
@@ -31,11 +31,11 @@ public:
     void handle_key_event(const SDL_KeyboardEvent& e);
     void handle_mouse_event(const SDL_MouseButtonEvent& e);
 
-    bool is_key_pressed(const std::string& key_name) const {
+    inline bool is_key_pressed(const std::string& key_name) const {
         return get_key(key_name).state == key::PRESSED;
     }
 
-    bool is_key_released(const std::string& key_name) const {
+    inline bool is_key_released(const std::string& key_name) const {
         return get_key(key_name).state == key::RELEASED;
     }
 

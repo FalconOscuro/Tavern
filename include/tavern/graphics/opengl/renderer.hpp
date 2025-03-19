@@ -11,7 +11,7 @@
 
 namespace tavern::graphics::opengl {
 
-class renderer : public generic::renderer
+class renderer final : public generic::renderer
 {
 public:
 

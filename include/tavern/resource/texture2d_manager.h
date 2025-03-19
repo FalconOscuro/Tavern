@@ -2,7 +2,7 @@
 #define TEXTURE2D_MANAGER_H
 
 #include "resource_type_manager.hpp"
-#include "../graphics/texture.h"
+#include "tavern/graphics/texture.h"
 
 namespace tavern::resource {
 
