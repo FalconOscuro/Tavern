@@ -27,6 +27,12 @@ class input
 {
 public:
 
+    ~input() = default;
+
+    // prevent copy
+    input(const input&) = delete;
+    void operator=(const input&) = delete;
+
     void update();
     void handle_key_event(const SDL_KeyboardEvent& e);
     void handle_mouse_event(const SDL_MouseButtonEvent& e);
@@ -57,7 +63,14 @@ public:
         return pos;
     }
 
+    [[nodiscard]] static input& singleton() {
+        static input instance;
+        return instance;
+    }
+
 private:
+
+    input() = default;
 
     inline const key& get_key(const std::string& key_name) const {
         SDL_Scancode key_code = SDL_GetScancodeFromName(key_name.c_str());

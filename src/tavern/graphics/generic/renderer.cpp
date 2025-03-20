@@ -25,7 +25,7 @@ void renderer::gui_draw()
 }
 
 bool renderer::camera_exists() const {
-    const ecs::registry& registry = scene::get_registry();
+    const ecs::registry& registry = scene::singleton().get_registry();
     
     // NOTE has should check for exitance first, causes error
     return registry.exists(m_camera) && registry.has<component::camera, component::transform>(m_camera);
@@ -33,7 +33,7 @@ bool renderer::camera_exists() const {
 
 void renderer::update_camera()
 {
-    ecs::registry& registry = scene::get_registry();
+    ecs::registry& registry = scene::singleton().get_registry();
 
     auto cam_view = registry.create_view<component::transform, component::camera>();
 

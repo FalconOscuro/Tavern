@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 
         //engine.get_gui().load_document("rml/tutorial.rml");
         
-        engine.get_renderer().add_gui_layer("Performance", new panel::performance());
+        tavern::graphics::renderer::singleton().add_gui_layer("Performance", new panel::performance());
 
         engine.run();
         engine.shutdown();

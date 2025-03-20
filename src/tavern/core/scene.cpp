@@ -25,23 +25,13 @@ struct std::hash<c4::csubstr>
 
 namespace tavern {
 
-scene::~scene() {
-    // registry gets destroyed first
-    // idk why but calling shutdown here WILL call a segfault
-    // addendum, destructor gets called 3 times:
-    // - engine shutdown
-    // - engine pre-destruction (should be ignored as skipped due to ready flag)
-    // - engine destruction as shutdown is part of scene destructor...
-    //shutdown();
-}
-
 void scene::shutdown() {
-    get_registry().destroy_all();
+    m_registry.destroy_all();
 }
 
 void scene::update()
 {
-    auto& pool = get_registry().get_pool<component::transform>();
+    auto& pool = m_registry.get_pool<component::transform>();
 
     // add untracked entities
     for (auto it = pool.begin(); it != pool.end(); ++it) {

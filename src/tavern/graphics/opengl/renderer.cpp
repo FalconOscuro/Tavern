@@ -149,7 +149,7 @@ void renderer::render_geometry()
     if (!camera_exists())
         return;
 
-    auto& registry = scene::get_registry();
+    auto& registry = scene::singleton().get_registry();
 
     glEnable(GL_DEPTH_TEST);
 

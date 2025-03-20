@@ -9,8 +9,7 @@ class scene
 {
 public:
 
-    scene() {}
-    ~scene();
+    ~scene() = default;
 
     void shutdown();
 
@@ -20,9 +19,12 @@ public:
 
     void update();
 
-    // make scene singleton over registry
-    [[nodiscard]] static ecs::registry& get_registry() {
-        static ecs::registry instance;
+    [[nodiscard]] inline ecs::registry& get_registry() {
+        return m_registry;
+    }
+
+    [[nodiscard]] static scene& singleton() {
+        static scene instance;
         return instance;
     }
 
@@ -31,10 +33,14 @@ public:
 
 private:
 
+    scene() = default;
+
     // NOTE: Could do faster implementation by sorting sparse map itself
     // would require rework of sparse map adding indirection and pooling
     // to prevent entire structure being copied during swap operations
     ecs::container::sparse_set<> m_entities;
+
+    ecs::registry m_registry;
 }; /* end of class scene */
 
 } /* end of namespace tavern */

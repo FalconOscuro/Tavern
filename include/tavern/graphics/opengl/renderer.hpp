@@ -15,7 +15,6 @@ class renderer final : public generic::renderer
 {
 public:
 
-    renderer() = default;
     ~renderer() = default;
 
     // prevent copy
@@ -35,6 +34,11 @@ public:
     void render() override;
     void swap_buffer(void* window) override;
 
+    [[nodiscard]] static renderer& singleton() {
+        static renderer instance;
+        return instance;
+    }
+
 protected:
 
     void ready_gui_draw() override;
@@ -43,6 +47,8 @@ protected:
     void shutdown_renderer() override;
 
 private:
+
+    renderer() = default;
 
     void render_geometry();
 

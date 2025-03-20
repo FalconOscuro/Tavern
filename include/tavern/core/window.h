@@ -12,19 +12,11 @@ class window
 {
 public:
 
-    window(){}
+    ~window() = default;
 
     // prevent copy
     window(const window&) = delete;
     void operator=(const window&) = delete;
-
-    window(const std::string& name):
-        m_name(name)
-    {}
-
-    ~window() {
-        shutdown();
-    }
 
     bool init(const glm::ivec2& size, int flags = 0);
     void shutdown();
@@ -54,7 +46,14 @@ public:
         return m_window;
     }
 
+    [[nodiscard]] static window& singleton() {
+        static window instance;
+        return instance;
+    }
+
 private:
+
+    window() = default;
 
     bool m_open = false;
     SDL_Window* m_window = NULL;

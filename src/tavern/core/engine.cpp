@@ -4,6 +4,11 @@
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 
+#include "tavern/core/input.h"
+#include "tavern/core/scene.h"
+#include "tavern/core/window.h"
+#include "tavern/graphics/renderer.h"
+
 #include "tavern/resource/resource_manager.h"
 
 namespace tavern {
@@ -14,12 +19,16 @@ bool engine::init(const uint16_t width, const uint16_t height, const std::string
 
     // ensure resource manager created
     (void)resource_manager::get();
-    m_window.set_title(name);
+
+    window& w = window::singleton();
+    graphics::renderer& r = graphics::renderer::singleton();
+
+    w.set_title(name);
 
     m_ready =
-           m_renderer.pre_window_init()
-        && m_window.init(glm::ivec2(width, height))
-        && m_renderer.init(m_window.get_wnd(), m_window.get_size());
+           r.pre_window_init()
+        && w.init(glm::ivec2(width, height))
+        && r.init(w.get_wnd(), w.get_size());
 
     BOOST_LOG_TRIVIAL(trace) << "Engine initialization complete";
 
@@ -33,23 +42,28 @@ void engine::run() {
 
     m_running = true;
 
+    input& s_input                 = input::singleton();
+    scene& s_scene                 = scene::singleton();
+    window& s_window               = window::singleton();
+    graphics::renderer& s_renderer = graphics::renderer::singleton();
+
     BOOST_LOG_TRIVIAL(trace) << "Entering main loop";
     while (handle_events()) {
 
         // system updates
-        m_input.update();
+        s_input.update();
         //m_gui.update();
-        m_scene.update();
-        m_renderer.update();
+        s_scene.update();
+        s_renderer.update();
 
         // rendering
-        m_renderer.clear();
-        m_renderer.render();
+        s_renderer.clear();
+        s_renderer.render();
 
-        m_renderer.gui_draw();
+        s_renderer.gui_draw();
 
         // present frame
-        m_renderer.swap_buffer(m_window.get_wnd());
+        s_renderer.swap_buffer(s_window.get_wnd());
     }
     BOOST_LOG_TRIVIAL(trace)  << "Exited main engine loop";
     m_running = false;
@@ -60,15 +74,18 @@ void engine::shutdown() {
         return;
 
     m_ready = false;
-    m_scene.shutdown();
-    m_renderer.shutdown();
-    m_window.shutdown();
+    scene::singleton().shutdown();
+    graphics::renderer::singleton().shutdown();
+    window::singleton().shutdown();
 }
 
 // should be part of window class?
 bool engine::handle_events()
 {
     SDL_Event e;
+
+    window& s_window = window::singleton();
+    input& s_input   = input::singleton();
 
     while (SDL_PollEvent(&e))
     {
@@ -86,14 +103,14 @@ bool engine::handle_events()
 
         case SDL_KEYDOWN:
         case SDL_KEYUP:
-            if (m_window.compare_window_id(e.key.windowID))
-                m_input.handle_key_event(e.key);
+            if (s_window.compare_window_id(e.key.windowID))
+                s_input.handle_key_event(e.key);
             break;
 
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
-            if (m_window.compare_window_id(e.button.windowID))
-                m_input.handle_mouse_event(e.button);
+            if (s_window.compare_window_id(e.button.windowID))
+                s_input.handle_mouse_event(e.button);
             break;
 
         default:
@@ -111,7 +128,7 @@ void engine::handle_window_event(const SDL_WindowEvent& e)
     case SDL_WINDOWEVENT_RESIZED:
         BOOST_LOG_TRIVIAL(trace) << "Window resized: X = " << e.data1 << ", Y = " << e.data2;
         // use window get_size as drawable size may differ from actual window size
-        m_renderer.set_viewport_size(m_window.get_size());
+        graphics::renderer::singleton().set_viewport_size(window::singleton().get_size());
         //m_gui.resize(m_window.get_size());
         break;
 
