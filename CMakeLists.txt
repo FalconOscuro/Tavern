@@ -125,7 +125,6 @@ if(${RENDERER} STREQUAL "gl")
         src/tavern/graphics/opengl/texture_atlas.cpp
         src/tavern/graphics/opengl/mesh.cpp
         src/tavern/graphics/opengl/texture2d.cpp
-        src/tavern/graphics/opengl/gui_renderer_interface.cpp
     )
 
     target_compile_definitions(Tavern
