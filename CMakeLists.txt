@@ -78,8 +78,8 @@ target_sources(Tavern PUBLIC
     src/tavern/resource/texture2d_manager.cpp
 
     src/tavern/components/camera.cpp
-    src/tavern/components/drawable3d.cpp
-    src/tavern/components/transform3d.cpp
+    src/tavern/components/render_mesh.cpp
+    src/tavern/components/transform.cpp
 
     src/tavern/file/physical_mount.cpp
     src/tavern/file/physical_file.cpp

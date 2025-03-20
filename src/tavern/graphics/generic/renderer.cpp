@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "tavern/components/camera.h"
-#include "tavern/components/transform3d.h"
+#include "tavern/components/transform.h"
 
 #include "tavern/core/scene.h"
 

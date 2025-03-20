@@ -1,4 +1,4 @@
-#include "tavern/components/drawable3d.h"
+#include "tavern/components/render_mesh.h"
 
 #include <ryml_std.hpp>
 
@@ -6,7 +6,7 @@
 
 namespace tavern::component {
 
-bool read(const ryml::ConstNodeRef& n, drawable3d* val)
+bool read(const ryml::ConstNodeRef& n, render_mesh* val)
 {
     auto& res_mngr = resource_manager::get();
 
@@ -16,7 +16,7 @@ bool read(const ryml::ConstNodeRef& n, drawable3d* val)
     return true;
 }
 
-void write(ryml::NodeRef* n, const drawable3d& val)
+void write(ryml::NodeRef* n, const render_mesh& val)
 {
     *n |= ryml::MAP;
 

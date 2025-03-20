@@ -12,8 +12,8 @@
 
 #include "tavern/core/scene.h"
 
-#include "tavern/components/drawable3d.h"
-#include "tavern/components/transform3d.h"
+#include "tavern/components/render_mesh.h"
+#include "tavern/components/transform.h"
 #include "tavern/components/camera.h"
 
 #include "tavern/resource/resource_manager.h"
@@ -153,7 +153,7 @@ void renderer::render_geometry()
 
     glEnable(GL_DEPTH_TEST);
 
-    auto draw_view = registry.create_view<component::drawable3d, component::transform>();
+    auto draw_view = registry.create_view<component::render_mesh, component::transform>();
 
     auto& camera = registry.get<component::camera>(get_active_camera());
     auto& camera_transf = registry.get<component::transform>(get_active_camera());
@@ -173,7 +173,7 @@ void renderer::render_geometry()
     shader->use();
 
     for (auto it = draw_view.begin(); it != draw_view.end(); ++it) {
-        auto& drawable = it.get<component::drawable3d>();
+        auto& drawable = it.get<component::render_mesh>();
         auto& transform = it.get<component::transform>();
 
         if (!drawable.mesh)

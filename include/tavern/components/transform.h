@@ -1,5 +1,5 @@
-#ifndef TRANSFORM3D_H
-#define TRANSFORM3D_H
+#ifndef COMPONENT_TRANSFORM_H
+#define COMPONENT_TRANSFORM_H
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -129,4 +129,4 @@ void write(ryml::NodeRef* n, const vec4& val);
 
 } /* namespace glm */
 
-#endif /* end of define guard TRANSFORM3D_H */
+#endif /* end of define guard COMPONENT_TRANSFORM_H */

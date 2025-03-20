@@ -11,7 +11,7 @@
 
 #include <ryml.hpp>
 
-#include "tavern/components/transform3d.h"
+#include "tavern/components/transform.h"
 
 template <>
 struct std::hash<c4::csubstr>
