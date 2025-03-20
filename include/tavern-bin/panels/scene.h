@@ -5,8 +5,14 @@
 
 namespace panel {
 
-class scene_p
+class scene_p final : public tavern::graphics::imgui_panel
 {
+public:
+
+    scene_p() = default;
+    ~scene_p() = default;
+
+    void draw() override;
 
 }; /* end of class scene_p */
 

@@ -181,7 +181,9 @@ endif()
 
 add_executable(tavern-bin
     src/tavern-bin/main.cpp
+
     src/tavern-bin/panels/performance.cpp
+    src/tavern-bin/panels/scene.cpp
 )
 
 target_link_libraries(tavern-bin PUBLIC

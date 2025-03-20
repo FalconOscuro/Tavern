@@ -51,8 +51,6 @@ void engine::run() {
     while (handle_events()) {
 
         // system updates
-        s_input.update();
-        //m_gui.update();
         s_scene.update();
         s_renderer.update();
 
@@ -64,6 +62,9 @@ void engine::run() {
 
         // present frame
         s_renderer.swap_buffer(s_window.get_wnd());
+
+        // inaccurate on 1st frame
+        s_input.update();
     }
     BOOST_LOG_TRIVIAL(trace)  << "Exited main engine loop";
     m_running = false;

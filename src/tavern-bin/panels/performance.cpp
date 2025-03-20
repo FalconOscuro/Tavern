@@ -2,10 +2,18 @@
 
 #include <imgui.h>
 
+#include <tavern/core/input.h>
+
 namespace panel {
 
 void performance::draw()
 {
+    if (tavern::input::singleton().is_key_just_pressed("f8"))
+        m_open = !m_open;
+
+    if (!m_open)
+        return;
+
     auto& io = ImGui::GetIO();
 
     ImGui::Begin("Performance");

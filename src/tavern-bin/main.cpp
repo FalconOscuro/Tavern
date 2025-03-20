@@ -7,6 +7,7 @@
 #include <boost/program_options/parsers.hpp>
 
 #include "tavern-bin/panels/performance.h"
+#include "tavern-bin/panels/scene.h"
 
 int main(int argc, char** argv)
 {
@@ -57,6 +58,7 @@ int main(int argc, char** argv)
         //}
         
         tavern::graphics::renderer::singleton().add_gui_layer("Performance", new panel::performance());
+        tavern::graphics::renderer::singleton().add_gui_layer("Scene", new panel::scene_p());
 
         engine.run();
         engine.shutdown();

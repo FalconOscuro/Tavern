@@ -41,27 +41,19 @@ public:
         return get_key(key_name).state == key::PRESSED;
     }
 
+    inline bool is_key_just_pressed(const std::string& key_name) const {
+        return is_key_pressed(key_name) && get_key_hold_time(key_name) == 0;
+    }
+
     inline bool is_key_released(const std::string& key_name) const {
         return get_key(key_name).state == key::RELEASED;
     }
 
     /*
-     *  \return key hold time in ms, or 0 if key neither pressed nor released
+     *  \return key hold time in ms, 0 if key neither pressed nor released or if key just pressed, used key_just pressed to check for this
      */
-    uint64_t get_key_hold_time(const std::string& key_name) const {
-        const key& k = get_key(key_name);
-
-        if (k.state == key::NONE)
-            return 0;
-
-        return SDL_GetTicks64() - k.press_start;
-    }
-
-    glm::ivec2 get_mouse_pos() const {
-        glm::ivec2 pos;
-        SDL_GetMouseState(&pos.x, &pos.y);
-        return pos;
-    }
+    uint64_t get_key_hold_time(const std::string& key_name) const;
+    glm::ivec2 get_mouse_pos() const;
 
     [[nodiscard]] static input& singleton() {
         static input instance;
@@ -72,32 +64,15 @@ private:
 
     input() = default;
 
-    inline const key& get_key(const std::string& key_name) const {
-        SDL_Scancode key_code = SDL_GetScancodeFromName(key_name.c_str());
+    const key& get_key(const std::string& key_name) const;
 
-        // unkown key
-        if (!key_code)
-            BOOST_LOG_TRIVIAL(error) << "Unkown key: " << key_name;
-
-        return m_keys[key_code];
-    }
-
-    inline void update_key(const uint32_t id, const bool pressed) {
-        // check out of bounds?
-        key& key_state = m_keys[id];
-
-        if (pressed) {
-            key_state.state = key::PRESSED;
-            key_state.press_start = SDL_GetTicks64();
-        }
-
-        else
-            key_state.state = key::RELEASED;
-    }
+    void update_key(const uint32_t id, const bool pressed);
 
     // Store mouse buttons after keys
     // could save space by subtract 1 to ignore unknown?
     key m_keys[SDL_NUM_SCANCODES + SDL_BUTTON_X2];
+
+    uint64_t m_ticks = 0;
 
 }; /* end of class input */
 

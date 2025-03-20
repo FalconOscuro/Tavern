@@ -9,7 +9,7 @@
 
 namespace panel {
 
-class performance : public tavern::graphics::imgui_panel
+class performance final : public tavern::graphics::imgui_panel
 {
 public:
 
@@ -22,6 +22,8 @@ private:
 
     float m_frame_times[NUM_FRAME_TIMES];
     size_t m_offset = 0;
+
+    bool m_open = false;
 
 }; /* end of class performance : public tavern::graphics::imgui_panel */
 
