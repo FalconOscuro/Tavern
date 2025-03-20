@@ -6,6 +6,8 @@
 #include <boost/program_options.hpp>
 #include <boost/program_options/parsers.hpp>
 
+#include "tavern-bin/panels/performance.h"
+
 int main(int argc, char** argv)
 {
     namespace po = boost::program_options;
@@ -36,27 +38,33 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    tavern::engine engine = tavern::engine();
+    {
+        tavern::engine& engine = tavern::engine::singleton();
 
-    if (!engine.init(
-            args["width"].as<uint16_t>(),
-            args["height"].as<uint16_t>(),
-            args["title"].as<std::string>()
-    )) {
-        BOOST_LOG_TRIVIAL(error) << "Initialization failed!";
-        return 1;
+        if (!engine.init(
+                args["width"].as<uint16_t>(),
+                args["height"].as<uint16_t>(),
+                args["title"].as<std::string>()
+        )) {
+            BOOST_LOG_TRIVIAL(error) << "Initialization failed!";
+            return 1;
+        }
+
+        //if (args.count("scene")) {
+        //    const std::string scene_file = args["scene"].as<std::string>();
+
+        //    engine.get_scene().load_scene(scene_file);
+        //}
+
+        //engine.get_gui().load_document("rml/tutorial.rml");
+        
+        engine.get_renderer().add_gui_layer("Performance", new panel::performance());
+
+        engine.run();
+        engine.shutdown();
     }
 
-    //if (args.count("scene")) {
-    //    const std::string scene_file = args["scene"].as<std::string>();
-
-    //    engine.get_scene().load_scene(scene_file);
-    //}
-
-    //engine.get_gui().load_document("rml/tutorial.rml");
-
-    engine.run();
-    engine.shutdown();
+    BOOST_LOG_TRIVIAL(trace) << "Program terminating";
 
     return 0;
 }

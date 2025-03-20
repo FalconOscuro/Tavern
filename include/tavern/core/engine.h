@@ -12,9 +12,6 @@ namespace tavern {
 class engine
 {
 public:
-
-    engine(){}
-
     // delete copy construction, should only be accessed through singleton
     engine(const engine&) = delete;
     void operator=(const engine&) = delete;
@@ -47,11 +44,13 @@ public:
         return m_renderer;
     }
 
-    //[[nodiscard]] gui& get_gui() {
-    //    return m_gui;
-    //}
+    [[nodiscard]] static engine& singleton() {
+        static engine instance;
+        return instance;
+    }
 
 private:
+    engine(){}
 
     bool handle_events();
     void handle_window_event(const SDL_WindowEvent& e);
@@ -61,11 +60,9 @@ private:
 
     window m_window;
     input m_input;
-    //gui m_gui;
     scene m_scene;
 
     graphics::renderer m_renderer;
-
 }; /* end of class tavern */
 
 } /* end of namespace tavern */

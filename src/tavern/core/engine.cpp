@@ -10,6 +10,8 @@ namespace tavern {
 
 bool engine::init(const uint16_t width, const uint16_t height, const std::string& name)
 {
+    BOOST_LOG_TRIVIAL(trace) << "Starting engine initialization...";
+
     // ensure resource manager created
     (void)resource_manager::get();
     m_window.set_title(name);
@@ -43,7 +45,8 @@ void engine::run() {
         // rendering
         m_renderer.clear();
         m_renderer.render();
-        //m_gui.render();
+
+        m_renderer.gui_draw();
 
         // present frame
         m_renderer.swap_buffer(m_window.get_wnd());
@@ -53,13 +56,16 @@ void engine::run() {
 }
 
 void engine::shutdown() {
+    if (!m_ready)
+        return;
+
     m_ready = false;
     m_scene.shutdown();
-    //m_gui.shutdown();
     m_renderer.shutdown();
     m_window.shutdown();
 }
 
+// should be part of window class?
 bool engine::handle_events()
 {
     SDL_Event e;

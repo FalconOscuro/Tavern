@@ -42,7 +42,7 @@ bool renderer::pre_window_init()
     return true;
 }
 
-void renderer::shutdown() {
+void renderer::shutdown_renderer() {
 
     if (!m_glcontext)
         return;
@@ -122,7 +122,6 @@ void renderer::clear()
 void renderer::render()
 {
     render_geometry();
-    imgui_draw();
 }
 
 void renderer::swap_buffer(void* window) {
@@ -135,19 +134,13 @@ void renderer::swap_buffer(void* window) {
     SDL_GL_SwapWindow((SDL_Window*)(window));
 }
 
-void renderer::imgui_draw()
-{
+void renderer::ready_gui_draw() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
-    ImGuiIO& io = ImGui::GetIO();
+}
 
-    {
-        ImGui::Begin("Perfomance");
-        ImGui::Text("Average: %.1f fps", io.Framerate);
-        ImGui::End();
-    }
-
+void renderer::end_gui_draw() {
     ImGui::Render();
 }
 
@@ -191,14 +184,6 @@ void renderer::render_geometry()
 
         drawable.mesh->draw();
     }
-}
-
-void renderer::render_gui()
-{
-    // Need to posistion ui elements on screen
-
-    // draw images
-    // draw text
 }
 
 } /* end of namespace tavern::graphics */

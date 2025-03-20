@@ -26,7 +26,13 @@ struct std::hash<c4::csubstr>
 namespace tavern {
 
 scene::~scene() {
-    shutdown();
+    // registry gets destroyed first
+    // idk why but calling shutdown here WILL call a segfault
+    // addendum, destructor gets called 3 times:
+    // - engine shutdown
+    // - engine pre-destruction (should be ignored as skipped due to ready flag)
+    // - engine destruction as shutdown is part of scene destructor...
+    //shutdown();
 }
 
 void scene::shutdown() {

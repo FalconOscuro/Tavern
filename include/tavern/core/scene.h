@@ -20,9 +20,10 @@ public:
 
     void update();
 
+    // make scene singleton over registry
     [[nodiscard]] static ecs::registry& get_registry() {
-        static ecs::registry registry;
-        return registry;
+        static ecs::registry instance;
+        return instance;
     }
 
     //void load(const std::string& file);

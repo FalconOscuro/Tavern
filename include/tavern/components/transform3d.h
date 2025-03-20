@@ -3,10 +3,46 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include <ryml.hpp>
 
 #include <ecs/ecs.h>
+
+namespace glm {
+
+inline vec3 extract_tf_translate(const mat4& m) {
+    return m[3];
+}
+
+inline vec3 extract_tf_scale(const mat4& m)
+{
+    vec3 scale;
+
+    for (size_t i = 0; i < 3; ++i)
+        scale[i] = vec3(m[i]).length();
+
+    return scale;
+}
+
+inline quat extract_tf_quaternion(const mat4& m)
+{
+    const vec3 scale = extract_tf_scale(m);
+
+    mat3 rm;
+    for (size_t i = 0; i < 3; ++i)
+        rm[i] = vec3(rm[i]) / scale[i];
+
+    return quat_cast(rm);
+}
+
+inline vec3 extract_tf_euler(const mat4& m)
+{
+    const quat q = extract_tf_quaternion(m);
+    return glm::eulerAngles(q);
+}
+
+} /* end of namespace glm */
 
 namespace tavern {
 
@@ -25,6 +61,39 @@ struct transform
         local(local), parent(parent)
     {}
 
+    inline glm::vec3 get_global_translate() const {
+        return glm::extract_tf_translate(m_global);
+    }
+
+    inline glm::vec3 get_local_translate() const {
+        return glm::extract_tf_translate(local);
+    }
+
+    inline glm::vec3 get_global_scale() const {
+        return glm::extract_tf_scale(m_global);
+    }
+
+    inline glm::vec3 get_local_scale() const {
+        return glm::extract_tf_scale(local);
+    }
+
+    inline glm::quat get_global_quaternion() const {
+        return glm::extract_tf_quaternion(m_global);
+    }
+
+    inline glm::quat get_local_quaternion() const {
+        return glm::extract_tf_quaternion(local);
+    }
+
+    inline glm::vec3 get_global_euler() const {
+        return glm::extract_tf_euler(m_global);
+    }
+
+    inline glm::vec3 get_local_euler() const {
+        return glm::extract_tf_euler(local);
+    }
+
+
     glm::mat4 local = glm::mat4(1.f);
 
     // Refer to parent entity transform by ID
@@ -32,7 +101,7 @@ struct transform
     // Need tombstone retrievable at compile time
     ecs::entity_type parent = UINT32_MAX;
 
-    const glm::mat4& get_global() const {
+    inline const glm::mat4& get_global() const {
         return m_global;
     }
 

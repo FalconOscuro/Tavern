@@ -16,9 +16,7 @@ class renderer final : public generic::renderer
 public:
 
     renderer() = default;
-    ~renderer() {
-        shutdown();
-    }
+    ~renderer() = default;
 
     // prevent copy
     renderer(const renderer&) = delete;
@@ -27,7 +25,6 @@ public:
     bool pre_window_init() override;
 
     bool init(void* window, const glm::ivec2 size) override;
-    void shutdown() override;
 
     void set_viewport_size(const glm::ivec2& view_size) override {
         m_aspect_ratio = (float)view_size.x / (float)view_size.y;
@@ -38,12 +35,16 @@ public:
     void render() override;
     void swap_buffer(void* window) override;
 
+protected:
+
+    void ready_gui_draw() override;
+    void end_gui_draw() override;
+
+    void shutdown_renderer() override;
+
 private:
 
-    void imgui_draw();
-    // singleton instead of passing by argument?
     void render_geometry();
-    void render_gui();
 
     template<typename T>
     static uint32_t create_uniform_buffer(const T* data = nullptr) {
