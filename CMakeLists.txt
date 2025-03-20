@@ -20,7 +20,7 @@ FetchContent_Declare(
 
 FetchContent_Declare(
     cantrip
-    GIT_REPOSITORY git@github.com:FalconOscuro/Cantrip.git
+    GIT_REPOSITORY git@github.com:FalconOscuro/Tavern-Cantrip.git
     GIT_TAG origin/main
 )
 
@@ -36,12 +36,6 @@ FetchContent_Declare(
     GIT_REPOSITORY git@github.com:biojppm/rapidyaml.git
     GIT_TAG v0.7.2
     GIT_SHALLOW FALSE
-)
-
-FetchContent_Declare(
-    RmlUi
-    GIT_REPOSITORY git@github.com:mikke89/RmlUi.git
-    GIT_TAG 6.0
 )
 
 FetchContent_Declare(
@@ -62,7 +56,7 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
 #set(ASSIMP_BUILD_OBJ_IMPORTER ON)
 set(ASSIMP_BUILD_GLTF_IMPORTER ON)
 
-FetchContent_MakeAvailable(ecs cantrip ttf2bmp ryml RmlUi assimp)
+FetchContent_MakeAvailable(ecs cantrip ttf2bmp ryml assimp)
 
 find_package(Boost REQUIRED COMPONENTS log program_options)
 find_package(SDL2 REQUIRED)
@@ -84,7 +78,6 @@ target_sources(Tavern PUBLIC
     src/tavern/core/engine.cpp
     src/tavern/core/window.cpp
     src/tavern/core/input.cpp
-    src/tavern/core/gui.cpp
     src/tavern/core/scene.cpp
 
     src/tavern/resource/mesh_manager.cpp
@@ -112,7 +105,6 @@ target_link_libraries(Tavern
     PUBLIC ryml::ryml
     PUBLIC ttf2bmp
     PUBLIC imgui
-    PUBLIC RmlUi::RmlUi
     PRIVATE assimp
     PRIVATE Boost::log
 )
