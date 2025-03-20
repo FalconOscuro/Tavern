@@ -25,13 +25,6 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
-    ttf2bmp
-    GIT_REPOSITORY git@github.com:FalconOscuro/ttf2bmp.git
-    GIT_TAG v1.0
-    GIT_SHALLOW FALSE
-)
-
-FetchContent_Declare(
     ryml
     GIT_REPOSITORY git@github.com:biojppm/rapidyaml.git
     GIT_TAG v0.7.2
@@ -56,7 +49,7 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
 #set(ASSIMP_BUILD_OBJ_IMPORTER ON)
 set(ASSIMP_BUILD_GLTF_IMPORTER ON)
 
-FetchContent_MakeAvailable(ecs cantrip ttf2bmp ryml assimp)
+FetchContent_MakeAvailable(ecs cantrip ryml assimp)
 
 find_package(Boost REQUIRED COMPONENTS log program_options)
 find_package(SDL2 REQUIRED)
@@ -103,7 +96,6 @@ target_link_libraries(Tavern
     PUBLIC glm::glm
     PUBLIC SDL2::SDL2
     PUBLIC ryml::ryml
-    PUBLIC ttf2bmp
     PUBLIC imgui
     PRIVATE assimp
     PRIVATE Boost::log
@@ -119,7 +111,6 @@ if(${RENDERER} STREQUAL "gl")
     )
 
     target_sources(Tavern PUBLIC
-        src/tavern/graphics/opengl/font.cpp
         src/tavern/graphics/opengl/renderer.cpp
         src/tavern/graphics/opengl/shader.cpp
         src/tavern/graphics/opengl/texture_atlas.cpp
