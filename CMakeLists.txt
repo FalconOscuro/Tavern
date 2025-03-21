@@ -27,7 +27,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     ryml
     GIT_REPOSITORY git@github.com:biojppm/rapidyaml.git
-    GIT_TAG v0.7.2
+    GIT_TAG v0.8.0
     GIT_SHALLOW FALSE
 )
 
@@ -72,14 +72,16 @@ target_sources(Tavern PUBLIC
     src/tavern/core/window.cpp
     src/tavern/core/input.cpp
     src/tavern/core/scene.cpp
+    src/tavern/core/scene_save.cpp
+    src/tavern/core/scene_load.cpp
 
     src/tavern/resource/mesh_manager.cpp
     src/tavern/resource/shader_manager.cpp
     src/tavern/resource/texture2d_manager.cpp
 
-    src/tavern/components/camera.cpp
     src/tavern/components/render_mesh.cpp
-    src/tavern/components/transform.cpp
+
+    src/tavern/components/component_yaml_conversions.cpp
 
     src/tavern/file/physical_mount.cpp
     src/tavern/file/physical_file.cpp

@@ -39,30 +39,33 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    {
-        tavern::engine& engine = tavern::engine::singleton();
+    tavern::engine& engine = tavern::engine::singleton();
 
-        if (!engine.init(
-                args["width"].as<uint16_t>(),
-                args["height"].as<uint16_t>(),
-                args["title"].as<std::string>()
-        )) {
-            BOOST_LOG_TRIVIAL(error) << "Initialization failed!";
-            return 1;
-        }
-
-        //if (args.count("scene")) {
-        //    const std::string scene_file = args["scene"].as<std::string>();
-
-        //    engine.get_scene().load_scene(scene_file);
-        //}
-        
-        tavern::graphics::renderer::singleton().add_gui_layer("Performance", new panel::performance());
-        tavern::graphics::renderer::singleton().add_gui_layer("Scene", new panel::scene_p());
-
-        engine.run();
-        engine.shutdown();
+    if (!engine.init(
+            args["width"].as<uint16_t>(),
+            args["height"].as<uint16_t>(),
+            args["title"].as<std::string>()
+    )) {
+        BOOST_LOG_TRIVIAL(error) << "Initialization failed!";
+        return 1;
     }
+
+    //if (args.count("scene")) {
+    //    const std::string scene_file = args["scene"].as<std::string>();
+
+    //    engine.get_scene().load_scene(scene_file);
+    //}
+    
+    tavern::graphics::renderer::singleton().add_gui_layer("Performance", new panel::performance());
+    tavern::graphics::renderer::singleton().add_gui_layer("Scene", new panel::scene_p());
+
+    // temporary add entity
+    tavern::scene::singleton().get_registry().create();
+    tavern::scene::singleton().get_registry().create();
+    tavern::scene::singleton().get_registry().create();
+
+    engine.run();
+    engine.shutdown();
 
     BOOST_LOG_TRIVIAL(trace) << "Program terminating";
 

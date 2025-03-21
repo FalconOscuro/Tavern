@@ -14,6 +14,10 @@ public:
 
     void draw() override;
 
+private:
+
+    char m_save_name[64];
+
 }; /* end of class scene_p */
 
 } /* end of namespace panel */

@@ -5,8 +5,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include <ryml.hpp>
-
 #include <ecs/ecs.h>
 
 namespace glm {
@@ -99,7 +97,7 @@ struct transform
     // Refer to parent entity transform by ID
     // If tombstone, no parent
     // Need tombstone retrievable at compile time
-    ecs::entity_type parent = UINT32_MAX;
+    ecs::entity_type parent = ecs::entity_type(-1);
 
     inline const glm::mat4& get_global() const {
         return m_global;
@@ -110,23 +108,6 @@ private:
     glm::mat4 m_global = glm::mat4(1.f);
 }; /* end of struct transform */
 
-// ryml read/write
-bool read(const ryml::ConstNodeRef& n, transform* val);
-void write(ryml::NodeRef* n, const transform& val);
-
 }} /* end of namespace tavern::component */
-
-namespace glm {
-// NOTE: Move definition file?
-
-// ryml read/write for mat4 and vec4 (coltype for mat4)
-// requires definition in glm namespace
-bool read(const ryml::ConstNodeRef& n, mat4* val);
-void write(ryml::NodeRef* n, const mat4& val);
-
-bool read(const ryml::ConstNodeRef& n, vec4* val);
-void write(ryml::NodeRef* n, const vec4& val);
-
-} /* namespace glm */
 
 #endif /* end of define guard COMPONENT_TRANSFORM_H */

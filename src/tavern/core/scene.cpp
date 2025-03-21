@@ -9,19 +9,17 @@
 #include <assimp/postprocess.h>
 #include <assimp/material.h>
 
-#include <ryml.hpp>
-
 #include "tavern/components/transform.h"
 
-template <>
-struct std::hash<c4::csubstr>
-{
-    std::size_t operator()(const c4::csubstr& s) const {
-        const std::string_view sv = std::string_view(s.data(), s.size());
-
-        return std::hash<std::string_view>()(sv);
-    }
-}; /* end of struct std::hash<c4::csubstr> */
+//template <>
+//struct std::hash<c4::csubstr>
+//{
+//    std::size_t operator()(const c4::csubstr& s) const {
+//        const std::string_view sv = std::string_view(s.data(), s.size());
+//
+//        return std::hash<std::string_view>()(sv);
+//    }
+//}; /* end of struct std::hash<c4::csubstr> */
 
 namespace tavern {
 
@@ -71,10 +69,6 @@ void scene::update()
             ++it;
         }
     }
-}
-
-void scene::save(const std::string& file) const 
-{
 }
 
 /*
