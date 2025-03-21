@@ -80,8 +80,8 @@ bool renderer::init(void* window, const glm::ivec2 size)
         return false;
     }
 
-    BOOST_LOG_TRIVIAL(info) << "Renderer: " << glGetString(GL_RENDERER);
-    BOOST_LOG_TRIVIAL(info) << "OpenGL supported version: " << glGetString(GL_VERSION);
+    BOOST_LOG_TRIVIAL(info) << "GPU: " << get_gpu_name();
+    BOOST_LOG_TRIVIAL(info) << get_renderer_info();
 
     BOOST_LOG_TRIVIAL(trace) << "Initialized OpenGL";
 
@@ -132,6 +132,36 @@ void renderer::swap_buffer(void* window) {
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow((SDL_Window*)(window));
+}
+
+std::string renderer::get_gpu_name() const {
+    std::string str = std::string(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+
+    auto split_at = str.find_first_of('(');
+
+    if (split_at != str.npos)
+        str.erase(str.begin() + (split_at - 1), str.end());
+
+    return str;
+}
+
+std::string renderer::get_renderer_info() const {
+    std::string str = std::string(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+
+    auto split_at = str.find_first_of('(');
+
+    if (split_at != str.npos)
+        str.erase(str.begin() + (split_at - 1), str.end());
+
+    return "OpenGL " + str;
+}
+
+bool renderer::vsync_enabled() const {
+    return SDL_GL_GetSwapInterval() == 1;
+}
+
+void renderer::set_vsync_enabled(const bool state) {
+    SDL_GL_SetSwapInterval(state ? 1 : 0);
 }
 
 void renderer::ready_gui_draw() {

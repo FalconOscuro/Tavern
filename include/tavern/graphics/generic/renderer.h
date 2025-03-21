@@ -63,6 +63,12 @@ public:
         delete remove_layer(layer_name);
     }
 
+    virtual std::string get_gpu_name() const = 0;
+    virtual std::string get_renderer_info() const = 0;
+
+    virtual bool vsync_enabled() const = 0;
+    virtual void set_vsync_enabled(const bool state) = 0;
+
 protected:
 
     virtual void ready_gui_draw() = 0;

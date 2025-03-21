@@ -34,6 +34,12 @@ public:
     void render() override;
     void swap_buffer(void* window) override;
 
+    std::string get_gpu_name() const override;
+    std::string get_renderer_info() const override;
+
+    bool vsync_enabled() const override;
+    void set_vsync_enabled(const bool state) override;
+
     [[nodiscard]] static renderer& singleton() {
         static renderer instance;
         return instance;

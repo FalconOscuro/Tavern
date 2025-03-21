@@ -73,6 +73,10 @@ void scene::update()
     }
 }
 
+void scene::save(const std::string& file) const 
+{
+}
+
 /*
 [[nodiscard]] graphics::texture2d_resource load_texture(aiMaterial* material, aiTextureType type, const std::string& dir)
 {

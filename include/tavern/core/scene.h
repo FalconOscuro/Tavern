@@ -28,6 +28,8 @@ public:
         return instance;
     }
 
+    void save(const std::string& file) const;
+
     //void load(const std::string& file);
     //void load_scene(const std::string& file);
 
