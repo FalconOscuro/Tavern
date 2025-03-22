@@ -16,6 +16,8 @@ public:
 
 private:
 
+    void draw_entity_tree();
+
     char m_save_name[64];
 
 }; /* end of class scene_p */

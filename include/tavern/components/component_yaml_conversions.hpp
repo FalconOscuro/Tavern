@@ -21,11 +21,12 @@ constexpr const char* get_type_tag() {
     const size_t directive_len = strlen(TAVERN_TAG_DIRECTIVE);
     const size_t name_len = strlen(type_name);
 
-    char* tag = new char[directive_len + strlen(type_name) + 1]{'\0'};
+    char* tag = new char[directive_len + strlen(type_name) + 1];
 
     // throws build error if using strncpy here
     memcpy(tag, TAVERN_TAG_DIRECTIVE, directive_len);
     strncpy(tag + directive_len, type_name, name_len);
+    tag[directive_len + name_len] = '\0';
 
     return tag;
 }
@@ -33,7 +34,6 @@ constexpr const char* get_type_tag() {
 bool read(const ryml::ConstNodeRef& n, camera* val);
 void write(ryml::NodeRef* n, const camera& val);
 
-// ryml read/write
 bool read(const ryml::ConstNodeRef& n, transform* val);
 void write(ryml::NodeRef* n, const transform& val);
 

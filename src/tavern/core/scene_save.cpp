@@ -3,6 +3,7 @@
 #include <boost/log/trivial.hpp>
 
 #include "tavern/components/component_yaml_conversions.hpp"
+#include "tavern/components/entity_name.h"
 
 namespace tavern {
 
@@ -62,13 +63,18 @@ void scene::save(const std::string& file_name) const
     std::unordered_map<ecs::entity_type, size_t> eid_map;
 
     // each object is an individual document within yaml file
-    for (auto it = m_registry.entities_begin(); it != m_registry.entities_end() - 1; ++it)
+    for (auto it = m_registry.entities_begin(); it != m_registry.entities_end(); ++it)
     {
         const size_t id = root.num_children();
         eid_map.emplace(std::make_pair(*it, id)); 
 
         ryml::NodeRef entity = root.append_child();
         entity |= ryml::DOCMAP;
+
+        // name component special case
+        const auto* name = m_registry.try_get<component::entity_name>(*it);
+        if (name)
+            entity.append_child() << ryml::key("Name") << name->name;
 
         ryml::NodeRef components = entity.append_child();
         components.set_key("Components");

@@ -63,6 +63,7 @@ int main(int argc, char** argv)
     tavern::scene::singleton().get_registry().create();
     tavern::scene::singleton().get_registry().create();
     tavern::scene::singleton().get_registry().create();
+    tavern::scene::singleton().get_registry().create();
 
     engine.run();
     engine.shutdown();
