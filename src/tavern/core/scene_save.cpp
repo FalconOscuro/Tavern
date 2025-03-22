@@ -1,9 +1,8 @@
-#include "c4/yml/node_type.hpp"
 #include "tavern/core/scene.h"
 
 #include <boost/log/trivial.hpp>
 
-#include "tavern/components/component_yaml_conversions.h"
+#include "tavern/components/component_yaml_conversions.hpp"
 
 namespace tavern {
 
@@ -38,8 +37,7 @@ inline void write_all_components(ryml::NodeRef& root, const ecs::registry& reg, 
         ryml::NodeRef parent = root[parent_id];
         ryml::NodeRef comp_entry = parent["Components"].append_child();
 
-        // should be able to use tag substr if setup correctly
-        comp_entry.set_key(doc.val_tag().sub(2));
+        comp_entry.set_key(component::get_type_tag<T>());
         comp_entry.set_val(id_str);
     }
 }

@@ -1,7 +1,11 @@
-#ifndef COMPONENT_YAML_CONVERSIONS_H
-#define COMPONENT_YAML_CONVERSIONS_H
+#ifndef COMPONENT_YAML_CONVERSIONS_HPP
+#define COMPONENT_YAML_CONVERSIONS_HPP
+
+#include <cstring>
 
 #include <ryml.hpp>
+
+#include <ecs/entity/type.hpp>
 
 #include "camera.h"
 #include "transform.h"
@@ -9,6 +13,22 @@
 #define TAVERN_TAG_DIRECTIVE "!t!"
 
 namespace tavern::component {
+
+template <typename T>
+constexpr const char* get_type_tag() {
+    const char* type_name = ecs::internal::get_type_name<T>();
+
+    const size_t directive_len = strlen(TAVERN_TAG_DIRECTIVE);
+    const size_t name_len = strlen(type_name);
+
+    char* tag = new char[directive_len + strlen(type_name) + 1]{'\0'};
+
+    // throws build error if using strncpy here
+    memcpy(tag, TAVERN_TAG_DIRECTIVE, directive_len);
+    strncpy(tag + directive_len, type_name, name_len);
+
+    return tag;
+}
 
 bool read(const ryml::ConstNodeRef& n, camera* val);
 void write(ryml::NodeRef* n, const camera& val);
@@ -32,4 +52,4 @@ void write(ryml::NodeRef* n, const vec3& val);
 
 } /* end of namespace glm */
 
-#endif /* end of define guard COMPONENT_YAML_CONVERSIONS_H */
+#endif /* end of define guard COMPONENT_YAML_CONVERSIONS_HPP */

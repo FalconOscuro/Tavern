@@ -1,4 +1,4 @@
-#include "tavern/components/component_yaml_conversions.h"
+#include "tavern/components/component_yaml_conversions.hpp"
 
 #include <c4/yml/node.hpp>
 #include <c4/yml/node_type.hpp>
@@ -15,6 +15,7 @@ bool read(const ryml::ConstNodeRef& n, camera* val)
     n["near"] >> val->near;
     n["far"] >> val->far;
     n["active"] >> val->active;
+
     
     return true;
 }
@@ -27,6 +28,8 @@ void write(ryml::NodeRef* n, const camera& val)
     n->append_child() << ryml::key("near") << val.near;
     n->append_child() << ryml::key("far") << val.far;
     n->append_child() << ryml::key("active") << val.active;
+
+    n->set_val_tag(get_type_tag<camera>());
 }
 
 bool read(const ryml::ConstNodeRef &n, transform *val)
@@ -65,6 +68,8 @@ void write(ryml::NodeRef *n, const transform &val)
 
     if (val.parent != ecs::entity_type(-1))
         n->append_child() << ryml::key("parent") << val.parent;
+
+    n->set_val_tag(get_type_tag<transform>());
 }
 
 } /* end of namespace tavern::component */
@@ -92,18 +97,22 @@ bool read(const ryml::ConstNodeRef& n, vec4* val)
     if (n.num_children() != 4)
         return false;
 
-    for (unsigned int i = 0; i < 4; ++i)
-        n[i] >> (*val)[i];
+    n["x"] >> val->x;
+    n["y"] >> val->y;
+    n["z"] >> val->z;
+    n["w"] >> val->w;
 
     return true;
 }
 
 void write(ryml::NodeRef* n, const vec4& val)
 {
-    *n |= ryml::SEQ | ryml::FLOW_SL;
+    *n |= ryml::MAP | ryml::FLOW_SL;
 
-    for (unsigned int i = 0; i < 4; ++i)
-        n->append_child() << val[i];
+    n->append_child() << ryml::key("x") << val.x;
+    n->append_child() << ryml::key("y") << val.y;
+    n->append_child() << ryml::key("z") << val.z;
+    n->append_child() << ryml::key("w") << val.w;
 }
 
 bool read(const ryml::ConstNodeRef& n, vec3* val)
@@ -111,18 +120,20 @@ bool read(const ryml::ConstNodeRef& n, vec3* val)
     if (n.num_children() != 3)
         return false;
 
-    for (size_t i = 0; i < 3; ++i)
-         n[i] >> (*val)[i];
+    n["x"] >> val->x;
+    n["y"] >> val->y;
+    n["z"] >> val->z;
 
     return true;
 }
 
 void write(ryml::NodeRef* n, const vec3& val)
 {
-    *n |= ryml::SEQ | ryml::FLOW_SL;
+    *n |= ryml::MAP | ryml::FLOW_SL;
 
-    for (size_t i = 0; i < 3; ++i)
-        n->append_child() << val[i];
+    n->append_child() << ryml::key("x") << val.x;
+    n->append_child() << ryml::key("y") << val.y;
+    n->append_child() << ryml::key("z") << val.z;
 }
 
 } /* end of namespace glm */
