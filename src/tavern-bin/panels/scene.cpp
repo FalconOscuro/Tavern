@@ -21,13 +21,30 @@ void scene_p::draw()
     const ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
     ImGui::Begin("Scene", nullptr, flags);
 
-    ImGui::BeginChild("Entities", ImVec2(size.x, ImGui::GetContentRegionAvail().y * .9));
+    ImGui::BeginChild("Entities", ImVec2(size.x, ImGui::GetContentRegionAvail().y * .7));
     draw_entity_tree();
     ImGui::EndChild();
 
     ImGui::Separator();
 
-    ImGui::InputText("##", m_save_name, 64);
+    const char* component_items[] = { "name", "transform", "render mesh" };
+
+    if (ImGui::BeginCombo("##component selector", ""))
+    {
+        for (size_t i = 0; i < IM_ARRAYSIZE(component_items); ++i)
+        {
+             ImGui::Selectable(component_items[i], false);
+        }
+
+        ImGui::EndCombo();
+    }
+
+    ImGui::SameLine();
+    ImGui::Button("Add");
+
+    ImGui::Separator();
+
+    ImGui::InputText("##save file name", m_save_name, 64);
 
     ImGui::SameLine();
     if (ImGui::Button("Save") && strlen(m_save_name))

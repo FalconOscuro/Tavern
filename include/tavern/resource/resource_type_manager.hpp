@@ -24,6 +24,8 @@ public:
         m_container(d.m_container), m_hash(d.m_hash)
     {}
 
+    ~resource_deleter() = default;
+
     void operator()(Resource* res) {
         m_container->erase(m_hash);
         delete res;

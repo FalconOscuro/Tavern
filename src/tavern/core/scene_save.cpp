@@ -74,7 +74,7 @@ void scene::save(const std::string& file_name) const
         // name component special case
         const auto* name = m_registry.try_get<component::entity_name>(*it);
         if (name)
-            entity.append_child() << ryml::key("Name") << name->name;
+            entity.append_child() << ryml::key("Name") << name->get();
 
         ryml::NodeRef components = entity.append_child();
         components.set_key("Components");

@@ -29,6 +29,7 @@ public:
     }
 
     void save(const std::string& file_name) const;
+    void load(const std::string& file_name);
 
     //void load(const std::string& file);
     //void load_scene(const std::string& file);
