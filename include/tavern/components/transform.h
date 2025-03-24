@@ -18,7 +18,7 @@ inline vec3 extract_tf_scale(const mat4& m)
     vec3 scale;
 
     for (size_t i = 0; i < 3; ++i)
-        scale[i] = vec3(m[i]).length();
+        scale[i] = length(vec3(m[0][i], m[1][i], m[2][i]));
 
     return scale;
 }
@@ -27,17 +27,12 @@ inline quat extract_tf_quaternion(const mat4& m)
 {
     const vec3 scale = extract_tf_scale(m);
 
-    mat3 rm;
+    mat3 rm = m;
     for (size_t i = 0; i < 3; ++i)
-        rm[i] = vec3(rm[i]) / scale[i];
+        for (size_t j = 0; j < 3; ++j)
+            rm[j][i] /= scale[i];
 
     return quat_cast(rm);
-}
-
-inline vec3 extract_tf_euler(const mat4& m)
-{
-    const quat q = extract_tf_quaternion(m);
-    return glm::eulerAngles(q);
 }
 
 } /* end of namespace glm */
@@ -84,13 +79,12 @@ struct transform
     }
 
     inline glm::vec3 get_global_euler() const {
-        return glm::extract_tf_euler(m_global);
+        return glm::eulerAngles(get_global_quaternion());
     }
 
     inline glm::vec3 get_local_euler() const {
-        return glm::extract_tf_euler(local);
+        return glm::eulerAngles(get_local_quaternion());
     }
-
 
     glm::mat4 local = glm::mat4(1.f);
 

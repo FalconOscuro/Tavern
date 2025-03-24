@@ -37,6 +37,10 @@ struct entity_name
         return m_name;
     }
 
+    char* operator*() {
+        return m_name;
+    }
+
 private:
 
     // final byte always reserved for nullchar

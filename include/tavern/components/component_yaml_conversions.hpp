@@ -7,8 +7,7 @@
 
 #include <ecs/entity/type.hpp>
 
-#include "camera.h"
-#include "transform.h"
+#include "component.h"
 
 #define TAVERN_TAG_DIRECTIVE "!t!"
 
