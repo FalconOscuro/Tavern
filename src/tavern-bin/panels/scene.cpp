@@ -203,19 +203,19 @@ bool edit_vec3(glm::vec3* v, const char* id, ImGuiInputTextFlags flags = 0)
     ImGui::Text("X");
     ImGui::SameLine();
     ImGui::SetNextItemWidth(width);
-    changed |= ImGui::InputFloat("##X", &(v->x), 0.0f, 0.0f, "%.f", flags);
+    changed |= ImGui::InputFloat("##X", &(v->x), 0.0f, 0.0f, "%.3f", flags);
 
     ImGui::SameLine();
     ImGui::Text("Y");
     ImGui::SameLine();
     ImGui::SetNextItemWidth(width);
-    changed |= ImGui::InputFloat("##Y", &(v->y), 0.0f, 0.0f, "%.f", flags);
+    changed |= ImGui::InputFloat("##Y", &(v->y), 0.0f, 0.0f, "%.3f", flags);
 
     ImGui::SameLine();
     ImGui::Text("Z");
     ImGui::SameLine();
     ImGui::SetNextItemWidth(width);
-    changed |= ImGui::InputFloat("##Z", &(v->z), 0.0f, 0.0f, "%.f", flags);
+    changed |= ImGui::InputFloat("##Z", &(v->z), 0.0f, 0.0f, "%.3f", flags);
 
     ImGui::PopID();
 
@@ -251,7 +251,8 @@ void scene_p::edit_transform()
         
         ImGui::Text("Scale:   ");
         ImGui::SameLine();
-        changed |= edit_vec3(&scl, "scl");
+        // scale should never be 0
+        changed |= edit_vec3(&scl, "scl") && scl.x && scl.y && scl.z;
 
         ImGui::PopID();
 
