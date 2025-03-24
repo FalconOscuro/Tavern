@@ -66,8 +66,9 @@ void write(ryml::NodeRef *n, const transform &val)
     n->append_child() << ryml::key("rotation") << val.get_local_euler();
     n->append_child() << ryml::key("scale") << val.get_local_scale();
 
-    if (val.parent != ecs::entity_type(-1))
-        n->append_child() << ryml::key("parent") << val.parent;
+    // currently handled externally
+    //if (val.parent != ecs::entity_type(-1))
+    //    n->append_child() << ryml::key("parent") << val.parent;
 
     n->set_val_tag(get_type_tag<transform>());
 }

@@ -7,6 +7,22 @@
 
 namespace tavern {
 
+// hacky...
+template <typename T>
+inline void post_write_component(ryml::NodeRef& n, const ecs::registry& reg, const std::unordered_map<ecs::entity_type, size_t>& eid_map, const T& comp, const ecs::entity_type id) {
+    // by default does nothing, done here to prevent un-used arg warnings
+    (void)n; (void)reg; (void)eid_map; (void)comp; (void)id;
+}
+
+// post write need to replace parent_id with locally mapped value
+template <>
+inline void post_write_component<component::transform>(ryml::NodeRef& n, const ecs::registry& reg, const std::unordered_map<ecs::entity_type, size_t>& eid_map, const component::transform& comp, const ecs::entity_type id)
+{
+    auto found = eid_map.find(comp.parent);
+    if (reg.has<component::transform>(comp.parent) && found != eid_map.end() && found->second != id)
+        n.append_child() << ryml::key("parent") << found->second;
+}
+
 template <typename T>
 inline void write_all_components(ryml::NodeRef& root, const ecs::registry& reg, const std::unordered_map<ecs::entity_type, size_t>& eid_map)
 {
@@ -38,8 +54,10 @@ inline void write_all_components(ryml::NodeRef& root, const ecs::registry& reg, 
         ryml::NodeRef parent = root[parent_id];
         ryml::NodeRef comp_entry = parent["Components"].append_child();
 
-        comp_entry.set_key(component::get_type_tag<T>());
+        comp_entry.set_key(ecs::internal::get_type_name<T>());
         comp_entry.set_val(id_str);
+
+        post_write_component(doc, reg, eid_map, it->component, it->id);
     }
 }
 
