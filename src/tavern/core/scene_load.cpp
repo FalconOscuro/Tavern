@@ -9,6 +9,17 @@
 #include "tavern/components/component_yaml_conversions.hpp"
 #include "tavern/resource/util/file.hpp"
 
+template <>
+struct std::hash<c4::csubstr>
+{
+    std::size_t operator()(const c4::csubstr& val) const
+    {
+        const std::string_view view = std::string_view(val.data(), val.size());
+
+        return std::hash<std::string_view>{}(view);
+    }
+};
+
 namespace tavern {
 
 bool scene::load(const std::string& file_name)
@@ -47,6 +58,8 @@ bool scene::load(const std::string& file_name)
         return false;
     }
 
+    std::unordered_map<c4::csubstr, ecs::entity_type> eid_map;
+
     for (auto it = ++root.begin(); it != root.end(); ++it)
     {
         auto node = *it;
@@ -54,8 +67,24 @@ bool scene::load(const std::string& file_name)
         if (node.val_tag() != TAVERN_TAG_DIRECTIVE "entity")
             continue;
 
-        // need to get eid
-        m_registry.create();
+        BOOST_LOG_TRIVIAL(trace) << node.val_anchor();
+
+        if (eid_map.count(node.val_anchor()))
+        {
+            BOOST_LOG_TRIVIAL(warning) << "Found duplicate eid whilst loading file, skipping";
+            continue;
+        }
+
+        const ecs::entity_type entity = m_registry.create();
+
+        eid_map.emplace(std::make_pair(node.val_anchor(), entity));
+
+        if (node.has_child("Name")) {
+            std::string name;
+            node["Name"] >> name;
+
+            m_registry.emplace<component::entity_name>(entity, name);
+        }
     }
 
     delete[] raw;
