@@ -75,7 +75,7 @@ void scene::save(const std::string& file_name) const
 
         header.set_val_tag(TAVERN_TAG_DIRECTIVE "header");
 
-        header.append_child() << ryml::key("Version") << 1;
+        header.append_child() << ryml::key("Version") << SAVE_FILE_VERSION;
     }
 
     std::unordered_map<ecs::entity_type, size_t> eid_map;

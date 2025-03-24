@@ -22,7 +22,7 @@ inline std::string_view get_file_parent_dir(const std::string_view& s) {
 
 // WARNING: Do not forget to delete!
 // NOTE: Could make raw buffer static, but would mess with multithreading IO ops
-inline char* read_file(const char* filename, size_t& size)
+[[nodiscard]] inline char* read_file(const char* filename, size_t& size)
 {
     FILE* file = fopen(filename, "rb");
 

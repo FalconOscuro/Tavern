@@ -3,6 +3,8 @@
 
 #include <ecs/ecs.h>
 
+#define SAVE_FILE_VERSION 1
+
 namespace tavern {
 
 class scene
@@ -29,7 +31,7 @@ public:
     }
 
     void save(const std::string& file_name) const;
-    void load(const std::string& file_name);
+    bool load(const std::string& file_name);
 
     //void load(const std::string& file);
     //void load_scene(const std::string& file);

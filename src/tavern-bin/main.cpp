@@ -59,12 +59,6 @@ int main(int argc, char** argv)
     tavern::graphics::renderer::singleton().add_gui_layer("Performance", new panel::performance());
     tavern::graphics::renderer::singleton().add_gui_layer("Scene", new panel::scene_p());
 
-    // temporary add entity
-    tavern::scene::singleton().get_registry().create();
-    tavern::scene::singleton().get_registry().create();
-    tavern::scene::singleton().get_registry().create();
-    tavern::scene::singleton().get_registry().create();
-
     engine.run();
     engine.shutdown();
 
