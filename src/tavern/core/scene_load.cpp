@@ -52,7 +52,7 @@ bool scene::load(const std::string& file_name)
     }
 
     int file_ver;
-    header["Version"] >> file_ver;
+    header["version"] >> file_ver;
     if (file_ver != SAVE_FILE_VERSION) {
         BOOST_LOG_TRIVIAL(error) << "Incompatible save file version, got " << file_ver << " expected " << SAVE_FILE_VERSION;
         return false;
@@ -67,23 +67,52 @@ bool scene::load(const std::string& file_name)
         if (node.val_tag() != TAVERN_TAG_DIRECTIVE "entity")
             continue;
 
-        BOOST_LOG_TRIVIAL(trace) << node.val_anchor();
+        ecs::entity_type entity;
 
-        if (eid_map.count(node.val_anchor()))
-        {
-            BOOST_LOG_TRIVIAL(warning) << "Found duplicate eid whilst loading file, skipping";
-            continue;
+        if (!eid_map.count(node.val_anchor())) {
+            entity = m_registry.create();
+            eid_map.emplace(std::make_pair(node.val_anchor(), entity));
         }
 
-        const ecs::entity_type entity = m_registry.create();
+        else
+            entity = eid_map[node.val_anchor()];
 
-        eid_map.emplace(std::make_pair(node.val_anchor(), entity));
-
-        if (node.has_child("Name")) {
+        if (node.has_child("name")) {
             std::string name;
-            node["Name"] >> name;
+            node["name"] >> name;
 
             m_registry.emplace<component::entity_name>(entity, name);
+        }
+
+        // load individual components
+        ryml::ConstNodeRef components = node["components"];
+
+        // transform
+        if (components.has_child(ecs::internal::get_type_name<component::transform>()))
+        {
+            auto& transf = m_registry.emplace<component::transform>(entity);
+
+            size_t transf_doc_id;
+            components[ecs::internal::get_type_name<component::transform>()] >> transf_doc_id;
+            ryml::ConstNodeRef transf_node = root.child(transf_doc_id);
+
+            transf_node >> transf;
+
+            if (transf.parent != ecs::entity_type(-1))
+            {
+                ecs::entity_type parent_id;
+                c4::csubstr parent_id_substr = transf_node["parent"].val();
+
+                if (!eid_map.count(parent_id_substr)) {
+                    parent_id = m_registry.create();
+                    eid_map.emplace(std::make_pair(parent_id_substr, parent_id));
+                }
+
+                else
+                    parent_id = eid_map[parent_id_substr];
+
+                transf.parent = parent_id;
+            }
         }
     }
 

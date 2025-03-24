@@ -52,7 +52,7 @@ inline void write_all_components(ryml::NodeRef& root, const ecs::registry& reg, 
         doc.set_val_anchor(id_str);
 
         ryml::NodeRef parent = root[parent_id];
-        ryml::NodeRef comp_entry = parent["Components"].append_child();
+        ryml::NodeRef comp_entry = parent["components"].append_child();
 
         comp_entry.set_key(ecs::internal::get_type_name<T>());
         comp_entry.set_val(id_str);
@@ -75,7 +75,7 @@ void scene::save(const std::string& file_name) const
 
         header.set_val_tag(TAVERN_TAG_DIRECTIVE "header");
 
-        header.append_child() << ryml::key("Version") << SAVE_FILE_VERSION;
+        header.append_child() << ryml::key("version") << SAVE_FILE_VERSION;
     }
 
     std::unordered_map<ecs::entity_type, size_t> eid_map;
@@ -92,10 +92,10 @@ void scene::save(const std::string& file_name) const
         // name component special case
         const auto* name = m_registry.try_get<component::entity_name>(*it);
         if (name)
-            entity.append_child() << ryml::key("Name") << name->get();
+            entity.append_child() << ryml::key("name") << name->get();
 
         ryml::NodeRef components = entity.append_child();
-        components.set_key("Components");
+        components.set_key("components");
         components |= ryml::MAP | ryml::BLOCK;
 
         entity.set_val_tag(TAVERN_TAG_DIRECTIVE "entity");

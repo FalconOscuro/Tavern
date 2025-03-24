@@ -62,7 +62,7 @@ void write(ryml::NodeRef *n, const transform &val)
 {
     *n |= ryml::MAP;
 
-    n->append_child() << ryml::key("position") << val.get_global_translate();
+    n->append_child() << ryml::key("position") << val.get_local_translate();
     n->append_child() << ryml::key("rotation") << val.get_local_euler();
     n->append_child() << ryml::key("scale") << val.get_local_scale();
 
