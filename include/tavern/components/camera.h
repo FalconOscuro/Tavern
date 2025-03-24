@@ -18,9 +18,9 @@ struct camera
         return glm::perspective(glm::radians(fov), aspect_ratio, near, far);
     }
 
-    float fov;
-    float near;
-    float far;
+    float fov = 120.f;
+    float near = 0.001f;
+    float far = 1000.f;
 
     bool active;
 }; /* end of struct camera */

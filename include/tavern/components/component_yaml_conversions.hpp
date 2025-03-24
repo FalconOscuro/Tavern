@@ -24,7 +24,7 @@ constexpr const char* get_type_tag() {
 
     // throws build error if using strncpy here
     memcpy(tag, TAVERN_TAG_DIRECTIVE, directive_len);
-    strncpy(tag + directive_len, type_name, name_len);
+    memcpy(tag + directive_len, type_name, name_len);
     tag[directive_len + name_len] = '\0';
 
     return tag;

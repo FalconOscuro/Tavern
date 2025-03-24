@@ -43,6 +43,7 @@ inline char* read_file(const char* filename, size_t& size)
     char* raw = new char[size + 1];
     auto read = fread(raw, sizeof(char), size, file);
     assert(read == size);
+    (void)read;
     raw[size] = '\0';
     fclose(file);
 
