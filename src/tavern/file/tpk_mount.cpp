@@ -2,6 +2,8 @@
 
 #include <cstring>
 
+#include <boost/log/trivial.hpp>
+
 #include "tavern/file/tpk_file.h"
 
 namespace tavern {
@@ -12,9 +14,9 @@ tpk_mount::tpk_mount(const std::string& path):
     if(!m_file.open())
         return;
 
-    m_file.get_str(reinterpret_cast<char*>(&m_header), sizeof(tpk_header));
+    size_t bytes_read = m_file.get_str(reinterpret_cast<char*>(&m_header), sizeof(tpk_header));
 
-    if (!valid()) {
+    if (bytes_read != sizeof(tpk_header) || !valid()) {
         m_file.close();
         return;
     }
@@ -23,7 +25,14 @@ tpk_mount::tpk_mount(const std::string& path):
     {
         tpk_file_info f_info;
 
-        m_file.get_str(reinterpret_cast<char*>(&f_info), sizeof(tpk_file_info));
+        bytes_read = m_file.get_str(reinterpret_cast<char*>(&f_info), sizeof(tpk_file_info));
+
+        // invalidate signature to ensure valid returns false
+        // malformed data
+        if (bytes_read != sizeof(tpk_file_info)) {
+            m_header.sig[0] = '\0';
+            break;
+        }
 
         m_file_table.emplace(f_info.path, f_info);
     }
