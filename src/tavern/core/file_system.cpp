@@ -95,6 +95,39 @@ const file::imount* file_system::mount_dir(const file::mount_path& mount_info)
     return mount;
 }
 
+bool file_system::file_exists(const file::mount_path& file_path) const
+{
+    auto mount = m_mounts.find(file_path.path);
+
+    return mount != m_mounts.end() && mount->second->has_file(file_path.path);
+}
+
+std::unique_ptr<file::ifile> file_system::load_file(const file::mount_path& file_path) const
+{
+    auto mount = m_mounts.find(file_path.identifer);
+
+    if (mount == m_mounts.end())
+    {
+        BOOST_LOG_TRIVIAL(error) << "Failed to load File " << file_path << ", unknown identifier";
+
+        return nullptr;
+    }
+
+    auto file = mount->second->load_file(file_path.path);
+
+    if (!file)
+        BOOST_LOG_TRIVIAL(error) << "Failed to load File " << file_path << ", could not resolve path";
+
+    else
+        BOOST_LOG_TRIVIAL(trace) << "Successfully loaded File " << file_path;
+
+    return file;
+}
+
+bool file_system::is_mounted(const std::string& identifier) const {
+    return m_mounts.count(identifier);
+}
+
 void file_system::unmount_all() {
     for (auto it = m_mounts.cbegin(); it != m_mounts.cend(); it = unmount(it));
 }

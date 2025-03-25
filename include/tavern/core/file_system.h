@@ -18,8 +18,14 @@ public:
     file_system(const file_system&) = delete;
     void operator=(const file_system&) = delete;
 
+    // do we need to return ptr? all could be managed through file_system singleton
     const file::imount* mount_tpk(const std::string& path, std::string& identifier);
     const file::imount* mount_dir(const file::mount_path& mount_info);
+
+    bool file_exists(const file::mount_path& file_path) const;
+    std::unique_ptr<file::ifile> load_file(const file::mount_path& file_path) const;
+
+    bool is_mounted(const std::string& identifier) const;
 
     void unmount_all();
     void unmount(const std::string& identifier);
