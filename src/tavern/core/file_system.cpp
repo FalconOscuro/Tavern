@@ -22,8 +22,14 @@ const file::imount* file_system::mount_tpk(const std::string& path, std::string&
         return nullptr;
     }
 
-    identifier.resize(sizeof(file::tpk_header::name));
-    strncpy(identifier.data(), mount->header().name, sizeof(file::tpk_header::name));
+    // hack as otherwise std::string doesn't detect nullptr properly
+    char indent_c_str[sizeof(file::tpk_header::name) + 1];
+    memcpy(indent_c_str, mount->header().name, sizeof(file::tpk_header::name));
+
+    if (identifier.empty()) {
+        BOOST_LOG_TRIVIAL(error) << "Failed to mount tpk file " << path << ", name was null";
+        return nullptr;
+    }
 
     // file already loaded or collision
     if (m_mounts.count(identifier))
@@ -53,6 +59,12 @@ const file::imount* file_system::mount_tpk(const std::string& path, std::string&
 
 const file::imount* file_system::mount_dir(const file::mount_path& mount_info)
 {
+    if (mount_info.identifer.empty() || mount_info.path.empty())
+    {
+        BOOST_LOG_TRIVIAL(error) << "Failed to mount Directory " << mount_info << ", identifier/path cannot be null";
+        return nullptr;
+    }
+
     // file already loaded or collision
     if (m_mounts.count(mount_info.identifer))
     {

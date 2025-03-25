@@ -188,6 +188,7 @@ add_executable(tavern-bin
 
     src/tavern-bin/panels/performance.cpp
     src/tavern-bin/panels/scene.cpp
+    src/tavern-bin/panels/file_system.cpp
 )
 
 target_link_libraries(tavern-bin PUBLIC

@@ -2,7 +2,8 @@
 
 namespace tavern::file {
 
-std::ostream& operator<<(std::ostream& stream, const mount_path& mount) {
+
+boost::log::record_ostream& operator<<(boost::log::record_ostream& stream, const mount_path& mount) {
     return stream << mount.identifer << ':' << mount.path;
 }
 

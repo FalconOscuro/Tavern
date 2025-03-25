@@ -8,6 +8,7 @@
 
 #include "tavern-bin/panels/performance.h"
 #include "tavern-bin/panels/scene.h"
+#include "tavern-bin/panels/file_system.h"
 
 int main(int argc, char** argv)
 {
@@ -56,8 +57,12 @@ int main(int argc, char** argv)
     //    engine.get_scene().load_scene(scene_file);
     //}
     
-    tavern::graphics::renderer::singleton().add_gui_layer("Performance", new panel::performance());
-    tavern::graphics::renderer::singleton().add_gui_layer("Scene", new panel::scene_p());
+    {
+        auto& renderer = tavern::graphics::renderer::singleton();
+        renderer.add_gui_layer("Performance", new panel::performance());
+        renderer.add_gui_layer("Scene", new panel::scene_p());
+        renderer.add_gui_layer("File System", new panel::file_system_p());
+    }
 
     engine.run();
     engine.shutdown();
