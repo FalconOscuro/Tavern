@@ -27,7 +27,8 @@ bool engine::init(const uint16_t width, const uint16_t height, const std::string
     w.set_title(name);
 
     m_ready =
-           r.pre_window_init()
+           file_system::singleton().init()
+        && r.pre_window_init()
         && w.init(glm::ivec2(width, height))
         && r.init(w.get_wnd(), w.get_size());
 

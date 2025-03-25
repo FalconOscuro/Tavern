@@ -4,11 +4,18 @@
 
 #include "tavern/file/physical_mount.h"
 #include "tavern/file/tpk_mount.h"
+#include "tavern/file/virtual_mount.h"
 
 namespace tavern {
 
 file_system::~file_system() {
     unmount_all();
+}
+
+bool file_system::init() {
+    m_mounts.emplace("internal", std::make_unique<file::virtual_mount>());
+
+    return true;
 }
 
 const file::imount* file_system::mount_tpk(const std::string& path, std::string& identifier)
@@ -17,7 +24,7 @@ const file::imount* file_system::mount_tpk(const std::string& path, std::string&
     std::unique_ptr<file::tpk_mount> mount = std::make_unique<file::tpk_mount>(path);
 
     if (!mount->valid()) {
-        BOOST_LOG_TRIVIAL(error) << "Failed whilst mounting tpk file(" << path << "), Invalid data";
+        BOOST_LOG_TRIVIAL(error) << "Failed whilst mounting tpk file '" << path << "', Invalid data";
 
         return nullptr;
     }
@@ -27,7 +34,7 @@ const file::imount* file_system::mount_tpk(const std::string& path, std::string&
     memcpy(indent_c_str, mount->header().name, sizeof(file::tpk_header::name));
 
     if (identifier.empty()) {
-        BOOST_LOG_TRIVIAL(error) << "Failed to mount tpk file " << path << ", name was null";
+        BOOST_LOG_TRIVIAL(error) << "Failed to mount tpk file '" << path << "', name was null";
         return nullptr;
     }
 
@@ -37,20 +44,20 @@ const file::imount* file_system::mount_tpk(const std::string& path, std::string&
         const file::imount* loaded = m_mounts[identifier].get();
 
         if (loaded->get_path() == path) {
-            BOOST_LOG_TRIVIAL(warning) << "TPK file(" << identifier << ':' << path << ") was already mounted!"
+            BOOST_LOG_TRIVIAL(warning) << "TPK file '" << identifier << ':' << path << "' was already mounted!"
                 " Should only be mounted once to avoid potential slowdown.";
 
             return loaded;
         }
 
         else {
-            BOOST_LOG_TRIVIAL(error) << "Failed to mount TPK file(" << identifier << ':' << path << "), "
+            BOOST_LOG_TRIVIAL(error) << "Failed to mount TPK file '" << identifier << ':' << path << "', "
                 "identifier already in use by " << identifier << ':' << path;
             return nullptr;
         }
     }
 
-    BOOST_LOG_TRIVIAL(trace) << "Successfully mounted TPK file " << identifier << ':' << path;
+    BOOST_LOG_TRIVIAL(trace) << "Successfully mounted TPK file '" << identifier << ':' << path << '\'';
 
     file::imount* ptr = mount.release();
     m_mounts.emplace(std::make_pair(identifier, std::unique_ptr<file::imount>(ptr)));
@@ -61,7 +68,7 @@ const file::imount* file_system::mount_dir(const file::mount_path& mount_info)
 {
     if (mount_info.identifer.empty() || mount_info.path.empty())
     {
-        BOOST_LOG_TRIVIAL(error) << "Failed to mount Directory " << mount_info << ", identifier/path cannot be null";
+        BOOST_LOG_TRIVIAL(error) << "Failed to mount Directory '" << mount_info << "', identifier/path cannot be null";
         return nullptr;
     }
 
@@ -71,12 +78,12 @@ const file::imount* file_system::mount_dir(const file::mount_path& mount_info)
          const file::imount* loaded = m_mounts[mount_info.identifer].get();
 
         if (loaded->get_path() == mount_info.path) {
-            BOOST_LOG_TRIVIAL(warning) << "Directory " << mount_info << " already mounted.";
+            BOOST_LOG_TRIVIAL(warning) << "Directory '" << mount_info << "' already mounted.";
             return loaded;
         }
 
         else {
-            BOOST_LOG_TRIVIAL(error) << "Failed to mount Directory " << mount_info << ", identifier already in use by " << mount_info.identifer << ':' << loaded->get_path();
+            BOOST_LOG_TRIVIAL(error) << "Failed to mount Directory '" << mount_info << "', identifier already in use by '" << mount_info.identifer << ':' << loaded->get_path() << '\'';
             return nullptr;
         }
     }
@@ -84,12 +91,12 @@ const file::imount* file_system::mount_dir(const file::mount_path& mount_info)
     file::physical_mount* mount = new file::physical_mount(mount_info.path);
 
     if (!mount->valid()) {
-        BOOST_LOG_TRIVIAL(error) << "Failed to mount Directory " << mount_info << ", was invalid";
+        BOOST_LOG_TRIVIAL(error) << "Failed to mount Directory '" << mount_info << "', was invalid";
         delete mount;
         return nullptr;
     }
 
-    BOOST_LOG_TRIVIAL(trace) << "Successfully mounted Directory " << mount_info;
+    BOOST_LOG_TRIVIAL(trace) << "Successfully mounted Directory '" << mount_info << '\'';
 
     m_mounts.emplace(std::make_pair(mount_info.identifer, std::unique_ptr<file::imount>(mount)));
     return mount;
@@ -108,7 +115,7 @@ std::unique_ptr<file::ifile> file_system::load_file(const file::mount_path& file
 
     if (mount == m_mounts.end())
     {
-        BOOST_LOG_TRIVIAL(error) << "Failed to load File " << file_path << ", unknown identifier";
+        BOOST_LOG_TRIVIAL(error) << "Failed to load File '" << file_path << "', unknown identifier";
 
         return nullptr;
     }
@@ -116,10 +123,10 @@ std::unique_ptr<file::ifile> file_system::load_file(const file::mount_path& file
     auto file = mount->second->load_file(file_path.path);
 
     if (!file)
-        BOOST_LOG_TRIVIAL(error) << "Failed to load File " << file_path << ", could not resolve path";
+        BOOST_LOG_TRIVIAL(error) << "Failed to load File '" << file_path << "', could not resolve path";
 
     else
-        BOOST_LOG_TRIVIAL(trace) << "Successfully loaded File " << file_path;
+        BOOST_LOG_TRIVIAL(trace) << "Successfully loaded File '" << file_path << '\'';
 
     return file;
 }
@@ -144,7 +151,7 @@ void file_system::unmount(const std::string& identifier)
 
 file_system::mount_map_type::const_iterator file_system::unmount(mount_map_type::const_iterator it)
 {
-    BOOST_LOG_TRIVIAL(trace) << "Unmounted " << it->first << ':' << it->second->get_path();
+    BOOST_LOG_TRIVIAL(trace) << "Unmounted '" << it->first << ':' << it->second->get_path() << '\'';
     return m_mounts.erase(it);
 }
 

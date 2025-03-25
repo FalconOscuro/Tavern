@@ -18,6 +18,8 @@ public:
     file_system(const file_system&) = delete;
     void operator=(const file_system&) = delete;
 
+    bool init();
+
     // do we need to return ptr? all could be managed through file_system singleton
     const file::imount* mount_tpk(const std::string& path, std::string& identifier);
     const file::imount* mount_dir(const file::mount_path& mount_info);
