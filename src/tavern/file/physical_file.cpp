@@ -61,7 +61,7 @@ size_t physical_file::get_str(char* s, const size_t len)
     // c stores character from file
     // loops so long as c not end of file marker and less than len chars read
     for (char c; chars_read < len && (c = fgetc(m_file)) != EOF; ++chars_read)
-        s[len] = c;
+        s[chars_read] = c;
 
     return chars_read;
 }

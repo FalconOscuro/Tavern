@@ -89,6 +89,8 @@ target_sources(Tavern PUBLIC
     src/tavern/file/physical_mount.cpp
     src/tavern/file/tpk_file.cpp
     src/tavern/file/tpk_mount.cpp
+    src/tavern/file/virtual_file.cpp
+    src/tavern/file/virtual_mount.cpp
 
     src/tavern/graphics/generic/texture.cpp
     src/tavern/graphics/generic/renderer.cpp
