@@ -1,6 +1,6 @@
 #include "tavern/file/physical_file.h"
 
-namespace tavern {
+namespace tavern::file {
 
 physical_file::~physical_file() {
     close();

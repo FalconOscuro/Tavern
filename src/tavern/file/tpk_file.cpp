@@ -2,10 +2,10 @@
 
 #include <algorithm>
 
-namespace tavern {
+namespace tavern::file {
 
 tpk_file::tpk_file(const std::string& tpk_path, const tpk_file_info& info):
-    file(tpk_path), m_info(info)
+    ifile(tpk_path), m_info(info)
 {}
 
 tpk_file::~tpk_file() {
@@ -101,4 +101,4 @@ size_t tpk_file::size() const {
     return m_info.size;
 }
 
-} /* namespace tavern */
+} /* namespace tavern::file */

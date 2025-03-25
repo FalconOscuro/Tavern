@@ -69,11 +69,12 @@ target_include_directories(Tavern
 
 target_sources(Tavern PUBLIC
     src/tavern/core/engine.cpp
-    src/tavern/core/window.cpp
+    src/tavern/core/file_system.cpp
     src/tavern/core/input.cpp
     src/tavern/core/scene.cpp
-    src/tavern/core/scene_save.cpp
     src/tavern/core/scene_load.cpp
+    src/tavern/core/scene_save.cpp
+    src/tavern/core/window.cpp
 
     src/tavern/resource/mesh_manager.cpp
     src/tavern/resource/shader_manager.cpp
@@ -83,10 +84,11 @@ target_sources(Tavern PUBLIC
 
     src/tavern/components/component_yaml_conversions.cpp
 
-    src/tavern/file/physical_mount.cpp
+    src/tavern/file/path.cpp
     src/tavern/file/physical_file.cpp
-    src/tavern/file/tpk_mount.cpp
+    src/tavern/file/physical_mount.cpp
     src/tavern/file/tpk_file.cpp
+    src/tavern/file/tpk_mount.cpp
 
     src/tavern/graphics/generic/texture.cpp
     src/tavern/graphics/generic/renderer.cpp

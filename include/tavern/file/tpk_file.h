@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <cstdio>
 
-namespace tavern {
+namespace tavern::file {
 
 struct tpk_file_info
 {
@@ -19,7 +19,7 @@ struct tpk_file_info
     // nested directories over full file paths?
 };
 
-class tpk_file : public file
+class tpk_file : public ifile
 {
 public:
     tpk_file(const std::string& tpk_path, const tpk_file_info& info);
@@ -47,6 +47,6 @@ private:
     const tpk_file_info m_info;
 };
 
-} /* namespace tavern */
+} /* namespace tavern::file */
 
 #endif /* end of include guard: TPK_FILE_H */

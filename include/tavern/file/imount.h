@@ -5,20 +5,21 @@
 #include <string>
 
 #include "ifile.h"
+#include "path.h"
 
-namespace tavern {
+namespace tavern::file {
 
-class mount
+class imount
 {
 public:
-    mount(const std::string& path):
+    imount(const std::string& path):
         m_path(path)
     {}
 
-    virtual ~mount() = default;
+    virtual ~imount() = default;
 
     virtual bool has_file(const std::string& path) const = 0;
-    virtual std::unique_ptr<file> load_file(const std::string& path) = 0;
+    [[nodiscard]] virtual std::unique_ptr<ifile> load_file(const std::string& path) const = 0;
 
     virtual bool valid() const = 0;
 
@@ -29,8 +30,8 @@ public:
 private:
 
     const std::string m_path;
-}; /* end of class mount */
+}; /* end of class imount */
 
-} /* end of namespace tavern */
+} /* end of namespace tavern::file */
 
 #endif /* end of define guard IMOUNT_H */

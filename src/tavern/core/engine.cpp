@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 
+#include "tavern/core/file_system.h"
 #include "tavern/core/input.h"
 #include "tavern/core/scene.h"
 #include "tavern/core/window.h"
@@ -75,6 +76,7 @@ void engine::shutdown() {
         return;
 
     m_ready = false;
+    file_system::singleton().unmount_all();
     scene::singleton().shutdown();
     graphics::renderer::singleton().shutdown();
     window::singleton().shutdown();

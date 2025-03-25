@@ -4,17 +4,17 @@
 #include <cstddef>
 #include <string>
 
-namespace tavern {
+namespace tavern::file {
 
-class file
+class ifile
 {
 public:
 
-    explicit file(const std::string& file_path):
+    explicit ifile(const std::string& file_path):
         m_filename(file_path)
     {}
 
-    virtual ~file() = default;
+    virtual ~ifile() = default;
 
     virtual bool open() = 0;
     virtual void close() = 0;
@@ -48,8 +48,8 @@ private:
 
     const std::string m_filename;
 
-}; /* end of class file */
+}; /* end of class ifile */
 
-} /* end of namespace tavern */
+} /* end of namespace tavern::file */
 
 #endif /* end of define guard IFILE_H */

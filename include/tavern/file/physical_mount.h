@@ -3,23 +3,23 @@
 
 #include "imount.h"
 
-namespace tavern {
+namespace tavern::file {
 
-class physical_mount : public mount
+class physical_mount : public imount
 {
 public:
     explicit physical_mount(const std::string& path):
-        mount(path)
+        imount(path)
     {}
 
     ~physical_mount() = default;
 
     bool has_file(const std::string& path) const override;
-    std::unique_ptr<file> load_file(const std::string& path) override;
+    std::unique_ptr<ifile> load_file(const std::string& path) const override;
 
     bool valid() const override;
-}; /* end of class physical_mount : public mount */
+}; /* end of class physical_mount : public imount */
 
-} /* end of namespace tavern */
+} /* end of namespace tavern::file */
 
 #endif /* end of define guard PHYSICAL_MOUNT_H */

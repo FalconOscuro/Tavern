@@ -5,14 +5,14 @@
 
 #include <cstdio>
 
-namespace tavern {
+namespace tavern::file {
 
-class physical_file : public file
+class physical_file : public ifile
 {
 public:
 
     explicit physical_file(const std::string& path):
-        file(path)
+        ifile(path)
     {}
 
     ~physical_file();
@@ -38,6 +38,6 @@ private:
     std::FILE* m_file = NULL;
 };
 
-} /* namespace tavern */
+} /* namespace tavern::file */
 
 #endif /* end of include guard: PHYSICAL_FILE_H */

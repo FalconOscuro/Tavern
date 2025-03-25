@@ -5,13 +5,12 @@
 #include <unordered_map>
 
 #include "imount.h"
-#include "physical_file.h"
 #include "tpk_file.h"
 
 #define TPK_VERSION 0
 #define TPK_SIG "TPK"
 
-namespace tavern {
+namespace tavern::file {
 
 struct tpk_header
 {
@@ -27,14 +26,14 @@ struct tpk_header
     // number of files stored in tpk
     uint32_t num_entries;
 
-    char name[24];
+    char name[32];
     char author[24];
 
     // requirements?
     // tags?
 };
 
-class tpk_mount : public mount
+class tpk_mount : public imount
 {
 public:
     tpk_mount(const std::string& path);
@@ -42,18 +41,21 @@ public:
     ~tpk_mount() = default;
 
     bool has_file(const std::string& path) const override;
-    std::unique_ptr<file> load_file(const std::string& path) override;
+    std::unique_ptr<ifile> load_file(const std::string& path) const override;
 
     bool valid() const override;
+
+    const tpk_header& header() const {
+        return m_header;
+    }
 
 private:
 
     std::unordered_map<std::string, tpk_file_info> m_file_table;
 
-    physical_file m_file;
     tpk_header m_header;
 };
 
-} /* namespace tavern */
+} /* namespace tavern::file */
 
 #endif /* end of include guard: TPK_MOUNT_H */

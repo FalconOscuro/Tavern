@@ -4,7 +4,7 @@
 
 #include "tavern/file/physical_file.h"
 
-namespace tavern {
+namespace tavern::file {
 
 bool physical_mount::has_file(const std::string& path) const
 {
@@ -14,7 +14,7 @@ bool physical_mount::has_file(const std::string& path) const
         && !std::filesystem::is_directory(fpath);
 }
 
-std::unique_ptr<file> physical_mount::load_file(const std::string& path)
+std::unique_ptr<ifile> physical_mount::load_file(const std::string& path) const
 {
     if (!has_file(path))
         return nullptr;
@@ -27,4 +27,4 @@ bool physical_mount::valid() const {
     return std::filesystem::is_directory(get_path());
 }
 
-} /* namespace tavern */
+} /* namespace tavern::file */
