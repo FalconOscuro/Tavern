@@ -5,6 +5,7 @@
 #include <boost/log/trivial.hpp>
 
 #include <ryml.hpp>
+#include <ryml_std.hpp>
 
 #include "tavern/components/component_yaml_conversions.hpp"
 #include "tavern/resource/util/file.hpp"
