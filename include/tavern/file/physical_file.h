@@ -11,8 +11,12 @@ class physical_file : public ifile
 {
 public:
 
-    explicit physical_file(const std::string& path):
-        ifile(path)
+    explicit physical_file(const mount_path& file_info, const std::string& mount_path):
+        ifile(file_info), m_absolute_path(mount_path + file_info.path)
+    {}
+
+    explicit physical_file(const std::string& absolute_path):
+        ifile(mount_path("unmounted", absolute_path)), m_absolute_path(absolute_path)
     {}
 
     ~physical_file();
@@ -28,7 +32,7 @@ public:
     [[nodiscard]] size_t get_str(char* s, const size_t len) override;
 
     long seek(long offset) override;
-    void seek_start() override;
+    void seek_start(const size_t offset = 0) override;
     size_t pos() const override;
 
     size_t size() const override;
@@ -36,6 +40,8 @@ public:
 private:
 
     std::FILE* m_file = NULL;
+
+    const std::string m_absolute_path;
 };
 
 } /* namespace tavern::file */

@@ -4,14 +4,16 @@
 #include <cstddef>
 #include <string>
 
+#include "path.h"
+
 namespace tavern::file {
 
 class ifile
 {
 public:
 
-    explicit ifile(const std::string& file_path):
-        m_filename(file_path)
+    explicit ifile(const mount_path& path):
+        m_path(path)
     {}
 
     virtual ~ifile() = default;
@@ -27,28 +29,34 @@ public:
     [[nodiscard]] virtual size_t get_str(char* s, const size_t len) = 0;
 
     virtual long seek(long offset) = 0;
-    virtual void seek_start() = 0;
+    virtual void seek_start(const size_t offset = 0) = 0;
     virtual size_t pos() const = 0;
 
     virtual size_t size() const = 0;
 
-    const std::string& get_filename() const {
-        return m_filename;
+    const mount_path& get_path() {
+        return m_path;
     }
 
     // string_view faster than creating fresh string
     const std::string_view get_directory() const
     {
-        const auto last = m_filename.find_last_of('/');
+        const auto last = m_path.path.find_last_of('/');
 
-        return std::string_view(m_filename.c_str(), last);
+        return std::string_view(m_path.path.data(), last);
     }
 
 private:
 
-    const std::string m_filename;
+    const mount_path m_path;
 
 }; /* end of class ifile */
+
+template <typename T>
+bool read_data(T* dest, ifile* file, const size_t count = 1) {
+    const size_t data_size = count * sizeof(T);
+    return file->get_str(reinterpret_cast<char*>(dest), data_size) == data_size;
+}
 
 } /* end of namespace tavern::file */
 

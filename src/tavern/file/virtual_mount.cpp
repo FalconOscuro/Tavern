@@ -22,4 +22,8 @@ bool virtual_mount::valid() const {
     return true;
 }
 
+const std::string_view virtual_mount::get_identifier() const {
+    return "internal";
+}
+
 } /* end of namespace tavern::file */

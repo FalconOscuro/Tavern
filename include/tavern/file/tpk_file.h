@@ -2,27 +2,17 @@
 #define TPK_FILE_H
 
 #include "ifile.h"
+#include "tpk.h"
 
 #include <cstdint>
 #include <cstdio>
 
 namespace tavern::file {
 
-struct tpk_file_info
-{
-    char path[255];
-
-    uint64_t start;
-    uint32_t size;
-
-    // compression?
-    // nested directories over full file paths?
-};
-
 class tpk_file : public ifile
 {
 public:
-    tpk_file(const std::string& tpk_path, const tpk_file_info& info);
+    tpk_file(const std::string& tpk_path, const mount_path& file_path, const tpk::file_node* node);
     ~tpk_file();
 
     bool open() override;
@@ -36,7 +26,7 @@ public:
     [[nodiscard]] size_t get_str(char* s, const size_t len) override;
 
     long seek(long offset) override;
-    void seek_start() override;
+    void seek_start(const size_t offset = 0) override;
     size_t pos() const override;
 
     size_t size() const override;
@@ -44,7 +34,7 @@ public:
 private:
 
     std::FILE* m_file = NULL;
-    const tpk_file_info m_info;
+    const tpk::file_node m_node;
 };
 
 } /* namespace tavern::file */

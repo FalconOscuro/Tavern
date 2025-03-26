@@ -5,12 +5,10 @@
 
 namespace tavern::file {
 
-class physical_mount : public imount
+class physical_mount final : public imount
 {
 public:
-    explicit physical_mount(const std::string& path):
-        imount(path)
-    {}
+    explicit physical_mount(const mount_path& mount_info);
 
     ~physical_mount() = default;
 
@@ -18,6 +16,12 @@ public:
     std::unique_ptr<ifile> load_file(const std::string& path) const override;
 
     bool valid() const override;
+
+    const std::string_view get_identifier() const override;
+
+private:
+
+    const std::string m_identifier;
 }; /* end of class physical_mount : public imount */
 
 } /* end of namespace tavern::file */

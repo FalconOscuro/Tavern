@@ -6,6 +6,10 @@
 
 namespace tavern::file {
 
+physical_mount::physical_mount(const mount_path& mount_info):
+    imount(mount_info.path), m_identifier(mount_info.identifer)
+{}
+
 bool physical_mount::has_file(const std::string& path) const
 {
     std::filesystem::path fpath(get_path() + path);
@@ -25,6 +29,10 @@ std::unique_ptr<ifile> physical_mount::load_file(const std::string& path) const
 
 bool physical_mount::valid() const {
     return std::filesystem::is_directory(get_path());
+}
+
+const std::string_view physical_mount::get_identifier() const {
+    return m_identifier;
 }
 
 } /* namespace tavern::file */

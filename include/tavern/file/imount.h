@@ -27,9 +27,16 @@ public:
         return m_path;
     }
 
+    virtual const std::string_view get_identifier() const = 0;
+
+    mount_path get_mount_info() const {
+        return mount_path(m_path, get_identifier());
+    }
+
 private:
 
     const std::string m_path;
+
 }; /* end of class imount */
 
 } /* end of namespace tavern::file */

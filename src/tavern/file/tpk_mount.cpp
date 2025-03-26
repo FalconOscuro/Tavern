@@ -9,6 +9,55 @@
 
 namespace tavern::file {
 
+file_tree_node::file_tree_node(const tpk::file_type type):
+    type(type)
+{
+    switch (type)
+    {
+    case tpk::DIRECTORY:
+        data.directory.entry_map = new dir_map();
+        data.directory.entry_map = nullptr;
+        break;
+
+    case tpk::FILE:
+        data.file = nullptr;
+        break;
+
+    default:
+        assert(false && "Filetype unknown!!");
+        break;
+    }
+}
+
+file_tree_node::~file_tree_node()
+{
+    switch (type)
+    {
+    case tpk::DIRECTORY:
+        delete data.directory.entry_map;
+        delete[] data.directory.entries;
+        break;
+
+    default:
+        break;
+    }
+}
+
+const file_tree_node* file_tree_node::find_node(const std::string_view path) const
+{
+    // if file node, check if path fully traversed
+    if (type == tpk::FILE)
+        return path.empty() ? this : nullptr;
+
+    const size_t split = path.find_first_of('/');
+    const std::string_view sub_path = path.substr(0, split);
+
+    const auto found = data.directory.entry_map->find(sub_path);
+
+    return found == data.directory.entry_map->end() ? nullptr :
+        found->second->find_node(path.substr(split));
+}
+
 tpk_mount::tpk_mount(const std::string& path):
     imount(path)
 {
@@ -17,44 +66,125 @@ tpk_mount::tpk_mount(const std::string& path):
     if(!file.open())
         return;
 
-    size_t bytes_read = file.get_str(reinterpret_cast<char*>(&m_header), sizeof(tpk_header));
-
-    if (bytes_read != sizeof(tpk_header) || !valid())
+    if (!(read_data(&m_header, &file) && valid()))
         return;
 
-    for (uint32_t i = 0; i < m_header.num_entries; ++i)
+    tpk::file_node* nodes = new tpk::file_node[m_header.num_nodes];
+    // store as read only
+    m_file_nodes = nodes;
+
+    // could not read specified number of file nodes
+    // or failed to parse directory tree
+    if (!(read_data(nodes, &file, m_header.num_nodes) && m_file_nodes[0].type == tpk::file_type::DIRECTORY && parse_directory_tree(0, &m_root)))
     {
-        tpk_file_info f_info;
-
-        bytes_read = file.get_str(reinterpret_cast<char*>(&f_info), sizeof(tpk_file_info));
-
-        // invalidate signature to ensure valid returns false
-        // malformed data
-        if (bytes_read != sizeof(tpk_file_info)) {
-            m_header.sig[0] = '\0';
-            break;
-        }
-
-        m_file_table.emplace(f_info.path, f_info);
+        // hack to ensure valid returns false
+        m_header.sig[2] = '\0';
     }
 }
 
+tpk_mount::~tpk_mount() {
+    delete[] m_file_nodes;
+}
+
 bool tpk_mount::has_file(const std::string& path) const {
-    return m_file_table.count(path);
+    return m_root.find_node(path);
 }
 
 std::unique_ptr<ifile> tpk_mount::load_file(const std::string& path) const
 {
-    if (!valid() || !has_file(path))
+    if (!valid())
         return nullptr;
 
-    auto f = m_file_table.find(path);
+    const file_tree_node* node = m_root.find_node(path);
 
-    return std::make_unique<tpk_file>(get_path(), f->second);
+    if (!node || node->type != tpk::FILE)
+        return nullptr;
+
+    return std::make_unique<tpk_file>(get_path(), mount_path(get_identifier(), path), node->data.file);
 }
 
 bool tpk_mount::valid() const {
-    return m_header.fmt_version == TPK_VERSION && strcmp(m_header.sig, TPK_SIG);
+    return m_header.fmt_version == TPK_VERSION && strcmp(m_header.sig, TPK_SIG) && m_header.num_nodes != 0;
+}
+
+const std::string_view tpk_mount::get_identifier() const
+{
+    if (!valid())
+        return std::string_view();
+
+    const std::string_view str_v = std::string_view(m_header.name, sizeof(m_header.name));
+    const size_t end = str_v.find_first_of('\0');
+
+    return str_v.substr(0, end);
+}
+
+bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
+{
+    // index out of file node range
+    if (index >= m_header.num_nodes)
+        return false;
+
+    tpk_file dir_file = tpk_file(get_path(), mount_path(), m_file_nodes + index);
+
+    if (!dir_file.open())
+        return false;
+
+    tpk::directory dir_info;
+
+    // failed to read directory file header
+    if (!(read_data(&dir_info, &dir_file) && dir_info.num_entries))
+        return false;
+
+    tpk::directory_entry* entries = new tpk::directory_entry[dir_info.num_entries];
+    node->data.directory.entries = entries;
+
+    // failed to read all entries in file
+    if (!read_data(entries, &dir_file, dir_info.num_entries)) {
+        return false;
+    }
+
+    for (size_t i = 0; i < dir_info.num_entries; ++i)
+    {
+        const tpk::directory_entry* entry = entries + i;
+
+        // skip if:
+        // - node index out of range
+        // - no name
+        if (entry->node_index >= m_header.num_nodes || entry->name_len == 0)
+            continue;
+
+        const tpk::file_node* file_node = m_file_nodes + entry->node_index;
+        const std::string_view name = std::string_view(entry->name, entry->name_len);
+
+        // file names cannot have '/'
+        // avoid collisions
+        if (name.find('/') != name.npos || node->data.directory.entry_map->count(name))
+            continue;
+
+        file_tree_node* branch = new file_tree_node(file_node->type);
+
+        switch (file_node->type)
+        {
+        case tpk::DIRECTORY:
+            // failed to parse directory
+            if (!parse_directory_tree(entry->node_index, branch)) {
+                delete branch;
+                continue;
+            }
+            break;
+
+        case tpk::FILE:
+            branch->data.file = file_node;
+            break;
+
+        default:
+            break;
+        }
+
+        node->data.directory.entry_map->emplace(std::make_pair(name, branch));
+    }
+
+    return true;
 }
 
 } /* namespace tavern::file */

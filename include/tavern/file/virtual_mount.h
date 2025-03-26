@@ -23,6 +23,8 @@ public:
 
     void add_file(const std::string& path, const char* const data);
 
+    const std::string_view get_identifier() const override;
+
 private:
 
     std::unordered_map<std::string, const char* const> m_files;

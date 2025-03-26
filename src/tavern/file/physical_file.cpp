@@ -12,7 +12,7 @@ bool physical_file::open()
     if (is_open())
         return true;
 
-    m_file = fopen(get_filename().c_str(), "rb");
+    m_file = fopen(m_absolute_path.c_str(), "rb");
 
     return is_open();
 }
@@ -77,8 +77,8 @@ long physical_file::seek(long offset)
     return ftell(m_file) - start;
 }
 
-void physical_file::seek_start() {
-    rewind(m_file);
+void physical_file::seek_start(const size_t offset) {
+    fseek(m_file, offset, SEEK_SET);
 }
 
 size_t physical_file::pos() const {

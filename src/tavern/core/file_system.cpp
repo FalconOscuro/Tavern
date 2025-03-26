@@ -88,7 +88,7 @@ const file::imount* file_system::mount_dir(const file::mount_path& mount_info)
         }
     }
 
-    file::physical_mount* mount = new file::physical_mount(mount_info.path);
+    file::physical_mount* mount = new file::physical_mount(mount_info);
 
     if (!mount->valid()) {
         BOOST_LOG_TRIVIAL(error) << "Failed to mount Directory '" << mount_info << "', was invalid";

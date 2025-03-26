@@ -2,6 +2,9 @@
 
 namespace tavern::file {
 
+mount_path::mount_path(const std::string_view identifer, const std::string_view path):
+    identifer(identifer), path(path)
+{}
 
 boost::log::record_ostream& operator<<(boost::log::record_ostream& stream, const mount_path& mount) {
     return stream << mount.identifer << ':' << mount.path;
