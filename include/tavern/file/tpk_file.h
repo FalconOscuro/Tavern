@@ -34,7 +34,9 @@ public:
 private:
 
     std::FILE* m_file = NULL;
-    const tpk::file_node m_node;
+    // unsafe?
+    const tpk::file_node* const m_node;
+    const std::string m_tpk_path;
 };
 
 } /* namespace tavern::file */

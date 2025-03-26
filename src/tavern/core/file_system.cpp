@@ -30,8 +30,8 @@ const file::imount* file_system::mount_tpk(const std::string& path, std::string&
     }
 
     // hack as otherwise std::string doesn't detect nullptr properly
-    char indent_c_str[sizeof(file::tpk_header::name) + 1];
-    memcpy(indent_c_str, mount->header().name, sizeof(file::tpk_header::name));
+    char indent_c_str[sizeof(file::tpk::header::name) + 1];
+    memcpy(indent_c_str, mount->header().name, sizeof(file::tpk::header::name));
 
     if (identifier.empty()) {
         BOOST_LOG_TRIVIAL(error) << "Failed to mount tpk file '" << path << "', name was null";

@@ -7,7 +7,7 @@
 namespace tavern::file {
 
 virtual_file::virtual_file(const char* c, const std::string& path):
-    ifile(path), m_data(c)
+    ifile(mount_path("internal", path)), m_data(c)
 {
     assert(c != nullptr);
 }
@@ -53,8 +53,8 @@ long virtual_file::seek(long offset) {
     return offset;
 }
 
-void virtual_file::seek_start() {
-    m_pos = 0;
+void virtual_file::seek_start(const size_t offset) {
+    m_pos = 0 + std::min(offset, size());
 }
 
 size_t virtual_file::pos() const {

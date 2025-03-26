@@ -4,9 +4,11 @@
 
 namespace tavern::file {
 
-tpk_file::tpk_file(const std::string& tpk_path, const tpk_file_info& info):
-    ifile(tpk_path), m_info(info)
-{}
+tpk_file::tpk_file(const std::string& tpk_path, const mount_path& file_path, const tpk::file_node* node):
+    ifile(file_path), m_node(node), m_tpk_path(tpk_path)
+{
+    assert(node != nullptr);
+}
 
 tpk_file::~tpk_file() {
     close();
@@ -17,11 +19,14 @@ bool tpk_file::open()
     if (is_open())
         return true;
 
-    m_file = fopen(get_filename().c_str(), "rb");
-    // check for failure of fseek?
-    fseek(m_file, m_info.start, SEEK_SET);
+    // WARNING: Unsafe, string_view doesn't check end
+    m_file = fopen(m_tpk_path.c_str(), "rb");
+    
+    if (is_open() && (uint64_t)fseek(m_file, m_node->start, SEEK_SET) == m_node->start)
+        return true;
 
-    return is_open();
+    close();
+    return false;
 }
 
 void tpk_file::close()
@@ -34,7 +39,7 @@ void tpk_file::close()
 }
 
 bool tpk_file::eof() const {
-    return pos() >= m_info.size;
+    return pos() >= m_node->size;
 }
 
 bool tpk_file::is_open() const {
@@ -84,21 +89,21 @@ long tpk_file::seek(long offset)
     return offset;
 }
 
-void tpk_file::seek_start()
+void tpk_file::seek_start(const size_t offset)
 {
     if (!is_open())
         return;
 
-    fseek(m_file, -long(pos()), SEEK_CUR);
+    fseek(m_file, -long(pos()) + std::min<size_t>(offset, m_node->size), SEEK_CUR);
 }
 
 // returns size + 1 if file not open
 size_t tpk_file::pos() const {
-    return is_open() ? ftell(m_file) - m_info.start : m_info.size + 1;
+    return is_open() ? ftell(m_file) - m_node->start : m_node->size + 1;
 }
 
 size_t tpk_file::size() const {
-    return m_info.size;
+    return m_node->size;
 }
 
 } /* namespace tavern::file */
