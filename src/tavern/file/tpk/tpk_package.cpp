@@ -20,7 +20,7 @@ inline bool write_data(std::FILE* out, const T* const data, size_t count = 1)
 
     // not checking for success until end for loop unrolling
     for (size_t i = 0; i < sizeof(T) * count; ++i)
-        success &= fputc(reinterpret_cast<const char*>(data)[i], out) != EOF;
+        success &= fputc(((const char*)data)[i], out) != EOF;
 
     return success;
 }
@@ -38,6 +38,7 @@ inline size_t copy_file_contents(std::FILE* dest, std::FILE* src)
     return size;
 }
 
+// TODO: Defer writing data into TPK to avoid tempfile
 size_t recurse_parse_directory(std::FILE* out_file, std::FILE* temp_file, const fs::path& dir, size_t index = 0)
 {
     std::vector<directory_entry> entries;
@@ -77,7 +78,7 @@ size_t recurse_parse_directory(std::FILE* out_file, std::FILE* temp_file, const 
         // file conversions!
         else {
             file_node node;
-            node.start = ftell(out_file);
+            node.start = ftell(temp_file);
             node.type = FILE;
 
             std::FILE* input = fopen(entry_path.c_str(), "rb");
@@ -88,16 +89,16 @@ size_t recurse_parse_directory(std::FILE* out_file, std::FILE* temp_file, const 
             if (!node.size)
                 continue;
 
-            entry.node_index = index++;
-
             write_data(out_file, &node);
         }
+
+        entry.node_index = index++;
 
         entries.emplace_back(entry);
     }
 
     file_node dir_node;
-    dir_node.start = ftell(out_file);
+    dir_node.start = ftell(temp_file);
     dir_node.size = sizeof(directory) + entries.size() * sizeof(directory_entry);
     dir_node.type = DIRECTORY;
     write_data(out_file, &dir_node);
@@ -107,7 +108,7 @@ size_t recurse_parse_directory(std::FILE* out_file, std::FILE* temp_file, const 
     write_data(temp_file, &d_head);
     write_data(temp_file, entries.data(), entries.size());
 
-    return ++index;
+    return index;
 }
 
 bool package_directory(const std::string &directory, const std::string &output, const std::string &name, const std::string &author, const uint32_t version)
@@ -162,7 +163,6 @@ bool package_directory(const std::string &directory, const std::string &output, 
         return false;
     }
 
-    // can't write header, don't know data count :/
     write_data(out_file, &head);
 
     const fs::path temp_path = fs::temp_directory_path().append(out_abs.filename().string() + ".dat");
@@ -176,12 +176,18 @@ bool package_directory(const std::string &directory, const std::string &output, 
 
     BOOST_LOG_TRIVIAL(trace) << "Created temp file: " << temp_path;
 
-    recurse_parse_directory(out_file, temp_dat, path_abs);
+    head.num_nodes = recurse_parse_directory(out_file, temp_dat, path_abs) + 1;
     fclose(temp_dat);
 
     temp_dat = fopen(temp_path.c_str(), "rb");
     copy_file_contents(out_file, temp_dat);
+
     fclose(temp_dat);
+
+    // go back and write node count
+    fseek(out_file, 0L + offsetof(header, num_nodes), SEEK_SET);
+    write_data(out_file, &head.num_nodes);
+
     fclose(out_file);
 
     fs::remove(temp_path);

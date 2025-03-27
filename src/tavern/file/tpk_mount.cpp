@@ -16,7 +16,7 @@ file_tree_node::file_tree_node(const tpk::file_type type):
     {
     case tpk::DIRECTORY:
         data.directory.entry_map = new dir_map();
-        data.directory.entry_map = nullptr;
+        data.directory.entries = nullptr;
         break;
 
     case tpk::FILE:
@@ -79,6 +79,8 @@ tpk_mount::tpk_mount(const std::string& path):
     // or failed to parse directory tree
     if (!(read_data(nodes, &file, m_header.num_nodes) && m_file_nodes[root_index].type == tpk::file_type::DIRECTORY && parse_directory_tree(root_index, &m_root)))
     {
+        BOOST_LOG_TRIVIAL(error) << "Parse failure, invalidating TPK";
+
         // hack to ensure valid returns false
         ++m_header.sig[0];
     }
@@ -131,11 +133,17 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
     if (!dir_file.open())
         return false;
 
+    BOOST_LOG_TRIVIAL(trace) << "TPK dir file open success";
+
     tpk::directory dir_info;
 
     // failed to read directory file header
-    if (!(read_data(&dir_info, &dir_file) && dir_info.num_entries))
+    if (!(read_data(&dir_info, &dir_file)) && dir_info.num_entries) {
+        BOOST_LOG_TRIVIAL(error) << dir_info.num_entries;
         return false;
+    }
+
+    BOOST_LOG_TRIVIAL(trace) << "Dir header read success";
 
     tpk::directory_entry* entries = new tpk::directory_entry[dir_info.num_entries];
     node->data.directory.entries = entries;
@@ -152,8 +160,10 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
         // skip if:
         // - node index out of range
         // - no name
-        if (entry->node_index >= m_header.num_nodes || entry->name_len == 0)
+        if (entry->node_index >= m_header.num_nodes || entry->name_len == 0) {
+            BOOST_LOG_TRIVIAL(error) << "(" << entry->node_index << " >= " << m_header.num_nodes << ") || (" << entry->name_len << " == 0)";
             continue;
+        }
 
         const tpk::file_node* file_node = m_file_nodes + entry->node_index;
         const std::string_view name = std::string_view(entry->name, entry->name_len);
@@ -168,21 +178,26 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
         switch (file_node->type)
         {
         case tpk::DIRECTORY:
+            BOOST_LOG_TRIVIAL(trace) << "subdir: " << name;
             // failed to parse directory
             if (!parse_directory_tree(entry->node_index, branch)) {
+                BOOST_LOG_TRIVIAL(error) << "Failed to parse dir " << name;
                 delete branch;
                 continue;
             }
             break;
 
         case tpk::FILE:
+            BOOST_LOG_TRIVIAL(trace) << "file: " << name;
             branch->data.file = file_node;
             break;
 
         default:
+            BOOST_LOG_TRIVIAL(warning) << "Unkown file type: " << file_node->type;
             break;
         }
 
+        BOOST_LOG_TRIVIAL(trace) << "Registered entry: " << name;
         node->data.directory.entry_map->emplace(std::make_pair(name, branch));
     }
 

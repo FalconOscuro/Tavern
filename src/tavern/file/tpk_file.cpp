@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cassert>
 
+#include <boost/log/trivial.hpp>
+
 namespace tavern::file {
 
 tpk_file::tpk_file(const std::string& tpk_path, const mount_path& file_path, const tpk::file_node* node, const size_t data_start):
@@ -20,10 +22,9 @@ bool tpk_file::open()
     if (is_open())
         return true;
 
-    // WARNING: Unsafe, string_view doesn't check end
     m_file = fopen(m_tpk_path.c_str(), "rb");
     
-    if (is_open() && (uint64_t)fseek(m_file, file_start_pos(), SEEK_SET) == file_start_pos())
+    if (is_open() && fseek(m_file, file_start_pos(), SEEK_SET) == 0)
         return true;
 
     close();

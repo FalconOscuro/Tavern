@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <cstddef>
 
-#define TPK_VERSION 0
+#define TPK_VERSION 1
 #define TPK_SIG "TPK"
 
 namespace tavern::file::tpk {

@@ -27,7 +27,7 @@ int make_tpk()
     std::cout << "Author: ";
     std::cin >> author;
 
-    return tavern::file::tpk::package_directory(in, out, name, author) ? 0 : 1;
+    return tavern::file::tpk::package_directory(in, out, name, author, 1) ? 0 : 1;
 }
 
 int main(int argc, char** argv)
