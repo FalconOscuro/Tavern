@@ -19,6 +19,8 @@ private:
     char m_dir_mount_identifier[32];
     char m_dir_mount_path[64];
 
+    char m_tpk_mount_path[64];
+
     bool m_open = false;
 
 }; /* end of class file_system_p final : public tavern::graphics::imgui_panel */

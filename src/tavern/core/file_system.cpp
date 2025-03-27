@@ -1,5 +1,7 @@
 #include "tavern/core/file_system.h"
 
+#include <filesystem>
+
 #include <boost/log/trivial.hpp>
 
 #include "tavern/file/physical_mount.h"
@@ -18,8 +20,12 @@ bool file_system::init() {
     return true;
 }
 
-const file::imount* file_system::mount_tpk(const std::string& path, std::string& identifier)
+const file::imount* file_system::mount_tpk(std::string path, std::string& identifier)
 {
+    path = make_path_relative(path);
+    if (path.empty())
+        return nullptr;
+
     // Slow if already loaded
     std::unique_ptr<file::tpk_mount> mount = std::make_unique<file::tpk_mount>(path);
 
@@ -29,9 +35,7 @@ const file::imount* file_system::mount_tpk(const std::string& path, std::string&
         return nullptr;
     }
 
-    // hack as otherwise std::string doesn't detect nullptr properly
-    char indent_c_str[sizeof(file::tpk::header::name) + 1];
-    memcpy(indent_c_str, mount->header().name, sizeof(file::tpk::header::name));
+    identifier = mount->get_identifier();
 
     if (identifier.empty()) {
         BOOST_LOG_TRIVIAL(error) << "Failed to mount tpk file '" << path << "', name was null";
@@ -51,21 +55,23 @@ const file::imount* file_system::mount_tpk(const std::string& path, std::string&
         }
 
         else {
-            BOOST_LOG_TRIVIAL(error) << "Failed to mount TPK file '" << identifier << ':' << path << "', "
-                "identifier already in use by " << identifier << ':' << path;
+            BOOST_LOG_TRIVIAL(error) << "Failed to mount TPK file '" << identifier << ':' << path
+                << "', identifier already in use by '" << loaded->get_mount_info() << '\'';
             return nullptr;
         }
     }
 
-    BOOST_LOG_TRIVIAL(trace) << "Successfully mounted TPK file '" << identifier << ':' << path << '\'';
+    BOOST_LOG_TRIVIAL(trace) << "Successfully mounted TPK file '" << mount->get_mount_info() << '\'';
 
     file::imount* ptr = mount.release();
     m_mounts.emplace(std::make_pair(identifier, std::unique_ptr<file::imount>(ptr)));
     return ptr;
 }
 
-const file::imount* file_system::mount_dir(const file::mount_path& mount_info)
+const file::imount* file_system::mount_dir(file::mount_path mount_info)
 {
+    mount_info.path = make_path_relative(mount_info.path);
+
     if (mount_info.identifer.empty() || mount_info.path.empty())
     {
         BOOST_LOG_TRIVIAL(error) << "Failed to mount Directory '" << mount_info << "', identifier/path cannot be null";
@@ -151,8 +157,30 @@ void file_system::unmount(const std::string& identifier)
 
 file_system::mount_map_type::const_iterator file_system::unmount(mount_map_type::const_iterator it)
 {
-    BOOST_LOG_TRIVIAL(trace) << "Unmounted '" << it->first << ':' << it->second->get_path() << '\'';
+    BOOST_LOG_TRIVIAL(trace) << "Unmounted '" << it->second->get_mount_info() << '\'';
     return m_mounts.erase(it);
+}
+
+std::string file_system::make_path_relative(const std::string& path)
+{
+    const auto base = std::filesystem::current_path();
+    const auto path_absolute = std::filesystem::absolute(path);
+
+    if (base == path_absolute)
+        BOOST_LOG_TRIVIAL(warning) << "Tried to find relative path to '" << path_absolute
+            << "', but was the same as base!";
+
+    std::error_code ec;
+
+    const auto path_relative = std::filesystem::relative(path_absolute, base, ec);
+
+    if (ec) {
+        BOOST_LOG_TRIVIAL(error) << "Could not resolve relative path to '" << path_absolute
+            << "' from '" << base << "', Error: " << ec.message();
+        return "";
+    }
+
+    return path_relative;
 }
 
 } /* end of namespace tavern */

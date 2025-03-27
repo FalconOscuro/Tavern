@@ -21,8 +21,8 @@ public:
     bool init();
 
     // do we need to return ptr? all could be managed through file_system singleton
-    const file::imount* mount_tpk(const std::string& path, std::string& identifier);
-    const file::imount* mount_dir(const file::mount_path& mount_info);
+    const file::imount* mount_tpk(std::string path, std::string& identifier);
+    const file::imount* mount_dir(file::mount_path mount_info);
 
     bool file_exists(const file::mount_path& file_path) const;
     std::unique_ptr<file::ifile> load_file(const file::mount_path& file_path) const;
@@ -41,6 +41,10 @@ private:
     using mount_map_type = std::unordered_map<std::string, std::unique_ptr<file::imount>>;
 
     file_system() = default;
+
+    // returns empty string if unable to resolve
+    // NOTE: if path == base acts same as being unable to resolve
+    static std::string make_path_relative(const std::string& path);
 
     mount_map_type::const_iterator unmount(mount_map_type::const_iterator it);
 

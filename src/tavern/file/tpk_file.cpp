@@ -1,11 +1,12 @@
 #include "tavern/file/tpk_file.h"
 
 #include <algorithm>
+#include <cassert>
 
 namespace tavern::file {
 
-tpk_file::tpk_file(const std::string& tpk_path, const mount_path& file_path, const tpk::file_node* node):
-    ifile(file_path), m_node(node), m_tpk_path(tpk_path)
+tpk_file::tpk_file(const std::string& tpk_path, const mount_path& file_path, const tpk::file_node* node, const size_t data_start):
+    ifile(file_path), m_node(node), m_tpk_path(tpk_path), m_data_start(data_start)
 {
     assert(node != nullptr);
 }
@@ -22,7 +23,7 @@ bool tpk_file::open()
     // WARNING: Unsafe, string_view doesn't check end
     m_file = fopen(m_tpk_path.c_str(), "rb");
     
-    if (is_open() && (uint64_t)fseek(m_file, m_node->start, SEEK_SET) == m_node->start)
+    if (is_open() && (uint64_t)fseek(m_file, file_start_pos(), SEEK_SET) == file_start_pos())
         return true;
 
     close();
@@ -99,7 +100,7 @@ void tpk_file::seek_start(const size_t offset)
 
 // returns size + 1 if file not open
 size_t tpk_file::pos() const {
-    return is_open() ? ftell(m_file) - m_node->start : m_node->size + 1;
+    return is_open() ? ftell(m_file) - file_start_pos() : m_node->size + 1;
 }
 
 size_t tpk_file::size() const {

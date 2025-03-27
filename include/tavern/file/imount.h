@@ -30,8 +30,11 @@ public:
     virtual const std::string_view get_identifier() const = 0;
 
     mount_path get_mount_info() const {
-        return mount_path(m_path, get_identifier());
+        return mount_path(get_identifier(), m_path);
     }
+
+    // list files?
+    // list subdirs?
 
 private:
 

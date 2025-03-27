@@ -5,10 +5,7 @@
 #include <unordered_map>
 
 #include "imount.h"
-#include "tpk.h"
-
-#define TPK_VERSION 0
-#define TPK_SIG "TPK"
+#include "tpk/tpk.h"
 
 namespace tavern::file {
 
@@ -59,6 +56,8 @@ private:
 
     // node 0 is reserved for root directory
     bool parse_directory_tree(const size_t index, file_tree_node* node);
+
+    size_t get_data_start_pos() const;
 
     tpk::header m_header;
 

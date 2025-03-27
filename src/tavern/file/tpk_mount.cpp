@@ -73,12 +73,14 @@ tpk_mount::tpk_mount(const std::string& path):
     // store as read only
     m_file_nodes = nodes;
 
+    const size_t root_index = m_header.num_nodes - 1;
+
     // could not read specified number of file nodes
     // or failed to parse directory tree
-    if (!(read_data(nodes, &file, m_header.num_nodes) && m_file_nodes[0].type == tpk::file_type::DIRECTORY && parse_directory_tree(0, &m_root)))
+    if (!(read_data(nodes, &file, m_header.num_nodes) && m_file_nodes[root_index].type == tpk::file_type::DIRECTORY && parse_directory_tree(root_index, &m_root)))
     {
         // hack to ensure valid returns false
-        m_header.sig[2] = '\0';
+        ++m_header.sig[0];
     }
 }
 
@@ -100,11 +102,11 @@ std::unique_ptr<ifile> tpk_mount::load_file(const std::string& path) const
     if (!node || node->type != tpk::FILE)
         return nullptr;
 
-    return std::make_unique<tpk_file>(get_path(), mount_path(get_identifier(), path), node->data.file);
+    return std::make_unique<tpk_file>(get_path(), mount_path(get_identifier(), path), node->data.file, get_data_start_pos());
 }
 
 bool tpk_mount::valid() const {
-    return m_header.fmt_version == TPK_VERSION && strcmp(m_header.sig, TPK_SIG) && m_header.num_nodes != 0;
+    return m_header.fmt_version == TPK_VERSION && strncmp(m_header.sig, TPK_SIG, strlen(TPK_SIG)) == 0 && m_header.num_nodes != 0;
 }
 
 const std::string_view tpk_mount::get_identifier() const
@@ -124,7 +126,7 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
     if (index >= m_header.num_nodes)
         return false;
 
-    tpk_file dir_file = tpk_file(get_path(), mount_path(), m_file_nodes + index);
+    tpk_file dir_file = tpk_file(get_path(), mount_path(), m_file_nodes + index, get_data_start_pos());
 
     if (!dir_file.open())
         return false;
@@ -185,6 +187,10 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
     }
 
     return true;
+}
+
+size_t tpk_mount::get_data_start_pos() const {
+    return sizeof(tpk::header) + (sizeof(tpk::file_node) * m_header.num_nodes);
 }
 
 } /* namespace tavern::file */

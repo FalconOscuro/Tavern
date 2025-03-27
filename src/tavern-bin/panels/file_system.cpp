@@ -39,6 +39,19 @@ void file_system_p::draw()
         ImGui::TreePop();
     }
 
+    if (ImGui::TreeNode("Mount TPK"))
+    {
+        ImGui::InputText("File", m_tpk_mount_path, sizeof(m_tpk_mount_path) - 1);
+
+        if (ImGui::Button("Mount"))
+        {
+            std::string ident;
+            file_system.mount_tpk(std::string(m_tpk_mount_path), ident);
+        }
+
+        ImGui::TreePop();
+    }
+
     ImGui::End();
 }
 

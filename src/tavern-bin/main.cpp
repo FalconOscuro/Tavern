@@ -1,4 +1,5 @@
 #include <tavern/tavern.h>
+#include <tavern/file/tpk/tpk_package.h>
 
 #include <iostream>
 
@@ -10,12 +11,32 @@
 #include "tavern-bin/panels/scene.h"
 #include "tavern-bin/panels/file_system.h"
 
+int make_tpk()
+{
+    std::string in, out, name, author;
+
+    std::cout << "Target directory: ";
+    std::cin >> in;
+
+    std::cout << "Output file: ";
+    std::cin >> out;
+
+    std::cout << "TPK name: ";
+    std::cin >> name;
+
+    std::cout << "Author: ";
+    std::cin >> author;
+
+    return tavern::file::tpk::package_directory(in, out, name, author) ? 0 : 1;
+}
+
 int main(int argc, char** argv)
 {
     namespace po = boost::program_options;
     po::options_description opts("Tavern Usage");
     opts.add_options()
         ("help,h", "display help message")
+        ("tpk", "write directory as tpk")
         ("scene", po::value<std::string>(), "load scene from file")
         ("title", po::value<std::string>()->default_value("Tavern"), "set window title")
         ("width", po::value<uint16_t>()->default_value(1920), "window width")
@@ -39,6 +60,9 @@ int main(int argc, char** argv)
         opts.print(std::cout);
         return 0;
     }
+
+    else if (args.count("tpk"))
+        return make_tpk();
 
     tavern::engine& engine = tavern::engine::singleton();
 

@@ -2,8 +2,7 @@
 #define PATH_H
 
 #include <string>
-
-#include <boost/log/sources/record_ostream.hpp>
+#include <ostream>
 
 namespace tavern::file {
 
@@ -19,7 +18,7 @@ struct mount_path
     std::string path;
 }; /* end of struct mount_path */
 
-boost::log::record_ostream& operator<<(boost::log::record_ostream& stream, const mount_path& mount);
+std::ostream& operator<<(std::ostream& stream, const mount_path& mount);
 
 } /* end of namespace tavern::file */
 
