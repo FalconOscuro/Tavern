@@ -20,3 +20,14 @@ target_link_libraries(imgui
     PUBLIC SDL2::SDL2
     PUBLIC OpenGL::GL
 )
+
+# stb_img
+add_library(stb_img STATIC)
+
+set_target_properties(stb_img PROPERTIES LINKER_LANGUAGE CXX)
+
+target_compile_definitions(stb_img PUBLIC STB_IMAGE_IMPLEMENTATION)
+
+target_sources(stb_img PUBLIC
+    stb/stb_image.h
+)

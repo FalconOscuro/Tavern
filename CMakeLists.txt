@@ -81,7 +81,7 @@ target_sources(Tavern PUBLIC
     src/tavern/resource/texture2d_manager.cpp
 
     src/tavern/components/render_mesh.cpp
-
+    src/tavern/components/transform.cpp
     src/tavern/components/component_yaml_conversions.cpp
 
     src/tavern/file/path.cpp
@@ -103,6 +103,7 @@ target_link_libraries(Tavern
     PUBLIC SDL2::SDL2
     PUBLIC ryml::ryml
     PUBLIC imgui
+    PUBLIC stb_img
     PRIVATE assimp
     PRIVATE Boost::log
 )

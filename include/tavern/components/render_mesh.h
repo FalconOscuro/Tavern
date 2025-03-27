@@ -24,9 +24,6 @@ struct render_mesh
     graphics::shader_resource shader;
 };
 
-bool read(const ryml::ConstNodeRef& n, render_mesh* val);
-void write(ryml::NodeRef* n, const render_mesh& val);
-
 } /* namespace tavern::component */
 
 #endif /* end of include guard: RENDER_MESH_H */
