@@ -74,15 +74,29 @@ tpk_mount::tpk_mount(const std::string& path):
     m_file_nodes = nodes;
 
     const size_t root_index = m_header.num_nodes - 1;
+    const size_t bytes_read_expected = sizeof(tpk::file_node) * m_header.num_nodes;
+    const size_t bytes_read = file.get_str(reinterpret_cast<char*>(nodes), bytes_read_expected);
 
-    // could not read specified number of file nodes
-    // or failed to parse directory tree
-    if (!(read_data(nodes, &file, m_header.num_nodes) && m_file_nodes[root_index].type == tpk::file_type::DIRECTORY && parse_directory_tree(root_index, &m_root)))
-    {
-        BOOST_LOG_TRIVIAL(error) << "Parse failure, invalidating TPK";
+    if (!m_header.num_nodes) {
+        BOOST_LOG_TRIVIAL(error) << "TPK does not appear to contain any file nodes!";
+        force_invalidate();
+    }
 
-        // hack to ensure valid returns false
-        ++m_header.sig[0];
+    else if (bytes_read != bytes_read_expected) {
+        BOOST_LOG_TRIVIAL(error) << "Failed to read all file nodes, "
+            << "expected: " << m_header.num_nodes << '(' << bytes_read_expected << "b), "
+            << "read: " << bytes_read / sizeof(tpk::file_node) << '(' << bytes_read << "b)";
+        force_invalidate();
+    }
+
+    else if (m_file_nodes[root_index].type != tpk::file_type::DIRECTORY) {
+        BOOST_LOG_TRIVIAL(error) << "Expected position for root directory file node was not of type directory! found: " << m_file_nodes[root_index].type;
+        force_invalidate();
+    }
+
+    else if (!parse_directory_tree(root_index, &m_root)) {
+        BOOST_LOG_TRIVIAL(error) << "Critical failure whilst parsing TPK root directory";
+        force_invalidate();
     }
 }
 
@@ -125,15 +139,17 @@ const std::string_view tpk_mount::get_identifier() const
 bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
 {
     // index out of file node range
-    if (index >= m_header.num_nodes)
+    if (index >= m_header.num_nodes) {
+        BOOST_LOG_TRIVIAL(error) << "File node index out of range! index: " << index << ", max_index: " << m_header.num_nodes - 1;
         return false;
+    }
 
     tpk_file dir_file = tpk_file(get_path(), mount_path(), m_file_nodes + index, get_data_start_pos());
 
-    if (!dir_file.open())
+    if (!dir_file.open()) {
+        BOOST_LOG_TRIVIAL(error) << "Failed to open tpk directory, file index: " << index << ", at: " << m_file_nodes[index].start + get_data_start_pos();
         return false;
-
-    //BOOST_LOG_TRIVIAL(trace) << "TPK dir file open success";
+    }
 
     tpk::directory dir_info;
 
@@ -143,13 +159,12 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
         return false;
     }
 
-    //BOOST_LOG_TRIVIAL(trace) << "Dir header read success";
-
     tpk::directory_entry* entries = new tpk::directory_entry[dir_info.num_entries];
     node->data.directory.entries = entries;
 
     // failed to read all entries in file
     if (!read_data(entries, &dir_file, dir_info.num_entries)) {
+        BOOST_LOG_TRIVIAL(error) << "Failed to read all entires, expected " << dir_info.num_entries;
         return false;
     }
 

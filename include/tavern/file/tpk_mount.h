@@ -59,6 +59,10 @@ private:
 
     size_t get_data_start_pos() const;
 
+    void force_invalidate() {
+        m_header.sig[0] = '\0';
+    }
+
     tpk::header m_header;
 
     const tpk::file_node* m_file_nodes = nullptr;

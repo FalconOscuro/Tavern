@@ -21,7 +21,7 @@ inline std::string_view get_file_parent_dir(const std::string_view& s) {
 }
 
 // NOTE: Could make raw buffer static, but would mess with multithreading IO ops
-[[nodiscard]] inline std::unique_ptr<char> read_file(const char* filename, size_t& size)
+[[nodiscard]] inline std::unique_ptr<char[]> read_file(const char* filename, size_t& size)
 {
     FILE* file = fopen(filename, "rb");
 
@@ -46,7 +46,7 @@ inline std::string_view get_file_parent_dir(const std::string_view& s) {
     raw[size] = '\0';
     fclose(file);
 
-    return std::unique_ptr<char>(raw);
+    return std::unique_ptr<char[]>(raw);
 }
 
 } /* end of namespace tavern::utility */

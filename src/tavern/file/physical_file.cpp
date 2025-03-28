@@ -32,7 +32,7 @@ bool physical_file::is_open() const {
 }
 
 bool physical_file::eof() const {
-    return peek_char() == EOF;
+    return feof(m_file);
 }
 
 char physical_file::peek_char() const
@@ -40,7 +40,7 @@ char physical_file::peek_char() const
     const char c = fgetc(m_file);
 
     // do not seek back if peeking eof
-    if (c != EOF)
+    if (eof())
         fseek(m_file, -1L, SEEK_CUR);
 
     return c;
@@ -60,7 +60,7 @@ size_t physical_file::get_str(char* s, const size_t len)
     // cursed for loop
     // c stores character from file
     // loops so long as c not end of file marker and less than len chars read
-    for (char c; chars_read < len && (c = fgetc(m_file)) != EOF; ++chars_read)
+    for (char c; chars_read < len && ((c = fgetc(m_file)) != EOF || !eof()); ++chars_read)
         s[chars_read] = c;
 
     return chars_read;
