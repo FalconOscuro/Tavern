@@ -1,5 +1,6 @@
 #include "tavern/file/tpk/tpk_package.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <filesystem>
 #include <vector>
@@ -57,7 +58,7 @@ size_t recurse_parse_directory(std::FILE* out_file, std::FILE* temp_file, const 
 
         directory_entry entry;
         entry.name_len = file_name.length();
-        strncpy(entry.name, file_name.c_str(), directory_entry::MAX_NAME_LEN);
+        memcpy(entry.name, file_name.c_str(), std::min(directory_entry::MAX_NAME_LEN, file_name.length() + 1)); // +1 for null terminator
 
         if (fs::is_empty(dir_entry)) {
             BOOST_LOG_TRIVIAL(warning) << "Skipping empty entry " << dir_entry;
@@ -143,7 +144,7 @@ bool package_directory(const std::string &directory, const std::string &output, 
             << " exceeds max length of " << header::MAX_NAME_LEN
             << ", trucating to: " << name.substr(0, header::MAX_NAME_LEN);
 
-    strncpy(head.name, name.c_str(), header::MAX_NAME_LEN);
+    memcpy(head.name, name.c_str(), std::min(header::MAX_NAME_LEN, name.length() + 1)); // +1 for null terminator
 
     // author
     if (author.empty())
@@ -154,7 +155,7 @@ bool package_directory(const std::string &directory, const std::string &output, 
             << "exceeds max length of " << header::MAX_AUTHOR_LEN
             << ", trucating to: " << author.substr(0, header::MAX_AUTHOR_LEN);
 
-    strncpy(head.author, author.c_str(), header::MAX_AUTHOR_LEN);
+    memcpy(head.author, author.c_str(), std::min(header::MAX_AUTHOR_LEN, author.length() + 1)); // +1 for null terminator
 
     std::FILE* out_file = fopen(out_abs.c_str(), "wb");
     if (!out_file)
