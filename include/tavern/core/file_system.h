@@ -27,6 +27,7 @@ public:
     // do we need to return ptr? all could be managed through file_system singleton
     const file::imount* mount_tpk(std::string path, std::string& identifier);
     const file::imount* mount_dir(file::mount_path mount_info);
+    const file::imount* mount(file::mount_path mount_info);
 
     bool file_exists(const file::mount_path& file_path) const;
     std::unique_ptr<file::ifile> load_file(const file::mount_path& file_path) const;

@@ -9,6 +9,14 @@ mount_path::mount_path(const std::string_view identifer, const std::string_view 
     identifer(identifer), path(path)
 {}
 
+bool mount_path::operator==(const mount_path& mp) const {
+    return identifer == mp.identifer && path == mp.path;
+}
+
+bool mount_path::operator!=(const mount_path& mp) const {
+    return identifer != mp.identifer || path != mp.path;
+}
+
 std::ostream& operator<<(std::ostream& stream, const mount_path& mount) {
     return stream << '[' << mount.identifer << "]:" << mount.path;
 }

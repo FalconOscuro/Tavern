@@ -18,6 +18,9 @@ struct mount_path
     std::string identifer;
 
     std::string path;
+
+    bool operator==(const mount_path& mp) const;
+    bool operator!=(const mount_path& mp) const;
 }; /* end of struct mount_path */
 
 std::ostream& operator<<(std::ostream& stream, const mount_path& mount);

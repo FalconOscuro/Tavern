@@ -108,6 +108,26 @@ const file::imount* file_system::mount_dir(file::mount_path mount_info)
     return mount;
 }
 
+const file::imount* file_system::mount(file::mount_path mount_info)
+{
+    mount_info.path = make_path_relative(mount_info.path);
+
+    if (std::filesystem::is_directory(mount_info.path))
+        return mount_dir(mount_info);
+
+    else {
+        std::string ret_ident;
+        const file::imount* mount = mount_tpk(mount_info.path, ret_ident);
+
+        if (mount && ret_ident != mount_info.identifer) {
+            BOOST_LOG_TRIVIAL(warning) << "Attempted mount of '" << mount_info << "', but file returned identifier [" << ret_ident << ']';
+            return nullptr;
+        }
+
+        return mount;
+    }
+}
+
 bool file_system::file_exists(const file::mount_path& file_path) const
 {
     auto mount = find(file_path.path);
