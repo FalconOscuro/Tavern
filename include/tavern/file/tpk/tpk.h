@@ -16,10 +16,10 @@ struct header
     char sig[SIG_SIZE] = TPK_SIG;
 
     // version number for tpk contents
-    uint32_t dat_version;
+    uint32_t dat_version = 0;
 
     // number of file nodes stored in tpk
-    uint32_t num_nodes;
+    uint32_t num_nodes = 0;
 
     // tpk format version
     uint16_t fmt_version = TPK_VERSION;
@@ -27,8 +27,8 @@ struct header
     static constexpr size_t MAX_NAME_LEN = 32;
     static constexpr size_t MAX_AUTHOR_LEN = 26;
 
-    char name[MAX_NAME_LEN];
-    char author[MAX_AUTHOR_LEN];
+    char name[MAX_NAME_LEN]{'\0'};
+    char author[MAX_AUTHOR_LEN]{'\0'};
 
     // requirements?
     // tags?
@@ -43,28 +43,28 @@ enum file_type {
 struct file_node
 {
     // position of file node start
-    uint64_t start;
+    uint64_t start = 0;
 
     // size of file
-    uint32_t size;
+    uint32_t size = 0;
 
-    file_type type;
+    file_type type = UNKNOWN;
 }; /* end of struct tpk_file_node */
 
 struct directory
 {
-    size_t num_entries;
+    size_t num_entries = 0;
 }; /* end of struct directory */
 
 struct directory_entry
 {
-    size_t node_index;
+    size_t node_index = 0;
 
-    uint8_t name_len;
+    uint8_t name_len = 0;
 
     // 119 scaled down from 128 to remove padding
     static constexpr size_t MAX_NAME_LEN = 119;
-    char name[MAX_NAME_LEN];
+    char name[MAX_NAME_LEN]{'\0'};
 }; /* end of struct directory_entry */
 
 

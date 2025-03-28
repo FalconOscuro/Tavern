@@ -133,17 +133,17 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
     if (!dir_file.open())
         return false;
 
-    BOOST_LOG_TRIVIAL(trace) << "TPK dir file open success";
+    //BOOST_LOG_TRIVIAL(trace) << "TPK dir file open success";
 
     tpk::directory dir_info;
 
     // failed to read directory file header
-    if (!(read_data(&dir_info, &dir_file)) && dir_info.num_entries) {
-        BOOST_LOG_TRIVIAL(error) << dir_info.num_entries;
+    if (!(read_data(&dir_info, &dir_file) && dir_info.num_entries)) {
+        BOOST_LOG_TRIVIAL(error) << "Failed to read directory header, found " << dir_info.num_entries << " entries";
         return false;
     }
 
-    BOOST_LOG_TRIVIAL(trace) << "Dir header read success";
+    //BOOST_LOG_TRIVIAL(trace) << "Dir header read success";
 
     tpk::directory_entry* entries = new tpk::directory_entry[dir_info.num_entries];
     node->data.directory.entries = entries;
@@ -178,7 +178,7 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
         switch (file_node->type)
         {
         case tpk::DIRECTORY:
-            BOOST_LOG_TRIVIAL(trace) << "subdir: " << name;
+            //BOOST_LOG_TRIVIAL(trace) << "subdir: " << name;
             // failed to parse directory
             if (!parse_directory_tree(entry->node_index, branch)) {
                 BOOST_LOG_TRIVIAL(error) << "Failed to parse dir " << name;
@@ -188,7 +188,7 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
             break;
 
         case tpk::FILE:
-            BOOST_LOG_TRIVIAL(trace) << "file: " << name;
+            //BOOST_LOG_TRIVIAL(trace) << "file: " << name;
             branch->data.file = file_node;
             break;
 
@@ -197,7 +197,7 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
             break;
         }
 
-        BOOST_LOG_TRIVIAL(trace) << "Registered entry: " << name;
+        //BOOST_LOG_TRIVIAL(trace) << "Registered entry: " << name;
         node->data.directory.entry_map->emplace(std::make_pair(name, branch));
     }
 

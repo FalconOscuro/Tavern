@@ -58,7 +58,7 @@ size_t recurse_parse_directory(std::FILE* out_file, std::FILE* temp_file, const 
 
         directory_entry entry;
         entry.name_len = file_name.length();
-        memcpy(entry.name, file_name.c_str(), std::min(directory_entry::MAX_NAME_LEN, file_name.length() + 1)); // +1 for null terminator
+        memcpy(entry.name, file_name.c_str(), std::min(directory_entry::MAX_NAME_LEN, file_name.length()));
 
         if (fs::is_empty(dir_entry)) {
             BOOST_LOG_TRIVIAL(warning) << "Skipping empty entry " << dir_entry;
@@ -139,23 +139,23 @@ bool package_directory(const std::string &directory, const std::string &output, 
         return false;
     }
 
-    else if (name.length() >= header::MAX_NAME_LEN)
+    else if (name.length() > header::MAX_NAME_LEN)
         BOOST_LOG_TRIVIAL(warning) << "TPK name '" << name << "', length(" << name.length() << ')'
             << " exceeds max length of " << header::MAX_NAME_LEN
             << ", trucating to: " << name.substr(0, header::MAX_NAME_LEN);
 
-    memcpy(head.name, name.c_str(), std::min(header::MAX_NAME_LEN, name.length() + 1)); // +1 for null terminator
+    memcpy(head.name, name.data(), std::min(header::MAX_NAME_LEN, name.length()));
 
     // author
     if (author.empty())
         BOOST_LOG_TRIVIAL(warning) << "No author name specified for writing TPK '" << tpk_info << '\'';
 
-    else if (author.length() >= header::MAX_AUTHOR_LEN)
+    else if (author.length() > header::MAX_AUTHOR_LEN)
         BOOST_LOG_TRIVIAL(warning) << "TPK author '" << author << "', length(" << author.length() << ')'
             << "exceeds max length of " << header::MAX_AUTHOR_LEN
             << ", trucating to: " << author.substr(0, header::MAX_AUTHOR_LEN);
 
-    memcpy(head.author, author.c_str(), std::min(header::MAX_AUTHOR_LEN, author.length() + 1)); // +1 for null terminator
+    memcpy(head.author, author.data(), std::min(header::MAX_AUTHOR_LEN, author.length()));
 
     std::FILE* out_file = fopen(out_abs.c_str(), "wb");
     if (!out_file)
@@ -186,6 +186,7 @@ bool package_directory(const std::string &directory, const std::string &output, 
     fclose(temp_dat);
 
     // go back and write node count
+    fflush(out_file);
     fseek(out_file, 0L + offsetof(header, num_nodes), SEEK_SET);
     write_data(out_file, &head.num_nodes);
 

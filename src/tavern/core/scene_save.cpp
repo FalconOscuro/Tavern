@@ -3,7 +3,7 @@
 #include <boost/log/trivial.hpp>
 
 #include "tavern/components/component_yaml_conversions.hpp"
-#include "tavern/components/entity_name.h"
+#include "tavern/core/file_system.h"
 
 namespace tavern {
 
@@ -69,6 +69,7 @@ void scene::save(const std::string& file_name) const
 
     root |= ryml::STREAM;
 
+    // write header
     {
         ryml::NodeRef header = root.append_child();
         header |= ryml::DOCMAP;
@@ -77,6 +78,29 @@ void scene::save(const std::string& file_name) const
 
         header.append_child() << ryml::key("version") << SAVE_FILE_VERSION;
     }
+
+    // write file_system state
+    {
+        const auto& file_sys = file_system::singleton();
+
+        ryml::NodeRef file_sys_info = root.append_child();
+        file_sys_info |= ryml::DOCMAP;
+
+        file_sys_info.set_val_tag(TAVERN_TAG_DIRECTIVE "file_system");
+
+        ryml::NodeRef mounts = file_sys_info.append_child();
+        mounts.set_key("mounts");
+        mounts |= ryml::SEQ;
+
+        for (auto mount = file_sys.begin(); mount != file_sys.end(); ++mount)
+        {
+            if (mount->first == "internal")
+                continue;
+
+            mounts.append_child() << mount->second->get_mount_info();
+        }
+    }
+
 
     std::unordered_map<ecs::entity_type, size_t> eid_map;
 
