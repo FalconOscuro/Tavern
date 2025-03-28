@@ -43,7 +43,7 @@ const file::imount* file_system::mount_tpk(std::string path, std::string& identi
     }
 
     // file already loaded or collision
-    if (m_mounts.count(identifier))
+    if (is_mounted(identifier))
     {
         const file::imount* loaded = m_mounts[identifier].get();
 
@@ -79,7 +79,7 @@ const file::imount* file_system::mount_dir(file::mount_path mount_info)
     }
 
     // file already loaded or collision
-    if (m_mounts.count(mount_info.identifer))
+    if (is_mounted(mount_info.identifer))
     {
          const file::imount* loaded = m_mounts[mount_info.identifer].get();
 
@@ -110,16 +110,16 @@ const file::imount* file_system::mount_dir(file::mount_path mount_info)
 
 bool file_system::file_exists(const file::mount_path& file_path) const
 {
-    auto mount = m_mounts.find(file_path.path);
+    auto mount = find(file_path.path);
 
-    return mount != m_mounts.end() && mount->second->has_file(file_path.path);
+    return mount != end() && mount->second->has_file(file_path.path);
 }
 
 std::unique_ptr<file::ifile> file_system::load_file(const file::mount_path& file_path) const
 {
-    auto mount = m_mounts.find(file_path.identifer);
+    auto mount = find(file_path.identifer);
 
-    if (mount == m_mounts.end())
+    if (mount == end())
     {
         BOOST_LOG_TRIVIAL(error) << "Failed to load File '" << file_path << "', unknown identifier";
 
@@ -142,21 +142,24 @@ bool file_system::is_mounted(const std::string& identifier) const {
 }
 
 void file_system::unmount_all() {
-    for (auto it = m_mounts.cbegin(); it != m_mounts.cend(); it = unmount(it));
+    for (auto it = begin(); it != end(); it = unmount(it));
 }
 
 void file_system::unmount(const std::string& identifier)
 {
-    auto m = m_mounts.find(identifier);
+    auto m = find(identifier);
 
-    if (m == m_mounts.end())
+    if (m == end())
         return;
 
-    m_mounts.erase(m);
+    unmount(m);
 }
 
 file_system::mount_map_type::const_iterator file_system::unmount(mount_map_type::const_iterator it)
 {
+    if (it == end())
+        return it;
+
     BOOST_LOG_TRIVIAL(trace) << "Unmounted '" << it->second->get_mount_info() << '\'';
     return m_mounts.erase(it);
 }

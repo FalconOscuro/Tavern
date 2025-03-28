@@ -11,7 +11,11 @@ namespace tavern {
 
 class file_system
 {
+    using mount_map_type = std::unordered_map<std::string, std::unique_ptr<file::imount>>;
+
 public:
+
+    using iterator = mount_map_type::const_iterator;
 
     ~file_system();
 
@@ -31,6 +35,19 @@ public:
 
     void unmount_all();
     void unmount(const std::string& identifier);
+    iterator unmount(iterator it);
+
+    iterator find(const std::string& identifer) const {
+        return m_mounts.find(identifer);
+    }
+
+    iterator begin() const {
+        return m_mounts.cbegin();
+    }
+
+    iterator end() const {
+        return m_mounts.end();
+    }
 
     [[nodiscard]] static file_system& singleton() {
         static file_system instance;
@@ -38,7 +55,6 @@ public:
     }
 
 private:
-    using mount_map_type = std::unordered_map<std::string, std::unique_ptr<file::imount>>;
 
     file_system() = default;
 
@@ -46,7 +62,6 @@ private:
     // NOTE: if path == base acts same as being unable to resolve
     static std::string make_path_relative(const std::string& path);
 
-    mount_map_type::const_iterator unmount(mount_map_type::const_iterator it);
 
     mount_map_type m_mounts;
 }; /* end of class file_system */
