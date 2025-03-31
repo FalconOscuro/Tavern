@@ -63,8 +63,6 @@ add_library(Tavern STATIC)
 
 target_include_directories(Tavern
     PUBLIC include/
-    PUBLIC extern/
-    PUBLIC extern/imgui
 )
 
 target_sources(Tavern PUBLIC
@@ -80,7 +78,6 @@ target_sources(Tavern PUBLIC
     src/tavern/resource/shader_manager.cpp
     src/tavern/resource/texture2d_manager.cpp
 
-    src/tavern/components/render_mesh.cpp
     src/tavern/components/transform.cpp
     src/tavern/components/component_yaml_conversions.cpp
 

@@ -9,7 +9,7 @@
 namespace tavern::graphics {
 
 // unique ptr calls free
-std::unique_ptr<unsigned char, decltype(std::free)*> load_image_data(const char* path, glm::ivec3& dimensions);
+//std::unique_ptr<unsigned char, decltype(std::free)*> load_image_data(const char* path, glm::ivec3& dimensions);
 
 } /* end of namespace tavern::graphics */
 

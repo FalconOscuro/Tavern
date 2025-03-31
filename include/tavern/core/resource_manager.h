@@ -3,10 +3,10 @@
 
 #include <ryml.hpp>
 
-#include "shader_manager.hpp"
-#include "mesh_manager.h"
-#include "texture2d_manager.h"
-#include "material_manager.h"
+#include "tavern/resource/shader_manager.hpp"
+#include "tavern/resource/mesh_manager.h"
+#include "tavern/resource/texture2d_manager.h"
+#include "tavern/resource/material_manager.h"
 
 namespace tavern {
 
@@ -14,7 +14,7 @@ class resource_manager
 {
 public:
 
-    static resource_manager& get() {
+    static resource_manager& singleton() {
         static resource_manager mgr;
         return mgr;
     }
@@ -34,10 +34,6 @@ private:
     explicit resource_manager()
     {}
 }; /* end of class resource_manager */
-
-namespace resource {
-
-} /* namespace resource */
 
 } /* end of namespace tavern */
 

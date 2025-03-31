@@ -5,8 +5,6 @@
 #include "tavern/graphics/mesh.h"
 #include "tavern/graphics/shader.h"
 
-#include <ryml.hpp>
-
 namespace tavern::component {
 
 struct render_mesh

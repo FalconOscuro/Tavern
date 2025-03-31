@@ -11,12 +11,11 @@
 #include <imgui_impl_sdl2.h>
 
 #include "tavern/core/scene.h"
+#include "tavern/core/resource_manager.h"
 
 #include "tavern/components/render_mesh.h"
 #include "tavern/components/transform.h"
 #include "tavern/components/camera.h"
-
-#include "tavern/resource/resource_manager.h"
 
 #include "tavern/platform/sdl.h"
 
@@ -94,7 +93,7 @@ bool renderer::init(void* window, const glm::ivec2 size)
 
     // load default shader
     // Check to ensure successful completion?
-    m_default_shader = resource_manager::get().shaders.register_new("default", glsl::pbr::vert, glsl::pbr::frag);
+    //m_default_shader = resource_manager::singleton().shaders.register_new("default", glsl::pbr::vert, glsl::pbr::frag);
 
     // create uniform buffer for camera data
     m_camera_ub = create_uniform_buffer<camera_ub>();

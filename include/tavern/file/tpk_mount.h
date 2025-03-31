@@ -40,7 +40,7 @@ public:
     ~tpk_mount();
 
     bool has_file(const std::string_view path) const override;
-    std::unique_ptr<ifile> load_file(const std::string_view path) const override;
+    [[nodiscard]] file_handle load_file(const std::string_view path) const override;
 
     bool valid() const override;
 

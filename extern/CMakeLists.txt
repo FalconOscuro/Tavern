@@ -24,10 +24,10 @@ target_link_libraries(imgui
 # stb_img
 add_library(stb_img STATIC)
 
-set_target_properties(stb_img PROPERTIES LINKER_LANGUAGE CXX)
-
-target_compile_definitions(stb_img PUBLIC STB_IMAGE_IMPLEMENTATION)
+target_include_directories(stb_img PUBLIC
+    stb
+)
 
 target_sources(stb_img PUBLIC
-    stb/stb_image.h
+    src/stb_image_impl.cpp
 )

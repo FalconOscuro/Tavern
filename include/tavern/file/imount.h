@@ -9,6 +9,8 @@
 
 namespace tavern::file {
 
+typedef std::unique_ptr<ifile> file_handle;
+
 class imount
 {
 public:
@@ -19,7 +21,7 @@ public:
     virtual ~imount() = default;
 
     virtual bool has_file(const std::string_view path) const = 0;
-    [[nodiscard]] virtual std::unique_ptr<ifile> load_file(const std::string_view path) const = 0;
+    [[nodiscard]] virtual file_handle load_file(const std::string_view path) const = 0;
 
     virtual bool valid() const = 0;
 

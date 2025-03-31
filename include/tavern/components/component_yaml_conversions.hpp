@@ -36,6 +36,9 @@ void write(ryml::NodeRef* n, const camera& val);
 bool read(const ryml::ConstNodeRef& n, transform* val);
 void write(ryml::NodeRef* n, const transform& val);
 
+bool read(const ryml::ConstNodeRef& n, render_mesh* val);
+void write(ryml::NodeRef* n, const render_mesh& val);
+
 } /* end of namespace tavern::component */
 
 namespace glm {

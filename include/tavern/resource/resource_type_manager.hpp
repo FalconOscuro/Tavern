@@ -8,6 +8,8 @@
 #include <boost/log/trivial.hpp>
 
 #include "resource_ptr.hpp"
+#include "tavern/file/path.h"
+#include "tavern/core/file_system.h"
 
 namespace tavern::resource {
 
@@ -45,12 +47,9 @@ public:
     typedef Resource resource_type;
     using resource_handle = resource_ptr<resource_type>;
 
-    resource_type_manager() {
-        // None reserved for nullptr, hack
-        m_loaded.emplace(get_hash("None"), std::weak_ptr<resource_type>());
-    }
+    resource_type_manager() = default;
 
-    resource_handle load(const std::string& path)
+    resource_handle load(const file::mount_path& path)
     {
         const std::size_t hash = get_hash(path);
         resource_shared_ptr res_ptr = try_get(hash);
@@ -58,7 +57,12 @@ public:
         if (res_ptr)
             return resource_handle(res_ptr, path);
 
-        res_ptr = resource_shared_ptr(load_new(path), resource_deleter<Resource>(&m_loaded, hash));
+        auto file = file_system::singleton().load_file(path);
+
+        if (file && file->open())
+            res_ptr = resource_shared_ptr(load_new(file.get()), resource_deleter<Resource>(&m_loaded, hash));
+
+        file.reset();
 
         // issues if failed to load resource with deleter triggering?
         if (res_ptr)
@@ -70,22 +74,8 @@ public:
         return resource_handle(res_ptr, path);
     }
 
-    template <typename... Args>
-    resource_handle register_new(const std::string& name, Args&&... args)
-    {
-        const std::size_t hash = get_hash(name);
-        resource_shared_ptr res_ptr = try_get(hash);
-
-        if (res_ptr)
-            return resource_handle(res_ptr, name);
-
-        res_ptr = resource_shared_ptr(new Resource(std::forward<Args>(args)...), resource_deleter<Resource>(&m_loaded, hash));
-
-        return resource_handle(res_ptr, name);
-    }
-
-    bool is_loaded(const std::string& name) const {
-        const std::size_t hash = get_hash(name);
+    bool is_loaded(const file::mount_path& path) const {
+        const std::size_t hash = get_hash(path);
         auto res = m_loaded.find(hash);
 
         return res != m_loaded.end() && !res->second.expired();
@@ -94,7 +84,7 @@ public:
 protected:
 
     // Could be useful to specify memory location for pooling
-    virtual resource_type* load_new(const std::string& path) = 0;
+    virtual resource_type* load_new(file::ifile* file) = 0;
 
 private:
     typedef std::shared_ptr<resource_type> resource_shared_ptr;
@@ -104,8 +94,8 @@ private:
         return res != m_loaded.end() ? res->second.lock() : nullptr;
     }
 
-    static std::size_t get_hash(const std::string& name) {
-        return std::hash<std::string>{}(name);
+    inline static std::size_t get_hash(const file::mount_path& path) {
+        return std::hash<file::mount_path>{}(path);
     }
 
     std::unordered_map<std::size_t, std::weak_ptr<Resource>> m_loaded;

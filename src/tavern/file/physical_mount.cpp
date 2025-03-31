@@ -18,13 +18,13 @@ bool physical_mount::has_file(const std::string_view path) const
         && !std::filesystem::is_directory(fpath);
 }
 
-std::unique_ptr<ifile> physical_mount::load_file(const std::string_view path) const
+file_handle physical_mount::load_file(const std::string_view path) const
 {
     if (!has_file(path))
         return nullptr;
 
     const std::string full_path = get_path() + std::string(path);
-    return std::make_unique<physical_file>(full_path);
+    return file_handle(new physical_file(mount_path(get_identifier(), path), full_path));
 }
 
 bool physical_mount::valid() const {

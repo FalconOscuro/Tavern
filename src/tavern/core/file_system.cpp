@@ -138,7 +138,7 @@ bool file_system::file_exists(const file::mount_path& file_path) const
     return mount != end() && mount->second->has_file(file_path.get_path());
 }
 
-std::unique_ptr<file::ifile> file_system::load_file(const file::mount_path& file_path) const
+file::file_handle file_system::load_file(const file::mount_path& file_path) const
 {
     auto mount = find(std::string(file_path.get_identifier()));
 

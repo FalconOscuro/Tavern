@@ -10,7 +10,7 @@ class shader_manager : public resource_type_manager<graphics::shader>
 {
 protected:
 
-    resource_type* load_new(const std::string& path) override;
+    resource_type* load_new(file::ifile* file) override;
 
 }; /* end of class shader_manager : public resource_type_manager<graphics::shader> */
 

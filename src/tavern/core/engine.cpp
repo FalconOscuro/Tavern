@@ -8,9 +8,9 @@
 #include "tavern/core/input.h"
 #include "tavern/core/scene.h"
 #include "tavern/core/window.h"
+#include "tavern/core/resource_manager.h"
 #include "tavern/graphics/renderer.h"
 
-#include "tavern/resource/resource_manager.h"
 
 namespace tavern {
 
@@ -19,7 +19,7 @@ bool engine::init(const uint16_t width, const uint16_t height, const std::string
     BOOST_LOG_TRIVIAL(trace) << "Starting engine initialization...";
 
     // ensure resource manager created
-    (void)resource_manager::get();
+    (void)resource_manager::singleton();
 
     window& w = window::singleton();
     graphics::renderer& r = graphics::renderer::singleton();

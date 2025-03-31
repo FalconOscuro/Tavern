@@ -10,7 +10,7 @@ class mesh_manager : public resource_type_manager<graphics::mesh>
 {
 protected:
 
-    graphics::mesh* load_new(const std::string& path) override;
+    graphics::mesh* load_new(file::ifile* file) override;
 
 }; /* end of class mesh_manager : public resource_type_manager<graphics::vertex_array> */
 

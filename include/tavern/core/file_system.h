@@ -30,7 +30,7 @@ public:
     const file::imount* mount(file::mount_path mount_info);
 
     bool file_exists(const file::mount_path& file_path) const;
-    std::unique_ptr<file::ifile> load_file(const file::mount_path& file_path) const;
+    file::file_handle load_file(const file::mount_path& file_path) const;
 
     bool is_mounted(const std::string& identifier) const;
 

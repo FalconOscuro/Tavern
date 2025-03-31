@@ -108,7 +108,7 @@ bool tpk_mount::has_file(const std::string_view path) const {
     return m_root.find_node(path);
 }
 
-std::unique_ptr<ifile> tpk_mount::load_file(const std::string_view path) const
+file_handle tpk_mount::load_file(const std::string_view path) const
 {
     if (!valid())
         return nullptr;
@@ -118,7 +118,7 @@ std::unique_ptr<ifile> tpk_mount::load_file(const std::string_view path) const
     if (!node || node->type != tpk::FILE)
         return nullptr;
 
-    return std::make_unique<tpk_file>(get_path(), mount_path(get_identifier(), path), node->data.file, get_data_start_pos());
+    return file_handle(new tpk_file(get_path(), mount_path(get_identifier(), path), node->data.file, get_data_start_pos()));
 }
 
 bool tpk_mount::valid() const {

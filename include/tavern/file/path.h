@@ -1,6 +1,7 @@
 #ifndef PATH_H
 #define PATH_H
 
+#include <functional>
 #include <string>
 #include <ostream>
 
@@ -44,5 +45,13 @@ bool read(const ryml::ConstNodeRef& n, mount_path* val);
 void write(ryml::NodeRef* n, const mount_path& val);
 
 } /* end of namespace tavern::file */
+
+template <>
+struct std::hash<tavern::file::mount_path>
+{
+    size_t operator()(const tavern::file::mount_path& path) const noexcept {
+        return std::hash<std::string_view>{}(path.get_full());
+    }
+}; /* end of struct std::hash<mount_path> */
 
 #endif /* end of define guard PATH_H */

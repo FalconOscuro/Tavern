@@ -5,6 +5,10 @@
 
 #include <glm/gtc/quaternion.hpp>
 
+#include <ryml_std.hpp>
+
+#include "tavern/core/resource_manager.h"
+
 namespace tavern::component {
 
 bool read(const ryml::ConstNodeRef& n, camera* val)
@@ -71,6 +75,51 @@ void write(ryml::NodeRef *n, const transform &val)
     //    n->append_child() << ryml::key("parent") << val.parent;
 
     n->set_val_tag(get_type_tag<transform>());
+}
+
+bool read(const ryml::ConstNodeRef& n, render_mesh* val)
+{
+    auto& res_mngr = resource_manager::singleton();
+
+    // should be better way of doing this
+    if (n.has_child("mesh") && !n["mesh"].val().empty()) {
+        file::mount_path path;
+        n["mesh"] >> path;
+
+        val->mesh = res_mngr.meshes.load(path);
+    }
+
+    if (n.has_child("material") && !n["material"].val().empty()) {
+        file::mount_path path;
+        n["material"] >> path;
+
+        val->material = res_mngr.materials.load(path);
+    }
+
+    if (n.has_child("shader") && !n["shader"].val().empty()) {
+        file::mount_path path;
+        n["shader"] >> path;
+
+        val->shader = res_mngr.shaders.load(path);
+    }
+
+    return true;
+}
+
+void write(ryml::NodeRef* n, const render_mesh& val)
+{
+    *n |= ryml::MAP;
+
+    if (val.mesh)
+        n->append_child() << ryml::key("mesh") << val.mesh.get_path();
+
+    if (val.material)
+        n->append_child() << ryml::key("material") << val.material.get_path();
+
+    if (val.shader)
+        n->append_child() << ryml::key("shader") << val.shader.get_path();
+
+    n->set_val_tag(get_type_tag<render_mesh>());
 }
 
 } /* end of namespace tavern::component */

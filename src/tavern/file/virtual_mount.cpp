@@ -8,14 +8,14 @@ bool virtual_mount::has_file(const std::string_view path) const {
     return m_files.count(std::string(path));
 }
 
-std::unique_ptr<ifile> virtual_mount::load_file(const std::string_view path) const
+file_handle virtual_mount::load_file(const std::string_view path) const
 {
     auto f = m_files.find(std::string(path));
 
     if (f == m_files.end())
         return nullptr;
 
-    return std::make_unique<virtual_file>(f->second, path);
+    return file_handle(new virtual_file(f->second, path));
 }
 
 bool virtual_mount::valid() const {
