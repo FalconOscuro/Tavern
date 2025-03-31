@@ -11,11 +11,11 @@ class physical_file : public ifile
 {
 public:
 
-    explicit physical_file(const mount_path& file_info, const std::string& mount_path):
-        ifile(file_info), m_absolute_path(mount_path + file_info.path)
+    explicit physical_file(const mount_path& file_info, const std::string_view mount_path):
+        ifile(file_info), m_absolute_path(std::string(mount_path) + std::string(file_info.get_path()))
     {}
 
-    explicit physical_file(const std::string& absolute_path):
+    explicit physical_file(const std::string_view absolute_path):
         ifile(mount_path("unmounted", absolute_path)), m_absolute_path(absolute_path)
     {}
 

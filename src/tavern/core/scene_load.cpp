@@ -79,7 +79,7 @@ bool scene::load(const std::string& file_name)
             file::mount_path mount_path;
             *it >> mount_path;
 
-            if (file_sys.is_mounted(mount_path.identifer)) {
+            if (file_sys.is_mounted(std::string(mount_path.get_identifier()))) {
                 BOOST_LOG_TRIVIAL(trace) << mount_path << " appears already mounted, skipping";
                 continue;
             }

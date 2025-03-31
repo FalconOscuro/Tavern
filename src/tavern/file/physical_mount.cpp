@@ -7,23 +7,23 @@
 namespace tavern::file {
 
 physical_mount::physical_mount(const mount_path& mount_info):
-    imount(mount_info.path), m_identifier(mount_info.identifer)
+    imount(mount_info.get_path()), m_identifier(mount_info.get_identifier())
 {}
 
-bool physical_mount::has_file(const std::string& path) const
+bool physical_mount::has_file(const std::string_view path) const
 {
-    std::filesystem::path fpath(get_path() + path);
+    std::filesystem::path fpath(get_path() + std::string(path));
 
     return valid() && std::filesystem::exists(fpath)
         && !std::filesystem::is_directory(fpath);
 }
 
-std::unique_ptr<ifile> physical_mount::load_file(const std::string& path) const
+std::unique_ptr<ifile> physical_mount::load_file(const std::string_view path) const
 {
     if (!has_file(path))
         return nullptr;
 
-    const std::string full_path = get_path() + path;
+    const std::string full_path = get_path() + std::string(path);
     return std::make_unique<physical_file>(full_path);
 }
 

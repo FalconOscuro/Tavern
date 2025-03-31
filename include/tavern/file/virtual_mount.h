@@ -16,8 +16,8 @@ public:
 
     ~virtual_mount() = default;
 
-    bool has_file(const std::string& path) const override;
-    [[nodiscard]] std::unique_ptr<ifile> load_file(const std::string& path) const override;
+    bool has_file(const std::string_view path) const override;
+    [[nodiscard]] std::unique_ptr<ifile> load_file(const std::string_view path) const override;
 
     bool valid() const override;
 

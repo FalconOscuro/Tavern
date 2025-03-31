@@ -7,7 +7,7 @@
 
 namespace tavern::file {
 
-tpk_file::tpk_file(const std::string& tpk_path, const mount_path& file_path, const tpk::file_node* node, const size_t data_start):
+tpk_file::tpk_file(const std::string_view tpk_path, const mount_path& file_path, const tpk::file_node* node, const size_t data_start):
     ifile(file_path), m_node(node), m_tpk_path(tpk_path), m_data_start(data_start)
 {
     assert(node != nullptr);

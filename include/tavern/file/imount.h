@@ -12,14 +12,14 @@ namespace tavern::file {
 class imount
 {
 public:
-    imount(const std::string& path):
+    imount(const std::string_view path):
         m_path(path)
     {}
 
     virtual ~imount() = default;
 
-    virtual bool has_file(const std::string& path) const = 0;
-    [[nodiscard]] virtual std::unique_ptr<ifile> load_file(const std::string& path) const = 0;
+    virtual bool has_file(const std::string_view path) const = 0;
+    [[nodiscard]] virtual std::unique_ptr<ifile> load_file(const std::string_view path) const = 0;
 
     virtual bool valid() const = 0;
 

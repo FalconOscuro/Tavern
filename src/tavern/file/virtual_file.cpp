@@ -6,7 +6,7 @@
 
 namespace tavern::file {
 
-virtual_file::virtual_file(const char* c, const std::string& path):
+virtual_file::virtual_file(const char* c, const std::string_view path):
     ifile(mount_path("internal", path)), m_data(c)
 {
     assert(c != nullptr);

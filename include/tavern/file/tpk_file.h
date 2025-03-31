@@ -11,7 +11,7 @@ namespace tavern::file {
 class tpk_file : public ifile
 {
 public:
-    tpk_file(const std::string& tpk_path, const mount_path& file_path, const tpk::file_node* node, const size_t data_start);
+    tpk_file(const std::string_view tpk_path, const mount_path& file_path, const tpk::file_node* node, const size_t data_start);
     ~tpk_file();
 
     bool open() override;

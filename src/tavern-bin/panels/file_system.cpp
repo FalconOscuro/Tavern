@@ -28,10 +28,7 @@ void file_system_p::draw()
 
         if (ImGui::Button("Mount"))
         {
-            tavern::file::mount_path mount_info;
-
-            mount_info.identifer = std::string(m_dir_mount_identifier);
-            mount_info.path = std::string(m_dir_mount_path);
+            auto mount_info = tavern::file::mount_path(std::string(m_dir_mount_identifier), std::string(m_dir_mount_path));
 
             file_system.mount_dir(mount_info);
         }

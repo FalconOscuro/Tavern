@@ -58,7 +58,7 @@ const file_tree_node* file_tree_node::find_node(const std::string_view path) con
         found->second->find_node(path.substr(split));
 }
 
-tpk_mount::tpk_mount(const std::string& path):
+tpk_mount::tpk_mount(const std::string_view path):
     imount(path)
 {
     physical_file file(path);
@@ -104,11 +104,11 @@ tpk_mount::~tpk_mount() {
     delete[] m_file_nodes;
 }
 
-bool tpk_mount::has_file(const std::string& path) const {
+bool tpk_mount::has_file(const std::string_view path) const {
     return m_root.find_node(path);
 }
 
-std::unique_ptr<ifile> tpk_mount::load_file(const std::string& path) const
+std::unique_ptr<ifile> tpk_mount::load_file(const std::string_view path) const
 {
     if (!valid())
         return nullptr;

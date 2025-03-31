@@ -61,7 +61,7 @@ private:
 
     // returns empty string if unable to resolve
     // NOTE: if path == base acts same as being unable to resolve
-    static std::string make_path_relative(const std::string& path);
+    static std::string make_path_relative(const std::string_view path);
 
 
     mount_map_type m_mounts;

@@ -10,7 +10,7 @@ class virtual_file final : public ifile
 {
 public:
 
-    virtual_file(const char* const data, const std::string& path);
+    virtual_file(const char* const data, const std::string_view path);
     ~virtual_file() = default;
 
     bool open() override;

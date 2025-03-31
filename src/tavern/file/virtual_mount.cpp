@@ -4,13 +4,13 @@
 
 namespace tavern::file {
 
-bool virtual_mount::has_file(const std::string& path) const {
-    return m_files.count(path);
+bool virtual_mount::has_file(const std::string_view path) const {
+    return m_files.count(std::string(path));
 }
 
-std::unique_ptr<ifile> virtual_mount::load_file(const std::string& path) const
+std::unique_ptr<ifile> virtual_mount::load_file(const std::string_view path) const
 {
-    auto f = m_files.find(path);
+    auto f = m_files.find(std::string(path));
 
     if (f == m_files.end())
         return nullptr;

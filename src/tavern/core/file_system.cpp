@@ -70,26 +70,29 @@ const file::imount* file_system::mount_tpk(std::string path, std::string& identi
 
 const file::imount* file_system::mount_dir(file::mount_path mount_info)
 {
-    mount_info.path = make_path_relative(mount_info.path);
+    const auto path = mount_info.set_path(make_path_relative(mount_info.get_path()));
+    const auto identifer = std::string(mount_info.get_identifier());
 
-    if (mount_info.identifer.empty() || mount_info.path.empty())
+    if (identifer.empty() || path.empty())
     {
         BOOST_LOG_TRIVIAL(error) << "Failed to mount Directory '" << mount_info << "', identifier/path cannot be null";
         return nullptr;
     }
 
     // file already loaded or collision
-    if (is_mounted(mount_info.identifer))
-    {
-         const file::imount* loaded = m_mounts[mount_info.identifer].get();
+    const auto found = find(identifer);
 
-        if (loaded->get_path() == mount_info.path) {
+    if (found != end())
+    {
+         const file::imount* loaded = found->second.get();
+
+        if (loaded->get_path() == path) {
             BOOST_LOG_TRIVIAL(warning) << "Directory '" << mount_info << "' already mounted.";
             return loaded;
         }
 
         else {
-            BOOST_LOG_TRIVIAL(error) << "Failed to mount Directory '" << mount_info << "', identifier already in use by '" << mount_info.identifer << ':' << loaded->get_path() << '\'';
+            BOOST_LOG_TRIVIAL(error) << "Failed to mount Directory '" << mount_info << "', identifier already in use by '" << loaded->get_mount_info() << '\'';
             return nullptr;
         }
     }
@@ -104,22 +107,22 @@ const file::imount* file_system::mount_dir(file::mount_path mount_info)
 
     BOOST_LOG_TRIVIAL(trace) << "Successfully mounted Directory '" << mount_info << '\'';
 
-    m_mounts.emplace(std::make_pair(mount_info.identifer, std::unique_ptr<file::imount>(mount)));
+    m_mounts.emplace(std::make_pair(identifer, std::unique_ptr<file::imount>(mount)));
     return mount;
 }
 
 const file::imount* file_system::mount(file::mount_path mount_info)
 {
-    mount_info.path = make_path_relative(mount_info.path);
+    const auto path = mount_info.set_path(make_path_relative(mount_info.get_path()));
 
-    if (std::filesystem::is_directory(mount_info.path))
+    if (std::filesystem::is_directory(path))
         return mount_dir(mount_info);
 
     else {
         std::string ret_ident;
-        const file::imount* mount = mount_tpk(mount_info.path, ret_ident);
+        const file::imount* mount = mount_tpk(std::string(path), ret_ident);
 
-        if (mount && ret_ident != mount_info.identifer) {
+        if (mount && ret_ident != mount_info.get_identifier()) {
             BOOST_LOG_TRIVIAL(warning) << "Attempted mount of '" << mount_info << "', but file returned identifier [" << ret_ident << ']';
             return nullptr;
         }
@@ -130,14 +133,14 @@ const file::imount* file_system::mount(file::mount_path mount_info)
 
 bool file_system::file_exists(const file::mount_path& file_path) const
 {
-    auto mount = find(file_path.path);
+    auto mount = find(std::string(file_path.get_identifier()));
 
-    return mount != end() && mount->second->has_file(file_path.path);
+    return mount != end() && mount->second->has_file(file_path.get_path());
 }
 
 std::unique_ptr<file::ifile> file_system::load_file(const file::mount_path& file_path) const
 {
-    auto mount = find(file_path.identifer);
+    auto mount = find(std::string(file_path.get_identifier()));
 
     if (mount == end())
     {
@@ -146,7 +149,7 @@ std::unique_ptr<file::ifile> file_system::load_file(const file::mount_path& file
         return nullptr;
     }
 
-    auto file = mount->second->load_file(file_path.path);
+    auto file = mount->second->load_file(file_path.get_path());
 
     if (!file)
         BOOST_LOG_TRIVIAL(error) << "Failed to load File '" << file_path << "', could not resolve path";
@@ -184,7 +187,7 @@ file_system::mount_map_type::const_iterator file_system::unmount(mount_map_type:
     return m_mounts.erase(it);
 }
 
-std::string file_system::make_path_relative(const std::string& path)
+std::string file_system::make_path_relative(const std::string_view path)
 {
     const auto base = std::filesystem::current_path();
     const auto path_absolute = std::filesystem::absolute(path);

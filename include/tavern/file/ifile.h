@@ -41,9 +41,10 @@ public:
     // string_view faster than creating fresh string
     const std::string_view get_directory() const
     {
-        const auto last = m_path.path.find_last_of('/');
+        const std::string_view path = m_path.get_path();
+        const auto last = path.find_last_of('/');
 
-        return std::string_view(m_path.path.data(), last);
+        return std::string_view(path.data(), last);
     }
 
 private:

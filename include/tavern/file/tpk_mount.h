@@ -35,12 +35,12 @@ struct file_tree_node
 class tpk_mount final : public imount
 {
 public:
-    tpk_mount(const std::string& path);
+    tpk_mount(const std::string_view path);
 
     ~tpk_mount();
 
-    bool has_file(const std::string& path) const override;
-    std::unique_ptr<ifile> load_file(const std::string& path) const override;
+    bool has_file(const std::string_view path) const override;
+    std::unique_ptr<ifile> load_file(const std::string_view path) const override;
 
     bool valid() const override;
 
