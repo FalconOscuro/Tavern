@@ -11,7 +11,7 @@ int file_read_callback(void* file, char* data, int size) {
 }
 
 void file_skip_callback(void* file, int n) {
-    reinterpret_cast<file::ifile*>(file)->seek(n);
+    reinterpret_cast<file::ifile*>(file)->seek(n, file::CURRENT);
 }
 
 int file_eof_callback(void* file) {

@@ -66,19 +66,29 @@ size_t physical_file::get_str(char* s, const size_t len)
     return chars_read;
 }
 
-long physical_file::seek(long offset)
+bool physical_file::seek(const long offset, const origin mode)
 {
     if (!is_open())
-        return 0;
+        return false;
 
-    const size_t start = ftell(m_file);
-    fseek(m_file, offset, SEEK_CUR);
+    int seek_mode;
 
-    return ftell(m_file) - start;
-}
+    switch (mode)
+    {
+    case START:
+        seek_mode = SEEK_SET;
+        break;
 
-void physical_file::seek_start(const size_t offset) {
-    fseek(m_file, offset, SEEK_SET);
+    case END:
+        seek_mode = SEEK_END;
+        break;
+
+    default:
+        seek_mode = SEEK_CUR;
+        break;
+    }
+
+    return fseek(m_file, offset, seek_mode) == 0;
 }
 
 size_t physical_file::pos() const {

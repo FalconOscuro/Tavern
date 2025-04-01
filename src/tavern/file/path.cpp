@@ -67,6 +67,18 @@ size_t mount_path::get_split_pos() const {
     return split == m_full_path.npos ? 0 : split;
 }
 
+bool mount_path::try_create(const char* s, mount_path& path)
+{
+    const std::string_view sv = std::string_view(s);
+    const size_t sep_pos = sv.find_first_of(':');
+
+    if (sep_pos >= sv.length() - 1 || !sep_pos)
+        return false;
+
+    path.m_full_path = s;
+    return true;
+}
+
 std::ostream& operator<<(std::ostream& stream, const mount_path& mount) {
     return stream << '[' << mount.get_identifier() << "]:" << mount.get_path();
 }

@@ -30,6 +30,8 @@ public:
     bool operator==(const mount_path& mp) const;
     bool operator!=(const mount_path& mp) const;
 
+    static bool try_create(const char* c, mount_path& path);
+
 private:
 
     const std::string_view set_full_path(const std::string_view identifier, const std::string_view path);

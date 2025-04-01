@@ -46,8 +46,8 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
 
 #set(ASSIMP_BUILD_ASSBIN_IMPORTER ON)
 #set(ASSIMP_BUILD_COLLADA_IMPORTER ON)
-#set(ASSIMP_BUILD_OBJ_IMPORTER ON)
-set(ASSIMP_BUILD_GLTF_IMPORTER ON)
+set(ASSIMP_BUILD_OBJ_IMPORTER ON)
+#set(ASSIMP_BUILD_GLTF_IMPORTER ON)
 
 FetchContent_MakeAvailable(ecs cantrip ryml assimp)
 
@@ -74,6 +74,7 @@ target_sources(Tavern PUBLIC
     src/tavern/core/scene_save.cpp
     src/tavern/core/window.cpp
 
+    src/tavern/resource/util/assimp_io.cpp
     src/tavern/resource/mesh_manager.cpp
     src/tavern/resource/shader_manager.cpp
     src/tavern/resource/texture2d_manager.cpp

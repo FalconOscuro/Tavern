@@ -8,6 +8,12 @@
 
 namespace tavern::file {
 
+enum origin {
+    START,
+    CURRENT,
+    END
+};
+
 class ifile
 {
 public:
@@ -28,8 +34,8 @@ public:
     virtual char get_char() = 0;
     [[nodiscard]] virtual size_t get_str(char* s, const size_t len) = 0;
 
-    virtual long seek(long offset) = 0;
-    virtual void seek_start(const size_t offset = 0) = 0;
+    // could be singular seek
+    virtual bool seek(const long offset, const origin mode) = 0;
     virtual size_t pos() const = 0;
 
     virtual size_t size() const = 0;

@@ -46,15 +46,26 @@ size_t virtual_file::get_str(char* s, const size_t len)
     return chars_read;
 }
 
-long virtual_file::seek(long offset) {
-    offset = std::clamp(offset, -long(m_pos), long(size() - m_pos));
+bool virtual_file::seek(const long offset, const origin mode)
+{
+    switch (mode)
+    {
+    case START:
+        m_pos = 0;
+        break;
 
-    m_pos += offset;
-    return offset;
-}
+    case END:
+        m_pos = size() - 1;
+        break;
 
-void virtual_file::seek_start(const size_t offset) {
-    m_pos = 0 + std::min(offset, size());
+    default:
+        break;
+    }
+
+    const long offset_actual = std::clamp<long>(offset, -long(m_pos), size() - m_pos);
+
+    m_pos += offset_actual;
+    return offset_actual == offset;
 }
 
 size_t virtual_file::pos() const {

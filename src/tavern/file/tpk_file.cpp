@@ -78,30 +78,34 @@ size_t tpk_file::get_str(char* s, const size_t len)
     return chars_read;
 }
 
-long tpk_file::seek(long offset)
+bool tpk_file::seek(const long offset, const origin mode)
 {
     if (!is_open())
-        return 0;
+        return false;
 
-    const long curr = pos();
+    long seek_pos;
+    switch (mode)
+    {
+    case START:
+        seek_pos = 0;
+        break;
 
-    offset = std::clamp(offset, -curr, long(size() - curr));
-    fseek(m_file, offset, SEEK_CUR);
+    case END:
+        seek_pos = size() - 1;
+        break;
 
-    return offset;
+    default:
+        seek_pos = pos();
+        break;
+    }
+
+    const long offset_actual = std::clamp(offset, -(seek_pos), (long)size() - seek_pos);
+
+    return fseek(m_file, m_data_start + offset_actual + seek_pos, SEEK_SET) == 0 && offset_actual == offset;
 }
 
-void tpk_file::seek_start(const size_t offset)
-{
-    if (!is_open())
-        return;
-
-    fseek(m_file, -long(pos()) + std::min<size_t>(offset, m_node->size), SEEK_CUR);
-}
-
-// returns size + 1 if file not open
 size_t tpk_file::pos() const {
-    return is_open() ? ftell(m_file) - file_start_pos() : m_node->size + 1;
+    return is_open() ? ftell(m_file) - file_start_pos() : 0;
 }
 
 size_t tpk_file::size() const {
