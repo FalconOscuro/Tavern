@@ -7,8 +7,7 @@ namespace tavern::component {
 
 struct camera
 {
-    camera()
-    {}
+    camera() = default;
 
     camera(float fov, float near, float far, bool active = true):
         fov(fov), near(near), far(far), active(active)
@@ -22,7 +21,7 @@ struct camera
     float near = 0.001f;
     float far = 1000.f;
 
-    bool active;
+    bool active = true;
 }; /* end of struct camera */
 
 } /* end of namespace tavern::component */

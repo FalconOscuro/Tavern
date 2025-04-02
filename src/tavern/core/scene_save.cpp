@@ -128,6 +128,7 @@ void scene::save(const std::string& file_name) const
 
     write_all_components<component::camera>(root, m_registry, eid_map);
     write_all_components<component::transform>(root, m_registry, eid_map);
+    write_all_components<component::render_mesh>(root, m_registry, eid_map);
 
     // write to file
     FILE* file = fopen(file_name.c_str(), "w");

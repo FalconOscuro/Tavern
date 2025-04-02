@@ -13,6 +13,7 @@ class mount_path
 {
 public:
     mount_path() = default;
+    mount_path(const mount_path&) = default;
     mount_path(const std::string_view identifer, const std::string_view path);
 
     ~mount_path() = default;
@@ -30,7 +31,7 @@ public:
     bool operator==(const mount_path& mp) const;
     bool operator!=(const mount_path& mp) const;
 
-    static bool try_create(const char* c, mount_path& path);
+    static bool try_create(const char* s, mount_path& path);
 
 private:
 

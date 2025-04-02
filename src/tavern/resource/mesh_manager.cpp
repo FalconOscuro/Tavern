@@ -25,6 +25,7 @@ graphics::mesh* mesh_manager::load_new(file::ifile* file)
     file->close();
 
     Assimp::Importer imp;
+
     imp.SetIOHandler(new util::assimp_iosystem());
 
     const int flags = 0
@@ -42,12 +43,12 @@ graphics::mesh* mesh_manager::load_new(file::ifile* file)
         return nullptr;
     }
 
-    else if (!(scene->HasMeshes() && scene->mRootNode->mNumMeshes)) {
+    else if (!(scene->HasMeshes())) {
         BOOST_LOG_TRIVIAL(error) << "Failed loading mesh '" << file->get_path() << "': No meshes found in file";
         return nullptr;
     }
 
-    const aiMesh* mesh = scene->mMeshes[scene->mRootNode->mMeshes[0]];
+    const aiMesh* mesh = scene->mMeshes[0];
 
     std::vector<uint32_t> indices;
     indices.reserve(mesh->mNumFaces * 3);
@@ -66,8 +67,8 @@ graphics::mesh* mesh_manager::load_new(file::ifile* file)
         v.normal = glm_convert(mesh->mNormals[i]);
         v.tangent = glm_convert(mesh->mTangents[i]);
         v.bi_tangent = glm_convert(mesh->mBitangents[i]);
-        v.texture_coordinates = glm_convert(mesh->mTextureCoords[0][i]);
-        v.colour = glm_convert(mesh->mColors[0][i]);
+        //v.texture_coordinates = glm_convert(mesh->mTextureCoords[0][i]);
+        //v.colour = glm_convert(mesh->mColors[0][i]);
 
         vertices.push_back(v);
     }

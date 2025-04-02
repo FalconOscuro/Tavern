@@ -82,21 +82,21 @@ bool read(const ryml::ConstNodeRef& n, render_mesh* val)
     auto& res_mngr = resource_manager::singleton();
 
     // should be better way of doing this
-    if (n.has_child("mesh") && !n["mesh"].val().empty()) {
+    if (n.has_child("mesh") && !n["mesh"].val_is_null()) {
         file::mount_path path;
         n["mesh"] >> path;
 
         val->mesh = res_mngr.meshes.load(path);
     }
 
-    if (n.has_child("material") && !n["material"].val().empty()) {
+    if (n.has_child("material") && !n["material"].val_is_null()) {
         file::mount_path path;
         n["material"] >> path;
 
         val->material = res_mngr.materials.load(path);
     }
 
-    if (n.has_child("shader") && !n["shader"].val().empty()) {
+    if (n.has_child("shader") && !n["shader"].val_is_null()) {
         file::mount_path path;
         n["shader"] >> path;
 
@@ -110,14 +110,27 @@ void write(ryml::NodeRef* n, const render_mesh& val)
 {
     *n |= ryml::MAP;
 
+    auto n_mesh = n->append_child();
+    n_mesh.set_key("mesh");
+    auto n_mat  = n->append_child();
+    n_mat.set_key("material");
+    auto n_shad = n->append_child();
+    n_shad.set_key("shader");
+
     if (val.mesh)
-        n->append_child() << ryml::key("mesh") << val.mesh.get_path();
+        n_mesh << val.mesh.get_path();
+    else
+        n_mesh << nullptr;
 
     if (val.material)
-        n->append_child() << ryml::key("material") << val.material.get_path();
+        n_mat << val.material.get_path();
+    else
+        n_mat << nullptr;
 
     if (val.shader)
-        n->append_child() << ryml::key("shader") << val.shader.get_path();
+        n_shad << val.shader.get_path();
+    else
+        n_shad << nullptr;
 
     n->set_val_tag(get_type_tag<render_mesh>());
 }

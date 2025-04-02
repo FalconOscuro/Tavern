@@ -30,6 +30,8 @@ void file_system_p::draw()
         {
             auto mount_info = tavern::file::mount_path(std::string(m_dir_mount_identifier), std::string(m_dir_mount_path));
 
+            BOOST_LOG_TRIVIAL(trace) << std::string(m_dir_mount_path);
+
             file_system.mount_dir(mount_info);
         }
 

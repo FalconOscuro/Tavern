@@ -62,6 +62,9 @@ public:
         if (file && file->open())
             res_ptr = resource_shared_ptr(load_new(file.get()), resource_deleter<Resource>(&m_loaded, hash));
 
+        else if (file)
+            BOOST_LOG_TRIVIAL(error) << "Failed to open file: " << path;
+
         file.reset();
 
         // issues if failed to load resource with deleter triggering?

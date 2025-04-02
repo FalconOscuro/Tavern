@@ -144,6 +144,25 @@ bool scene::load(const std::string& file_name)
                 transf.parent = parent_id;
             }
         }
+
+        // camera
+        if (components.has_child(ecs::internal::get_type_name<component::camera>()))
+        {
+            auto& camera = m_registry.emplace<component::camera>(entity);
+            size_t doc_id;
+            components[ecs::internal::get_type_name<component::camera>()] >> doc_id;
+
+            root.child(doc_id) >> camera;
+        }
+
+        if (components.has_child(ecs::internal::get_type_name<component::render_mesh>()))
+        {
+            auto& mesh = m_registry.emplace<component::render_mesh>(entity);
+            size_t doc_id;
+            components[ecs::internal::get_type_name<component::render_mesh>()] >> doc_id;
+
+            root.child(doc_id) >> mesh;
+        }
     }
 
     return true;

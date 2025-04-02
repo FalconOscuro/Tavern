@@ -76,7 +76,7 @@ private:
 
     float m_aspect_ratio = 1.f;
 
-    shader_resource m_default_shader;
+    std::unique_ptr<shader> m_default_shader;
 
 }; /* end of class opengl_renderer final : public a_renderer */
 

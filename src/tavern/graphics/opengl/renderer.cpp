@@ -93,7 +93,7 @@ bool renderer::init(void* window, const glm::ivec2 size)
 
     // load default shader
     // Check to ensure successful completion?
-    //m_default_shader = resource_manager::singleton().shaders.register_new("default", glsl::pbr::vert, glsl::pbr::frag);
+    m_default_shader = std::make_unique<shader>(glsl::pbr::vert, glsl::pbr::frag);
 
     // create uniform buffer for camera data
     m_camera_ub = create_uniform_buffer<camera_ub>();

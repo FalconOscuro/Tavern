@@ -5,6 +5,7 @@
 #include <imgui.h>
 
 #include <tavern/core/scene.h>
+#include <tavern/core/resource_manager.h>
 #include <tavern/components/component.h>
 
 #include <boost/log/trivial.hpp>
@@ -18,13 +19,15 @@ ecs::registry& g_registry = g_scene.get_registry();
 enum component_type_ids : size_t {
     NAME,
     TRANSFORM,
-    RENDER_MESH
+    RENDER_MESH,
+    CAMERA
 };
 
 const char* component_names[] = {
     "name",
     "transform",
-    "render mesh"
+    "render mesh",
+    "camera"
 };
 
 void scene_p::draw()
@@ -136,6 +139,14 @@ void scene_p::component_edit()
             add_component<tavern::component::transform>(m_selected);
             break;
 
+        case RENDER_MESH:
+            add_component<tavern::component::render_mesh>(m_selected);
+            break;
+
+        case CAMERA:
+            add_component<tavern::component::camera>(m_selected);
+            break;
+
         default:
             BOOST_LOG_TRIVIAL(warning) << "Unrecognized component id type: " << selected_component;
             break;
@@ -152,8 +163,16 @@ void scene_p::component_edit()
             g_registry.remove<tavern::component::entity_name>(m_selected);
             break;
 
-            case TRANSFORM:
+        case TRANSFORM:
             g_registry.remove<tavern::component::transform>(m_selected);
+            break;
+
+        case CAMERA:
+            g_registry.remove<tavern::component::camera>(m_selected);
+            break;
+
+        case RENDER_MESH:
+            g_registry.remove<tavern::component::render_mesh>(m_selected);
             break;
 
         default:
@@ -178,6 +197,15 @@ void scene_p::component_edit()
 
     case TRANSFORM:
         edit_transform();
+        break;
+
+    case CAMERA:
+        if (g_registry.has<tavern::component::camera, tavern::component::transform>(m_selected))
+            ImGui::Text("Camera Valid");
+        break;
+
+    case RENDER_MESH:
+        edit_render_mesh();
         break;
 
     default:
@@ -308,6 +336,31 @@ void scene_p::edit_transform()
         )
     ) {
         transform.parent = parent;
+    }
+}
+
+void scene_p::edit_render_mesh()
+{
+    if (!g_registry.has<tavern::component::render_mesh>(m_selected)) {
+        ImGui::Text("Render Mesh component is not attached");
+        return;
+    }
+
+    auto& render_mesh = g_registry.get<tavern::component::render_mesh>(m_selected);
+
+    if (!g_registry.has<tavern::component::transform>(m_selected))
+        ImGui::TextColored(ImVec4(227.f / 255.f, 146.f / 255.f, 6.f / 255.f, 1), "Render mesh is missing a transform so will not be drawn");
+
+    static char mesh_name[64];
+    ImGui::InputText("Mesh Resource", mesh_name, IM_ARRAYSIZE(mesh_name));
+
+    if (ImGui::Button("Apply"))
+    {
+        tavern::file::mount_path path;
+        if (tavern::file::mount_path::try_create(mesh_name, path))
+            render_mesh.mesh = tavern::resource_manager::singleton().meshes.load(path);
+
+        mesh_name[0] = '\0';
     }
 }
 

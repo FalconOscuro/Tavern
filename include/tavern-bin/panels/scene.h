@@ -23,6 +23,7 @@ private:
 
     void edit_name();
     void edit_transform();
+    void edit_render_mesh();
 
     char m_save_name[64];
 

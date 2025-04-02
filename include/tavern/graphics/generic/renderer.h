@@ -83,7 +83,7 @@ private:
     void update_camera();
     void no_camera_warning() const;
 
-    ecs::entity_type m_camera = 0;
+    ecs::entity_type m_camera = ecs::entity_type(-1);
 
     std::unordered_map<std::string, std::unique_ptr<imgui_panel>> m_gui_layers;
 }; /* end of class a_renderer */

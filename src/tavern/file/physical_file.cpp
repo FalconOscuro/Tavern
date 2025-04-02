@@ -1,5 +1,7 @@
 #include "tavern/file/physical_file.h"
 
+#include <boost/log/trivial.hpp>
+
 namespace tavern::file {
 
 physical_file::~physical_file() {
@@ -13,6 +15,8 @@ bool physical_file::open()
         return true;
 
     m_file = fopen(m_absolute_path.c_str(), "rb");
+
+    BOOST_LOG_TRIVIAL(trace) << m_absolute_path;
 
     return is_open();
 }

@@ -25,7 +25,7 @@ const std::string_view mount_path::get_identifier() const {
 const std::string_view mount_path::set_path(const std::string_view path) {
     const size_t path_start_pos = get_split_pos() + 1;
 
-    m_full_path.erase(path_start_pos + 1);
+    m_full_path.erase(path_start_pos);
     m_full_path.reserve(m_full_path.length() + path.length());
     m_full_path.append(path);
 
