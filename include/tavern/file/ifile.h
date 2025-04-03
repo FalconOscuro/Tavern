@@ -30,7 +30,7 @@ public:
     virtual bool is_open() const = 0;
     virtual bool eof() const = 0;
 
-    [[nodiscard]] virtual char peek_char() const = 0;
+    [[nodiscard]] virtual char peek_char(const size_t offset = 0) const = 0;
     virtual char get_char() = 0;
     [[nodiscard]] virtual size_t get_str(char* s, const size_t len) = 0;
 
@@ -40,7 +40,7 @@ public:
 
     virtual size_t size() const = 0;
 
-    const mount_path& get_path() {
+    const mount_path& get_path() const {
         return m_path;
     }
 

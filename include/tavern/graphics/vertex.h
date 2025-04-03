@@ -17,6 +17,11 @@ struct vertex
     glm::vec4 colour;
 }; /* end of struct vertex */
 
+struct face
+{
+    uint32_t indices[3];
+}; /* end of struct face */
+
 enum vertex_attributes {
     POSITION,
     NORMAL,

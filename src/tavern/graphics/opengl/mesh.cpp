@@ -4,8 +4,8 @@
 
 namespace tavern::graphics::opengl {
 
-mesh::mesh(const std::vector<vertex>& vertices, const std::vector<uint32_t>& indices):
-    m_index_count(indices.size())
+mesh::mesh(const std::vector<vertex>& vertices, const std::vector<face>& faces):
+    m_index_count(faces.size() * 3)
 {
     glGenBuffers(1, &m_vertex_buffer);
     glGenBuffers(1, &m_index_buffer);
@@ -19,7 +19,7 @@ mesh::mesh(const std::vector<vertex>& vertices, const std::vector<uint32_t>& ind
 
     // copy index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_index_buffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * indices.size(), indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(face) * faces.size(), faces.data(), GL_STATIC_DRAW);
 
     // locations for vertex attribute data
     // position

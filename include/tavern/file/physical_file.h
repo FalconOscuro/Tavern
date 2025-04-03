@@ -12,7 +12,7 @@ class physical_file final : public ifile
 public:
 
     explicit physical_file(const mount_path& file_info, const std::string_view mount_path):
-        ifile(file_info), m_absolute_path(std::string(mount_path) + std::string(file_info.get_path()))
+        ifile(file_info), m_absolute_path(std::string(mount_path) + "/" + std::string(file_info.get_path()))
     {}
 
     explicit physical_file(const std::string_view absolute_path):
@@ -27,7 +27,7 @@ public:
     bool is_open() const override;
     bool eof() const override;
 
-    [[nodiscard]] char peek_char() const override;
+    [[nodiscard]] char peek_char(const size_t offset = 0) const override;
     char get_char() override;
     [[nodiscard]] size_t get_str(char* s, const size_t len) override;
 

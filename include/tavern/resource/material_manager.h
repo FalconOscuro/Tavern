@@ -4,20 +4,13 @@
 #include "resource_type_manager.hpp"
 #include "tavern/graphics/material.h"
 
-#include <boost/log/trivial.hpp>
-
 namespace tavern::resource {
 
 class material_manager : public resource_type_manager<graphics::material>
 {
 protected:
 
-    graphics::material* load_new(file::ifile* file) override {
-        (void)file;
-        BOOST_LOG_TRIVIAL(error) << "loading materials from direct from file is currently not supported";
-
-        return nullptr;
-    }
+    graphics::material* load_new(file::ifile* file) override;
 
 }; /* end of class material_manager : public resource_type_manager<graphics::material> */
 

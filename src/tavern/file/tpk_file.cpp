@@ -48,13 +48,19 @@ bool tpk_file::is_open() const {
     return m_file != NULL;
 }
 
-char tpk_file::peek_char() const
+char tpk_file::peek_char(const size_t offset) const
 {
     if (!is_open() || eof())
         return EOF;
 
+    const size_t cursor_pos = pos();
+    if (cursor_pos + offset >= size())
+        return EOF;
+
+    fseek(m_file, offset, SEEK_CUR);
     const char c = fgetc(m_file);
-    fseek(m_file, -1, SEEK_CUR);
+    fseek(m_file, m_data_start + cursor_pos, SEEK_SET);
+
     return c;
 }
 

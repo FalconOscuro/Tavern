@@ -13,7 +13,7 @@ struct material
     glm::vec3 albedo;
     float metallic;
     float roughness;
-    float ambient_occlusion;
+    float ambient_occlusion = 1;
     glm::vec3 emissive;
 
     texture2d_resource albedo_tex;

@@ -12,7 +12,7 @@ physical_mount::physical_mount(const mount_path& mount_info):
 
 bool physical_mount::has_file(const std::string_view path) const
 {
-    std::filesystem::path fpath(get_path() + std::string(path));
+    std::filesystem::path fpath(get_path() + "/" + std::string(path));
 
     return valid() && std::filesystem::exists(fpath)
         && !std::filesystem::is_directory(fpath);

@@ -1,26 +1,34 @@
 #include "tavern/resource/mesh_manager.h"
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-
 #include <boost/log/trivial.hpp>
 
-#include "assimp/postprocess.h"
-#include "assimp/vector3.h"
-#include "tavern/resource/util/assimp_io.h"
+#include "tavern/resource/util/obj_loader.h"
+
 
 namespace tavern::resource {
 
-inline glm::vec4 glm_convert(const aiColor4D& c) {
-    return glm::vec4(c.r, c.g, c.b, c.a);
-}
-
-inline glm::vec3 glm_convert(const aiVector3D& v) {
-    return glm::vec3(v.x, v.y, v.z);
-}
+//inline glm::vec4 glm_convert(const aiColor4D& c) {
+//    return glm::vec4(c.r, c.g, c.b, c.a);
+//}
+//
+//inline glm::vec3 glm_convert(const aiVector3D& v) {
+//    return glm::vec3(v.x, v.y, v.z);
+//}
 
 graphics::mesh* mesh_manager::load_new(file::ifile* file)
 {
+    std::vector<graphics::vertex> vertices;
+    std::vector<graphics::face> faces;
+
+    if (!util::load_obj(file, vertices, faces))
+        return nullptr;
+
+    else if (vertices.empty() || faces.empty())
+        return nullptr;
+
+    return new graphics::mesh(vertices, faces);
+
+    /* OLD APPROACH
     // must be a better way of doing this
     file->close();
 
@@ -74,6 +82,7 @@ graphics::mesh* mesh_manager::load_new(file::ifile* file)
     }
 
     return new graphics::mesh(vertices, indices);
+    */
 }
 
 } /* end of namespace tavern::resource */

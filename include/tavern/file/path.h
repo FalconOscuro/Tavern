@@ -31,7 +31,7 @@ public:
     bool operator==(const mount_path& mp) const;
     bool operator!=(const mount_path& mp) const;
 
-    static bool try_create(const char* s, mount_path& path);
+    static bool try_create(const std::string_view s, mount_path& path);
 
 private:
 

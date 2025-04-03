@@ -39,13 +39,16 @@ bool physical_file::eof() const {
     return feof(m_file);
 }
 
-char physical_file::peek_char() const
+char physical_file::peek_char(const size_t offset) const
 {
+    const size_t cursor_pos = pos();
+    fseek(m_file, offset, SEEK_CUR);
+
     const char c = fgetc(m_file);
 
-    // do not seek back if peeking eof
-    if (eof())
-        fseek(m_file, -1L, SEEK_CUR);
+    // do not seek back if peeking eof at offset 0
+    if (!(offset == 0 && eof()))
+        fseek(m_file, cursor_pos, SEEK_SET);
 
     return c;
 }

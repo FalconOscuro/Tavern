@@ -19,7 +19,7 @@ public:
     bool is_open() const override;
     bool eof() const override;
 
-    [[nodiscard]] char peek_char() const override;
+    [[nodiscard]] char peek_char(const size_t offset = 0) const override;
     char get_char() override;
     [[nodiscard]] size_t get_str(char* s, const size_t len) override;
 
@@ -31,8 +31,9 @@ public:
 private:
 
     const char* const m_data;
-    size_t m_pos = 0;
 
+    const size_t m_size;
+    size_t m_pos = 0;
 }; /* end of class virtual_file final : public ifile */
 
 } /* end of namespace tavern::file */

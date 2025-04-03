@@ -67,12 +67,11 @@ size_t mount_path::get_split_pos() const {
     return split == m_full_path.npos ? 0 : split;
 }
 
-bool mount_path::try_create(const char* s, mount_path& path)
+bool mount_path::try_create(const std::string_view s, mount_path& path)
 {
-    const std::string_view sv = std::string_view(s);
-    const size_t sep_pos = sv.find_first_of(':');
+    const size_t sep_pos = s.find_first_of(':');
 
-    if (sep_pos >= sv.length() - 1 || !sep_pos)
+    if (sep_pos >= s.length() - 1 || !sep_pos)
         return false;
 
     path.m_full_path = s;

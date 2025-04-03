@@ -75,9 +75,11 @@ target_sources(Tavern PUBLIC
     src/tavern/core/window.cpp
 
     src/tavern/resource/util/assimp_io.cpp
+    src/tavern/resource/util/obj_loader.cpp
     src/tavern/resource/mesh_manager.cpp
     src/tavern/resource/shader_manager.cpp
     src/tavern/resource/texture2d_manager.cpp
+    src/tavern/resource/material_manager.cpp
 
     src/tavern/components/transform.cpp
     src/tavern/components/component_yaml_conversions.cpp

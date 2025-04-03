@@ -7,7 +7,7 @@
 namespace tavern::file {
 
 virtual_file::virtual_file(const char* c, const std::string_view path):
-    ifile(mount_path("internal", path)), m_data(c)
+    ifile(mount_path("internal", path)), m_data(c), m_size(strlen(c))
 {
     assert(c != nullptr);
 }
@@ -28,8 +28,12 @@ bool virtual_file::eof() const {
     return m_pos >= size();
 }
 
-char virtual_file::peek_char() const {
-    return eof() ? EOF : m_data[m_pos];
+char virtual_file::peek_char(const size_t offset) const
+{
+    if (eof() || m_pos + offset >= size())
+        return EOF;
+
+    return m_data[m_pos + offset];
 }
 
 char virtual_file::get_char() {
@@ -73,7 +77,7 @@ size_t virtual_file::pos() const {
 }
 
 size_t virtual_file::size() const {
-    return strlen(m_data);
+    return m_size;
 }
 
 } /* end of namespace tavern::file */

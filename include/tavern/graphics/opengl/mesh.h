@@ -16,7 +16,7 @@ class mesh final : generic::mesh
 {
 public:
 
-    mesh(const std::vector<vertex>& vertices, const std::vector<uint32_t>& indices);
+    mesh(const std::vector<vertex>& vertices, const std::vector<face>& faces);
 
     // no copy
     mesh(const mesh&) = delete;

@@ -354,13 +354,25 @@ void scene_p::edit_render_mesh()
     static char mesh_name[64];
     ImGui::InputText("Mesh Resource", mesh_name, IM_ARRAYSIZE(mesh_name));
 
-    if (ImGui::Button("Apply"))
+    if (ImGui::Button("Apply##mesh"))
     {
         tavern::file::mount_path path;
         if (tavern::file::mount_path::try_create(mesh_name, path))
             render_mesh.mesh = tavern::resource_manager::singleton().meshes.load(path);
 
         mesh_name[0] = '\0';
+    }
+
+    static char material_name[64];
+    ImGui::InputText("Material Resource", material_name, IM_ARRAYSIZE(material_name));
+
+    if (ImGui::Button("Apply##material"))
+    {
+        tavern::file::mount_path path;
+        if (tavern::file::mount_path::try_create(material_name, path))
+            render_mesh.material = tavern::resource_manager::singleton().materials.load(path);
+
+        material_name[0] = '\0';
     }
 }
 
