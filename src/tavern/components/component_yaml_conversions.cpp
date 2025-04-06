@@ -77,31 +77,52 @@ void write(ryml::NodeRef *n, const transform &val)
     n->set_val_tag(get_type_tag<transform>());
 }
 
-bool read(const ryml::ConstNodeRef& n, render_mesh* val)
+bool read(const ryml::ConstNodeRef& n, skinned_mesh* val)
 {
     auto& res_mngr = resource_manager::singleton();
 
-    // should be better way of doing this
-    if (n.has_child("mesh") && !n["mesh"].val_is_null()) {
-        file::mount_path path;
-        n["mesh"] >> path;
+    const auto mesh = n["mesh"];
+    const auto material = n["material"];
 
+    if (!(mesh.has_val() && mesh.val_is_null())) {
+        file::mount_path path;
+        mesh >> path;
         val->mesh = res_mngr.meshes.load(path);
     }
 
-    if (n.has_child("material") && !n["material"].val_is_null()) {
+    if (!(material.has_val() && material.val_is_null())) {
         file::mount_path path;
-        n["material"] >> path;
-
+        material >> path;
         val->material = res_mngr.materials.load(path);
     }
 
-    if (n.has_child("shader") && !n["shader"].val_is_null()) {
-        file::mount_path path;
-        n["shader"] >> path;
+    return true;
+}
 
-        val->shader = res_mngr.shaders.load(path);
-    }
+void write(ryml::NodeRef* n, const skinned_mesh& val)
+{
+    *n |= ryml::MAP;
+
+    auto mesh = n->append_child();
+    mesh.set_key("mesh");
+
+    if (val.mesh)
+        mesh << val.mesh.get_path();
+    else
+        mesh << nullptr;
+
+    auto material = n->append_child();
+    material.set_key("material");
+
+    if (val.material)
+        material << val.material.get_path();
+    else
+        material << nullptr;
+}
+
+bool read(const ryml::ConstNodeRef& n, render_mesh* val)
+{
+    n["meshes"] >> val->meshes;
 
     return true;
 }
@@ -110,27 +131,9 @@ void write(ryml::NodeRef* n, const render_mesh& val)
 {
     *n |= ryml::MAP;
 
-    auto n_mesh = n->append_child();
-    n_mesh.set_key("mesh");
-    auto n_mat  = n->append_child();
-    n_mat.set_key("material");
-    auto n_shad = n->append_child();
-    n_shad.set_key("shader");
-
-    if (val.mesh)
-        n_mesh << val.mesh.get_path();
-    else
-        n_mesh << nullptr;
-
-    if (val.material)
-        n_mat << val.material.get_path();
-    else
-        n_mat << nullptr;
-
-    if (val.shader)
-        n_shad << val.shader.get_path();
-    else
-        n_shad << nullptr;
+    auto meshes = n->append_child();
+    meshes.set_key("meshes");
+    meshes << val.meshes;
 
     n->set_val_tag(get_type_tag<render_mesh>());
 }

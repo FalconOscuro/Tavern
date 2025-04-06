@@ -42,12 +42,6 @@ set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
 
 set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
-set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
-
-#set(ASSIMP_BUILD_ASSBIN_IMPORTER ON)
-#set(ASSIMP_BUILD_COLLADA_IMPORTER ON)
-set(ASSIMP_BUILD_OBJ_IMPORTER ON)
-#set(ASSIMP_BUILD_GLTF_IMPORTER ON)
 
 FetchContent_MakeAvailable(ecs cantrip ryml assimp)
 
@@ -95,6 +89,9 @@ target_sources(Tavern PUBLIC
 
     src/tavern/graphics/generic/texture.cpp
     src/tavern/graphics/generic/renderer.cpp
+
+    src/tavern/assets/pipeline.cpp
+    src/tavern/assets/model_convert.cpp
 )
 
 target_link_libraries(Tavern
@@ -196,6 +193,16 @@ add_executable(tavern-bin
 )
 
 target_link_libraries(tavern-bin PUBLIC
+    Tavern
+    Boost::program_options
+    Boost::log
+)
+
+add_executable(asset_pipeline
+    src/tavern-bin/asset_pipeline.cpp
+)
+
+target_link_libraries(asset_pipeline PUBLIC
     Tavern
     Boost::program_options
     Boost::log

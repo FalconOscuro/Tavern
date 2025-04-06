@@ -205,13 +205,18 @@ void renderer::render_geometry()
         auto& drawable = it.get<component::render_mesh>();
         auto& transform = it.get<component::transform>();
 
-        if (!drawable.mesh)
-            continue;
-
         shader->set_transform(transform.get_global());
-        shader->set_material(drawable.material);
 
-        drawable.mesh->draw();
+        for (auto m_it = drawable.meshes.begin(); m_it != drawable.meshes.end(); ++m_it)
+        {
+            const auto& skm = *m_it;
+
+            if (!skm)
+                continue;
+
+            shader->set_material(skm.material);
+            skm.mesh->draw();
+        }
     }
 }
 

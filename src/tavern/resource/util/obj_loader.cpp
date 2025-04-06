@@ -132,7 +132,7 @@ bool read_obj_face_element(std::string_view line, obj_face_element& element)
     }
 
     // vertex & normal are required
-    if (v.empty() || n.empty())
+    if (v.empty() || n.empty() || t.empty())
         return false;
 
     bool success = strv_to_num(v, element.vertex) && strv_to_num(n, element.normal);
@@ -324,7 +324,7 @@ bool load_obj(file::ifile* file, std::vector<graphics::vertex>& vertices, std::v
 
             vertex.normal = normals[element.normal];
             if (element.tex_coord <= tex_coords.size())
-                vertex.texture_coordinates = tex_coords[element.tex_coord];
+                vertex.texcoord = tex_coords[element.tex_coord];
 
             face.indices[j] = element.vertex;
         }
@@ -339,8 +339,8 @@ bool load_obj(file::ifile* file, std::vector<graphics::vertex>& vertices, std::v
         const glm::vec3 w = p2.position - p0.position;
 
         // texture offset for uv direction
-        glm::vec2 s = p1.texture_coordinates - p0.texture_coordinates;
-        glm::vec2 t = p2.texture_coordinates - p0.texture_coordinates;
+        glm::vec2 s = p1.texcoord - p0.texcoord;
+        glm::vec2 t = p2.texcoord - p0.texcoord;
         const float dir_correction = (t.x * s.y - t.y * s.x) < 0.0f ? -1.0f : 1.0f;
         // default UV direction if all occupying same position in UV space
         if (t.x * s.y == t.y * s.x)
@@ -375,7 +375,7 @@ bool load_obj(file::ifile* file, std::vector<graphics::vertex>& vertices, std::v
             }
 
             p.tangent = local_tangent;
-            p.bi_tangent = local_bitangent;
+            p.bitangent = local_bitangent;
         }
 
         faces.push_back(face);

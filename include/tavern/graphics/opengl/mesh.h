@@ -16,6 +16,7 @@ class mesh final : generic::mesh
 {
 public:
 
+    mesh(const vertex* vertices, const face* faces, const size_t num_vertices, const size_t num_faces);
     mesh(const std::vector<vertex>& vertices, const std::vector<face>& faces);
 
     // no copy
@@ -28,7 +29,7 @@ public:
 
 private:
 
-    uint32_t m_index_count;
+    uint32_t m_num_faces;
     uint32_t m_vertex_buffer;
     uint32_t m_index_buffer;
 
