@@ -5,13 +5,19 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/mesh.h>
+#include <assimp/material.h>
 #include <assimp/scene.h>
 
 #include <boost/log/trivial.hpp>
 
 #include "tavern/graphics/vertex.h"
+#include "tavern/graphics/material.h"
 
 namespace tavern::assets::converter {
+
+inline glm::vec4 conv_aicol(const aiColor4D& c) {
+    return glm::vec4(c.r, c.g, c.b, c.a);
+}
 
 inline glm::vec3 conv_aivec(const aiVector3D& v) {
     return glm::vec3(v.x, v.y, v.z);
@@ -80,6 +86,97 @@ void export_mesh(const std::filesystem::path& out_dir, const aiScene* scene, con
     fclose(file);
 }
 
+// NOTE: Will always write string length, even if 0
+// used to detemine if using texture or constant value
+bool write_material_texture(const aiMaterial* material, aiTextureType type, FILE* file)
+{
+    size_t path_len = 0;
+    aiString img_path;
+
+    if (material->GetTextureCount(type)) {
+        // NOTE: May not play well with file mounts
+        material->GetTexture(type, 0, &img_path);
+        path_len = img_path.length;
+    }
+
+    // check if file exists?
+
+    fwrite(&path_len, sizeof(size_t), 1, file);
+
+    if (!path_len)
+        return false;
+
+    fputs(img_path.C_Str(), file);
+
+    return true;
+}
+
+void export_material(const std::filesystem::path& out_dir, const aiScene* scene, const size_t index)
+{
+    const aiMaterial* material = scene->mMaterials[index];
+
+    std::filesystem::path out_file = out_dir;
+    if (material->GetName().length == 0)
+        out_file /= std::to_string(index);
+    else
+        out_file /= material->GetName().C_Str();
+    out_file += ".tml";
+
+    if (std::filesystem::exists(out_file))
+        BOOST_LOG_TRIVIAL(warning) << out_file << " already exists, overwriting...";
+
+    FILE* file = fopen(out_file.c_str(), "wb");
+    if (!file)
+        return;
+
+    // Albedo
+    if (!write_material_texture(material, aiTextureType_DIFFUSE, file))
+    {
+        aiColor4D ai_albedo;
+        aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &ai_albedo);
+        glm::vec3 albedo = conv_aicol(ai_albedo);
+
+        fwrite(&albedo, sizeof(glm::vec3), 1, file);
+    }
+
+    // Metallic
+    if (!write_material_texture(material, aiTextureType_METALNESS, file))
+    {
+        float metallic;
+        aiGetMaterialFloat(material, AI_MATKEY_METALLIC_FACTOR, &metallic);
+
+        fwrite(&metallic, sizeof(float), 1, file);
+    }
+
+    // Roughness
+    if (!write_material_texture(material, aiTextureType_DIFFUSE_ROUGHNESS, file))
+    {
+        float roughness;
+        aiGetMaterialFloat(material, AI_MATKEY_ROUGHNESS_FACTOR, &roughness);
+
+        fwrite(&roughness, sizeof(float), 1, file);
+    }
+
+    // Normal (No fallback constant value)
+    write_material_texture(material, aiTextureType_NORMAL_CAMERA, file);
+
+    // Ambient Occlusion (No fallback constant value)
+    write_material_texture(material, aiTextureType_AMBIENT_OCCLUSION, file);
+
+    // Emissive
+    if (!write_material_texture(material, aiTextureType_EMISSION_COLOR, file))
+    {
+        aiColor4D ai_emissive;
+        aiGetMaterialColor(material, AI_MATKEY_COLOR_EMISSIVE, &ai_emissive);
+        glm::vec3 emissive = conv_aicol(ai_emissive);
+
+        fwrite(&emissive, sizeof(glm::vec3), 1, file);
+    }
+
+
+    fclose(file);
+}
+
 bool model(const std::filesystem::path& file_path)
 {
     const std::filesystem::path out_dir = file_path.parent_path();
@@ -114,8 +211,13 @@ bool model(const std::filesystem::path& file_path)
         return false;
     }
 
+    // iterate meshes
     for (size_t i = 0; i < scene->mNumMeshes; ++i)
         export_mesh(out_dir, scene, i);
+
+    // iterate materials
+    for (size_t i = 0; i < scene->mNumMaterials; ++i)
+        export_material(out_dir, scene, i);
 
     return true;
 }

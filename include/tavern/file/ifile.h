@@ -50,7 +50,7 @@ public:
         const std::string_view path = m_path.get_path();
         const auto last = path.find_last_of('/');
 
-        return std::string_view(path.data(), last);
+        return std::string_view(path.data(), last != path.npos ? last : 0);
     }
 
 private:

@@ -10,7 +10,8 @@ layout (location = 0) in vertex
 struct material
 {
     bool use_albedo_tex;
-    bool use_metallic_roughness_tex;
+    bool use_metallic_tex;
+    bool use_roughness_tex;
     bool use_normal_tex;
     bool use_ambient_occlusion_tex;
     bool use_emissive_tex;
@@ -22,7 +23,8 @@ struct material
     vec3 emissive;
 
     sampler2D albedo_tex;
-    sampler2D metallic_roughness_tex;
+    sampler2D metallic_tex;
+    sampler2D roughness_tex;
     sampler2D normal_tex;
     sampler2D ambient_occlusion_tex;
     sampler2D emissive_tex;
@@ -44,12 +46,12 @@ void main()
         albedo = texture(mat.albedo_tex, vertex_in.tex_coords).rgb;
 
     float metallic = mat.metallic;
+    if (mat.use_metallic_tex)
+        metallic = texture(mat.metallic_tex, vertex_in.tex_coords).r;
+
     float roughness = mat.roughness;
-    if (mat.use_metallic_roughness_tex) {
-        vec2 metallic_roughness = texture(mat.metallic_roughness_tex, vertex_in.tex_coords).bg;
-        metallic = metallic_roughness.x;
-        roughness = metallic_roughness.y;
-    }
+    if (mat.use_roughness_tex)
+        roughness = texture(mat.roughness_tex, vertex_in.tex_coords).r;
 
     vec3 normal = vec3(vertex_in.tangent_basis);
     if (mat.use_normal_tex)

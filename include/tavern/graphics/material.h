@@ -17,7 +17,8 @@ struct material
     glm::vec3 emissive;
 
     texture2d_resource albedo_tex;
-    texture2d_resource metallic_roughness_tex;
+    texture2d_resource metallic_tex;
+    texture2d_resource roughness_tex;
     texture2d_resource normal_tex;
     texture2d_resource ambient_occlusion_tex;
     texture2d_resource emissive_tex;

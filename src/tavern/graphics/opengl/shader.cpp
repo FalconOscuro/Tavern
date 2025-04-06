@@ -12,10 +12,11 @@ struct shader_loc
 {
     static constexpr int model = 0;
     static constexpr int albedo_tex_num = 0;
-    static constexpr int metallic_roughness_tex_num = 1;
-    static constexpr int normal_tex_num = 2;
-    static constexpr int ambient_occlusion_tex_num = 3;
-    static constexpr int emissive_tex_num = 4;
+    static constexpr int metallic_tex_num = 1;
+    static constexpr int roughness_tex_num = 2;
+    static constexpr int normal_tex_num = 3;
+    static constexpr int ambient_occlusion_tex_num = 4;
+    static constexpr int emissive_tex_num = 5;
 };
 
 shader::shader(const char* vertex_src, const char* fragment_src)
@@ -121,13 +122,15 @@ void shader::set_material(const material_resource& m)
 
     // check if textures set and useable
     const bool use_albedo_tex = m->albedo_tex;
-    const bool use_metallic_roughness_tex = m->metallic_roughness_tex;
+    const bool use_metallic_tex = m->metallic_tex;
+    const bool use_roughness_tex = m->roughness_tex;
     const bool use_normal_tex = m->normal_tex;
     const bool use_ambient_occlusion_tex = m->ambient_occlusion_tex;
     const bool use_emissive_tex = m->emissive_tex;
 
     set_bool("mat.use_albedo_tex", use_albedo_tex);
-    set_bool("mat.use_metallic_roughness_tex", use_metallic_roughness_tex);
+    set_bool("mat.use_metallic_tex", use_metallic_tex);
+    set_bool("mat.use_roughness_tex", use_roughness_tex);
     set_bool("mat.use_normal_tex", use_normal_tex);
     set_bool("mat.use_ambient_occlusion_tex", use_ambient_occlusion_tex);
     set_bool("mat.use_emissive_tex", use_emissive_tex);
@@ -139,13 +142,18 @@ void shader::set_material(const material_resource& m)
         m->albedo_tex->use(shader_loc::albedo_tex_num);
     }
 
-    if (!use_metallic_roughness_tex) {
+    if (!use_metallic_tex)
         set_float("mat.metallic", m->metallic);
-        set_float("mat.roughness", m->roughness);
-    }
     else {
-        set_int("mat.metallic_roughness_tex", shader_loc::metallic_roughness_tex_num);
-        m->metallic_roughness_tex->use(shader_loc::metallic_roughness_tex_num);
+        set_int("mat.metallic_tex", shader_loc::metallic_tex_num);
+        m->metallic_tex->use(shader_loc::metallic_tex_num);
+    }
+
+    if (!use_roughness_tex)
+        set_float("mat.roughness", m->roughness);
+    else {
+        set_int("mat.roughness_tex", shader_loc::roughness_tex_num);
+        m->roughness_tex->use(shader_loc::roughness_tex_num);
     }
 
     if (!use_ambient_occlusion_tex)
