@@ -19,10 +19,10 @@ void scene::shutdown() {
 
 void scene::update()
 {
-    auto& pool = m_registry.get_pool<component::transform>();
+    auto* pool = m_registry.get_pool<component::transform>();
 
     // add untracked entities
-    for (auto it = pool.begin(); it != pool.end(); ++it) {
+    for (auto it = pool->begin(); it != pool->end(); ++it) {
         m_entities.emplace(it->id);
     }
 
@@ -32,16 +32,16 @@ void scene::update()
 
         while (it != m_entities.end())
         {
-            if (!pool.exists(*it)) {
+            if (!pool->exists(*it)) {
                 it = m_entities.remove_inplace(it);
                 continue;
             }
 
-            component::transform& t = pool.get(*it);
+            component::transform& t = pool->get(*it);
 
             // is root node, global = local
-            if (t.parent >= pool.tombstone() || !pool.exists(t.parent)) {
-                t.parent = pool.tombstone();
+            if (t.parent >= pool->tombstone() || !pool->exists(t.parent)) {
+                t.parent = pool->tombstone();
                 t.m_global = t.local;
             }
 
@@ -54,7 +54,7 @@ void scene::update()
 
             // if index is lower, parent already processed, safe to calculate global
             else
-                t.m_global = pool.get(t.parent).m_global * t.local;
+                t.m_global = pool->get(t.parent).m_global * t.local;
 
             ++it;
         }

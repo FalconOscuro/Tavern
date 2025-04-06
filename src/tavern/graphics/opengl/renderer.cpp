@@ -124,7 +124,6 @@ void renderer::render()
 }
 
 void renderer::swap_buffer(void* window) {
-
     GLenum gl_error;
     while ((gl_error = glGetError()) != GL_NO_ERROR)
         BOOST_LOG_TRIVIAL(error) << "OpenGL Error: " << gl_error;
@@ -171,6 +170,8 @@ void renderer::ready_gui_draw() {
 
 void renderer::end_gui_draw() {
     ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    ImGui::EndFrame();
 }
 
 void renderer::render_geometry()
@@ -198,14 +199,13 @@ void renderer::render_geometry()
     // bind uniform buffer
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_camera_ub);
 
-    auto& shader = m_default_shader;
-    shader->use();
+    m_default_shader->use();
 
     for (auto it = draw_view.begin(); it != draw_view.end(); ++it) {
         auto& drawable = it.get<component::render_mesh>();
         auto& transform = it.get<component::transform>();
 
-        shader->set_transform(transform.get_global());
+        m_default_shader->set_transform(transform.get_global());
 
         for (auto m_it = drawable.meshes.begin(); m_it != drawable.meshes.end(); ++m_it)
         {
@@ -214,7 +214,7 @@ void renderer::render_geometry()
             if (!skm)
                 continue;
 
-            shader->set_material(skm.material);
+            m_default_shader->set_material(skm.material);
             skm.mesh->draw();
         }
     }

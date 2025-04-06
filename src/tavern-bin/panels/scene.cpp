@@ -346,7 +346,7 @@ void scene_p::edit_render_mesh()
         return;
     }
 
-    auto& render_mesh = g_registry.get<tavern::component::render_mesh>(m_selected);
+    //auto& render_mesh = g_registry.get<tavern::component::render_mesh>(m_selected);
 
     if (!g_registry.has<tavern::component::transform>(m_selected))
         ImGui::TextColored(ImVec4(227.f / 255.f, 146.f / 255.f, 6.f / 255.f, 1), "Render mesh is missing a transform so will not be drawn");
