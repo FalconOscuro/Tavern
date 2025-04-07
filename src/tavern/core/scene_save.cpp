@@ -54,7 +54,7 @@ inline void write_all_components(ryml::NodeRef& root, const ecs::registry& reg, 
         ryml::NodeRef parent = root[parent_id];
         ryml::NodeRef comp_entry = parent["components"].append_child();
 
-        comp_entry.set_key(ecs::internal::get_type_name<T>());
+        comp_entry.set_key(std::string(ecs::internal::get_type_name<T>()).c_str());
         comp_entry.set_val(id_str);
 
         post_write_component(doc, reg, eid_map, it->component, it->id);

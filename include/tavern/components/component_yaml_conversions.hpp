@@ -13,22 +13,39 @@
 
 namespace tavern::component {
 
+// Temporary fix!!
+// ryml doesn't support string_views which are not null terminated at the expected position
+// and using constexpr with char* may be causing memory leaks
 template <typename T>
-constexpr const char* get_type_tag() {
-    const char* type_name = ecs::internal::get_type_name<T>();
-
-    const size_t directive_len = strlen(TAVERN_TAG_DIRECTIVE);
-    const size_t name_len = strlen(type_name);
-
-    char* tag = new char[directive_len + strlen(type_name) + 1];
-
-    // throws build error if using strncpy here
-    memcpy(tag, TAVERN_TAG_DIRECTIVE, directive_len);
-    memcpy(tag + directive_len, type_name, name_len);
-    tag[directive_len + name_len] = '\0';
-
-    return tag;
+std::string get_type_name() {
+    return std::string(ecs::internal::get_type_name<T>());
 }
+
+template <typename T>
+std::string get_type_tag()
+{
+    std::string str = get_type_name<T>();
+    str.reserve(str.length() + strlen(TAVERN_TAG_DIRECTIVE));
+    str.append(TAVERN_TAG_DIRECTIVE);
+    return str;
+}
+
+//template <typename T>
+//constexpr const char* get_type_tag() {
+//    const char* type_name = ecs::internal::get_type_name<T>();
+//
+//    const size_t directive_len = strlen(TAVERN_TAG_DIRECTIVE);
+//    const size_t name_len = strlen(type_name);
+//
+//    char* tag = new char[directive_len + strlen(type_name) + 1];
+//
+//    // throws build error if using strncpy here
+//    memcpy(tag, TAVERN_TAG_DIRECTIVE, directive_len);
+//    memcpy(tag + directive_len, type_name, name_len);
+//    tag[directive_len + name_len] = '\0';
+//
+//    return tag;
+//}
 
 bool read(const ryml::ConstNodeRef& n, camera* val);
 void write(ryml::NodeRef* n, const camera& val);

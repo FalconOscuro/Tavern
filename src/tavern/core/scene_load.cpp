@@ -119,13 +119,15 @@ bool scene::load(const std::string& file_name)
         // load individual components
         ryml::ConstNodeRef components = node["components"];
 
+        // Currently using std::string for has_child calls, temporary measure as std::string_view is unsupported
+
         // transform
-        if (components.has_child(ecs::internal::get_type_name<component::transform>()))
+        if (components.has_child(component::get_type_name<component::transform>().c_str()))
         {
             auto& transf = m_registry.emplace<component::transform>(entity);
 
             size_t transf_doc_id;
-            components[ecs::internal::get_type_name<component::transform>()] >> transf_doc_id;
+            components[component::get_type_name<component::transform>().c_str()] >> transf_doc_id;
             ryml::ConstNodeRef transf_node = root.child(transf_doc_id);
 
             transf_node >> transf;
@@ -148,20 +150,20 @@ bool scene::load(const std::string& file_name)
         }
 
         // camera
-        if (components.has_child(ecs::internal::get_type_name<component::camera>()))
+        if (components.has_child(component::get_type_name<component::camera>().c_str()))
         {
             auto& camera = m_registry.emplace<component::camera>(entity);
             size_t doc_id;
-            components[ecs::internal::get_type_name<component::camera>()] >> doc_id;
+            components[component::get_type_name<component::camera>().c_str()] >> doc_id;
 
             root.child(doc_id) >> camera;
         }
 
-        if (components.has_child(ecs::internal::get_type_name<component::render_mesh>()))
+        if (components.has_child(component::get_type_name<component::render_mesh>().c_str()))
         {
             auto& mesh = m_registry.emplace<component::render_mesh>(entity);
             size_t doc_id;
-            components[ecs::internal::get_type_name<component::render_mesh>()] >> doc_id;
+            components[component::get_type_name<component::render_mesh>().c_str()] >> doc_id;
 
             root.child(doc_id) >> mesh;
         }
