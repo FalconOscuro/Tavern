@@ -30,7 +30,7 @@ inline size_t copy_file_contents(std::FILE* dest, std::FILE* src)
 {
     size_t size = 0;
 
-    for (char c = fgetc(src); c != EOF; c = fgetc(src))
+    for (char c = fgetc(src); !(c == EOF && feof(src)); c = fgetc(src))
     { 
         fputc(c, dest);
         ++size;

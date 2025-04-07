@@ -1,5 +1,6 @@
 #include "tavern/core/scene.h"
 
+#include <chrono>
 #include <unordered_map>
 
 #include <boost/log/trivial.hpp>
@@ -26,6 +27,7 @@ namespace tavern {
 
 bool scene::load(const std::string& file_name)
 {
+    const auto start = std::chrono::high_resolution_clock::now();
     BOOST_LOG_TRIVIAL(info) << "Loading scene from " << file_name;
 
     size_t size;
@@ -164,6 +166,9 @@ bool scene::load(const std::string& file_name)
             root.child(doc_id) >> mesh;
         }
     }
+
+    const auto end = std::chrono::high_resolution_clock::now();
+    BOOST_LOG_TRIVIAL(trace) << "Successfully loaded scene in " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.f << " seconds";
 
     return true;
 }

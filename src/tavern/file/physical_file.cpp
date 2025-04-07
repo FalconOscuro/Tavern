@@ -16,8 +16,6 @@ bool physical_file::open()
 
     m_file = fopen(m_absolute_path.c_str(), "rb");
 
-    BOOST_LOG_TRIVIAL(trace) << m_absolute_path;
-
     return is_open();
 }
 

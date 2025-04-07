@@ -32,7 +32,7 @@ struct material
 
 uniform material mat;
 
-layout (location = 0) out vec4 colour;
+layout (location = 0) out vec4 frag_colour;
 
 vec3 calculate_normal(vec3 tangent_normal) {
     vec3 norm = normalize(2.0f * tangent_normal - 1.0f);
@@ -58,9 +58,16 @@ void main()
         normal = calculate_normal(texture(mat.normal_tex, vertex_in.tex_coords).rgb);
 
     float ambient_occlusion = mat.ambient_occlusion;
-    // NOTE: Could be rolled in with metallic and roughness as only single channel
     if (mat.use_ambient_occlusion_tex)
         ambient_occlusion = texture(mat.ambient_occlusion_tex, vertex_in.tex_coords).r;
 
-    colour = vec4(albedo * ambient_occlusion, 1.0f);
+    vec3 emissive = mat.emissive;
+    if (mat.use_emissive_tex)
+        emissive = texture(mat.emissive_tex, vertex_in.tex_coords).rgb;
+
+    vec3 colour = albedo;
+    colour *= ambient_occlusion;
+    colour += emissive;
+
+    frag_colour = vec4(colour, 1.0f);
 }

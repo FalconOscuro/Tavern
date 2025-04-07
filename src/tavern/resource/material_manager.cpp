@@ -21,8 +21,11 @@ file::mount_path resolve_path(std::string_view path, const file::ifile* parent_f
         std::string relative_path;
         relative_path.reserve(parent_dir.length() + 1 + path.length());
 
-        relative_path.append(parent_dir);
-        relative_path.push_back('/');
+        // prevent leading / if root path
+        if (!parent_dir.empty()) {
+            relative_path.append(parent_dir);
+            relative_path.push_back('/');
+        }
         relative_path.append(path);
 
         mount = file::mount_path(parent_file->get_path().get_identifier(), relative_path);

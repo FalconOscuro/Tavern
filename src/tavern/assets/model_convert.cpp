@@ -149,22 +149,23 @@ void export_material(const std::filesystem::path& out_dir, const aiScene* scene,
     }
 
     // Roughness
-    if (!write_material_texture(material, aiTextureType_DIFFUSE_ROUGHNESS, file))
+    if (!write_material_texture(material, aiTextureType_DIFFUSE_ROUGHNESS, file)) // aiTextureType_BASE_COLOR
     {
         float roughness;
         aiGetMaterialFloat(material, AI_MATKEY_ROUGHNESS_FACTOR, &roughness);
 
         fwrite(&roughness, sizeof(float), 1, file);
     }
+    // NOTE: textures can be stored under different identifiers, should desend through list
 
     // Normal (No fallback constant value)
-    write_material_texture(material, aiTextureType_NORMAL_CAMERA, file);
+    write_material_texture(material, aiTextureType_NORMALS, file); // aiTextureType_NORMAL_CAMERA
 
     // Ambient Occlusion (No fallback constant value)
-    write_material_texture(material, aiTextureType_AMBIENT_OCCLUSION, file);
+    write_material_texture(material, aiTextureType_LIGHTMAP, file); // aiTextureType_AMBIENT_OCCLUSION
 
     // Emissive
-    if (!write_material_texture(material, aiTextureType_EMISSION_COLOR, file))
+    if (!write_material_texture(material, aiTextureType_EMISSIVE, file)) // aiTextureType_EMISSION_COLOR
     {
         aiColor4D ai_emissive;
         aiGetMaterialColor(material, AI_MATKEY_COLOR_EMISSIVE, &ai_emissive);
@@ -201,7 +202,9 @@ bool model(const std::filesystem::path& file_path)
         | aiProcess_OptimizeMeshes
         | aiProcess_OptimizeGraph
         | aiProcess_ValidateDataStructure
-        | aiProcess_RemoveComponent;
+        | aiProcess_RemoveComponent
+        | aiProcess_FlipUVs
+    ;
 
     const aiScene* scene = importer.ReadFile(file_path.c_str(), flags);
 

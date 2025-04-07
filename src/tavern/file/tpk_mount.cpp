@@ -55,7 +55,7 @@ const file_tree_node* file_tree_node::find_node(const std::string_view path) con
     const auto found = data.directory.entry_map->find(sub_path);
 
     return found == data.directory.entry_map->end() ? nullptr :
-        found->second->find_node(path.substr(split));
+        found->second->find_node(split == path.npos ? path.substr(0,0) : path.substr(split));
 }
 
 tpk_mount::tpk_mount(const std::string_view path):
