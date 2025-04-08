@@ -325,7 +325,7 @@ bool tpk_file::reset_buffer()
         }
 
         m_buffer_head = 0;
-        m_buffer_tail = read + 1;
+        m_buffer_tail = read;
         m_buffer_pos = read_backward;
     }
 
