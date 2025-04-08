@@ -102,10 +102,81 @@ char tpk_file::get_char()
     return c;
 }
 
-size_t tpk_file::get_str(char* s, const size_t len)
+size_t tpk_file::get_str(char* const s, size_t len)
 {
     if (!is_open())
         return 0;
+
+    // clamp to prevent read beyond file end
+    len = std::min(len, pos() - size());
+
+    const size_t buffer_size = get_buffer_size();
+
+    if (fully_buffered())
+    {
+        memcpy(s, m_buffer + m_buffer_pos, len);
+        m_buffer_pos += len;
+        m_file_pos += len;
+
+        return len;
+    }
+
+    else if (len < (buffer_size - 1))
+    {
+        if (!populate_buffer(len))
+            len = get_buffer_used_size() - get_buffer_abs_pos();
+
+        // bytes to read from end/back of circular buffer
+        const size_t read_back  = std::min(len, buffer_size - m_buffer_pos);
+        const size_t read_front = len - read_back;
+
+        memcpy(s, m_buffer + m_buffer_pos, read_back);
+        memcpy(s + read_back, m_buffer, read_front);
+
+        m_file_pos += len;
+        m_buffer_pos = (m_buffer_pos + len) % buffer_size;
+
+        return len;
+    }
+
+    // len longer than buffer size
+    else {
+        size_t bytes_read = 0;
+
+        // read any available bytes from the buffer
+        const size_t buffer_abs_pos = get_buffer_abs_pos();
+        const size_t buffered_data = get_buffer_used_size() - buffer_abs_pos;
+
+        size_t read_back = std::min(buffered_data, buffer_size - buffer_abs_pos);
+        size_t read_front = buffered_data - read_back;
+
+        memcpy(s, m_buffer + m_buffer_pos, read_back);
+        memcpy(s + read_back, m_buffer, read_front);
+
+        bytes_read += buffered_data;
+        m_file_pos += bytes_read;
+
+        const size_t new_pos = std::min(size() - (buffer_size - 1), m_file_pos + len - (bytes_read + read_backward_bias()));
+
+        const size_t direct_read = new_pos - m_file_pos;
+        const size_t bytes_read_direct = fread(s + bytes_read, sizeof(char), direct_read, m_file);
+
+        bytes_read += bytes_read_direct;
+        m_file_pos += bytes_read;
+
+        // EOF?
+        if (direct_read != bytes_read_direct)
+            return bytes_read;
+
+        reset_buffer();
+        // reading from start of cached read_back data
+        m_buffer_pos = 0;
+
+        len = std::min(len - bytes_read, get_buffer_used_size());
+        m_file_pos -= len;
+
+        return bytes_read + get_str(s + bytes_read, len);
+    }
 
     size_t chars_read = 0;
     // TODO: Could be more efficient with use of memcpy instead of iterating get_char
