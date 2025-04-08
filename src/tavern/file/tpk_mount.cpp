@@ -159,6 +159,8 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
         return false;
     }
 
+    BOOST_LOG_TRIVIAL(trace) << dir_info.num_entries;
+
     tpk::directory_entry* entries = new tpk::directory_entry[dir_info.num_entries];
     node->data.directory.entries = entries;
 
@@ -176,7 +178,7 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
         // - node index out of range
         // - no name
         if (entry->node_index >= m_header.num_nodes || entry->name_len == 0) {
-            BOOST_LOG_TRIVIAL(error) << "(" << entry->node_index << " >= " << m_header.num_nodes << ") || (" << entry->name_len << " == 0)";
+            BOOST_LOG_TRIVIAL(error) << "(" << entry->node_index << " >= " << m_header.num_nodes << ") || (" << (unsigned short int)entry->name_len << " == 0)";
             continue;
         }
 
@@ -193,7 +195,7 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
         switch (file_node->type)
         {
         case tpk::DIRECTORY:
-            //BOOST_LOG_TRIVIAL(trace) << "subdir: " << name;
+            BOOST_LOG_TRIVIAL(trace) << "subdir: " << name;
             // failed to parse directory
             if (!parse_directory_tree(entry->node_index, branch)) {
                 BOOST_LOG_TRIVIAL(error) << "Failed to parse dir " << name;
@@ -203,7 +205,7 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
             break;
 
         case tpk::FILE:
-            //BOOST_LOG_TRIVIAL(trace) << "file: " << name;
+            BOOST_LOG_TRIVIAL(trace) << "file: " << name;
             branch->data.file = file_node;
             break;
 
@@ -212,7 +214,7 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
             break;
         }
 
-        //BOOST_LOG_TRIVIAL(trace) << "Registered entry: " << name;
+        BOOST_LOG_TRIVIAL(trace) << "Registered entry: " << name;
         node->data.directory.entry_map->emplace(std::make_pair(name, branch));
     }
 

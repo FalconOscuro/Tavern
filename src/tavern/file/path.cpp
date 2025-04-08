@@ -61,9 +61,6 @@ const std::string_view mount_path::set_full_path(const std::string_view identifi
 
 size_t mount_path::get_split_pos() const {
     size_t split = m_full_path.find_first_of(':');
-
-    assert(split != m_full_path.npos);
-
     return split == m_full_path.npos ? 0 : split;
 }
 
