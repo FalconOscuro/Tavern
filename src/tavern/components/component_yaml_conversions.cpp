@@ -33,7 +33,7 @@ void write(ryml::NodeRef* n, const camera& val)
     n->append_child() << ryml::key("far") << val.far;
     n->append_child() << ryml::key("active") << val.active;
 
-    n->set_val_tag(get_type_tag<camera>());
+    n->set_val_tag(get_type_tag<camera>().c_str());
 }
 
 bool read(const ryml::ConstNodeRef &n, transform *val)
@@ -74,7 +74,7 @@ void write(ryml::NodeRef *n, const transform &val)
     //if (val.parent != ecs::entity_type(-1))
     //    n->append_child() << ryml::key("parent") << val.parent;
 
-    n->set_val_tag(get_type_tag<transform>());
+    n->set_val_tag(get_type_tag<transform>().c_str());
 }
 
 bool read(const ryml::ConstNodeRef& n, skinned_mesh* val)
@@ -135,7 +135,7 @@ void write(ryml::NodeRef* n, const render_mesh& val)
     meshes.set_key("meshes");
     meshes << val.meshes;
 
-    n->set_val_tag(get_type_tag<render_mesh>());
+    n->set_val_tag(get_type_tag<render_mesh>().c_str());
 }
 
 } /* end of namespace tavern::component */
