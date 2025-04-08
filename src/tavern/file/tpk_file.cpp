@@ -296,8 +296,22 @@ bool tpk_file::reset_buffer()
         const size_t file_pos = pos();
 
         // read as far forward and back as possible with bias
-        const size_t read_forward  = std::min(read_forward_bias(), file_size - file_pos); 
-        const size_t read_backward = (get_buffer_size() - 1) - read_forward;
+        const size_t read_forward_min  = std::min(read_forward_bias(), file_size - file_pos); 
+        const size_t read_backward_min = std::min(read_backward_bias(), file_pos);
+
+        size_t read_forward, read_backward;
+
+        // Account for less than default backward bias to start of file
+        if (read_backward_min == file_pos) {
+            read_backward = read_backward_min;
+            read_forward = (get_buffer_size() - 1) - read_backward_min;
+        }
+
+        else {
+            read_forward = read_forward_min;
+            read_backward = (get_buffer_size() - 1) - read_backward_min;
+        }
+
         const size_t read = read_forward + read_backward;
 
         fseek(m_file, file_pos - read_backward, SEEK_CUR);
