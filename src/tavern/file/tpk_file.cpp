@@ -172,7 +172,7 @@ size_t tpk_file::get_str(char* const s, size_t len)
         // reading from start of cached read_back data
         m_buffer_pos = 0;
 
-        len = std::min(len - (bytes_read + 1), get_buffer_used_size());
+        len = std::min(len - bytes_read, get_buffer_used_size());
         m_file_pos -= len;
 
         return bytes_read + get_str(s + bytes_read, len);
