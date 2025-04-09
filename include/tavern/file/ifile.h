@@ -34,6 +34,12 @@ public:
     virtual char get_char() = 0;
     [[nodiscard]] virtual size_t get_str(char* s, const size_t len) = 0;
 
+    template<typename T>
+    size_t get_data(T* data, size_t count = 1) {
+        size_t bytes_read = get_str(reinterpret_cast<char*>(data), sizeof(T) * count);
+        return bytes_read / sizeof(T);
+    }
+
     // could be singular seek
     virtual bool seek(const long offset, const origin mode) = 0;
     virtual size_t pos() const = 0;
@@ -59,11 +65,11 @@ private:
 
 }; /* end of class ifile */
 
-template <typename T>
-bool read_data(T* dest, ifile* file, const size_t count = 1) {
-    const size_t data_size = count * sizeof(T);
-    return file->get_str(reinterpret_cast<char*>(dest), data_size) == data_size;
-}
+//template <typename T>
+//bool read_data(T* dest, ifile* file, const size_t count = 1) {
+//    const size_t data_size = count * sizeof(T);
+//    return file->get_str(reinterpret_cast<char*>(dest), data_size) == data_size;
+//}
 
 } /* end of namespace tavern::file */
 

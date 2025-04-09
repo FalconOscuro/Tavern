@@ -21,8 +21,8 @@ graphics::mesh* mesh_manager::load_new(file::ifile* file)
 
     size_t num_vertices, num_faces;
 
-    (void)file->get_str(reinterpret_cast<char*>(&num_vertices), sizeof(num_vertices));
-    (void)file->get_str(reinterpret_cast<char*>(&num_faces), sizeof(num_faces));
+    file->get_data(&num_vertices);
+    file->get_data(&num_faces);
 
     const size_t expected_size = MIN_SIZE + (num_vertices * sizeof(graphics::vertex)) + (num_faces * sizeof(graphics::face));
 
@@ -50,10 +50,32 @@ graphics::mesh* mesh_manager::load_new(file::ifile* file)
 
     // read vertices
     graphics::vertex* vertices = new graphics::vertex[num_vertices];
-    (void)file->get_str(reinterpret_cast<char*>(vertices), sizeof(graphics::vertex) * num_vertices);
+    size_t vertices_read = file->get_data(vertices, num_vertices);
+    if (vertices_read != num_vertices)
+    {
+        BOOST_LOG_TRIVIAL(error) << file->get_path()
+            << ": Failed to read all vertices, "
+               "expected " << num_vertices
+            << " but got " << vertices_read;
 
+        delete[] vertices;
+        return nullptr;
+    }
+
+    // read faces
     graphics::face* faces = new graphics::face[num_faces];
-    (void)file->get_str(reinterpret_cast<char*>(faces), sizeof(graphics::face) * num_faces);
+    size_t faces_read = file->get_data(faces, num_faces);
+    if (faces_read != num_faces)
+    {
+        BOOST_LOG_TRIVIAL(error) << file->get_path()
+            << ": Failed to read all faces, "
+               "expected " << num_faces
+            << " but got " << faces_read;
+
+        delete[] vertices;
+        delete[] faces;
+        return nullptr;
+    }
 
     graphics::mesh* mesh = new graphics::mesh(vertices, faces, num_vertices, num_faces);
 

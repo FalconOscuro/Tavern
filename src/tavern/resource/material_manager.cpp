@@ -37,7 +37,7 @@ file::mount_path resolve_path(std::string_view path, const file::ifile* parent_f
 bool try_read_attr_str(std::string& path, file::ifile* file)
 {
     size_t len;
-    file::read_data(&len, file);
+    file->get_data(&len);
     path.clear();
 
 
@@ -70,7 +70,7 @@ graphics::material* material_manager::load_new(file::ifile* file)
         // Post warning here?
     }
     else
-        file::read_data(&material.albedo, file);
+        file->get_data(&material.albedo);
 
     // Metallic
     if (try_read_attr_str(path_str, file)) {
@@ -79,7 +79,7 @@ graphics::material* material_manager::load_new(file::ifile* file)
         material.metallic_tex = tex_mgr.load(path);
     }
     else
-        file::read_data(&material.metallic, file);
+        file->get_data(&material.metallic);
 
     // Roughness
     if (try_read_attr_str(path_str, file)) {
@@ -88,7 +88,7 @@ graphics::material* material_manager::load_new(file::ifile* file)
         material.roughness_tex = tex_mgr.load(path);
     }
     else
-        file::read_data(&material.roughness, file);
+        file->get_data(&material.roughness);
 
     // Normal
     if (try_read_attr_str(path_str, file)) {
@@ -113,7 +113,7 @@ graphics::material* material_manager::load_new(file::ifile* file)
         material.emissive_tex = tex_mgr.load(path);
     }
     else
-        file::read_data(&material.emissive, file);
+        file->get_data(&material.emissive);
 
     return new graphics::material(material);
 }

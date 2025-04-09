@@ -66,7 +66,7 @@ tpk_mount::tpk_mount(const std::string_view path):
     if(!file.open())
         return;
 
-    if (!(read_data(&m_header, &file) && valid()))
+    if (!(file.get_data(&m_header) == 1 && valid()))
         return;
 
     tpk::file_node* nodes = new tpk::file_node[m_header.num_nodes];
@@ -154,7 +154,7 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
     tpk::directory dir_info;
 
     // failed to read directory file header
-    if (!(read_data(&dir_info, &dir_file) && dir_info.num_entries)) {
+    if (!(dir_file.get_data(&dir_info) == 1 && dir_info.num_entries)) {
         BOOST_LOG_TRIVIAL(error) << "Failed to read directory header, found " << dir_info.num_entries << " entries";
         return false;
     }
@@ -165,7 +165,7 @@ bool tpk_mount::parse_directory_tree(const size_t index, file_tree_node* node)
     node->data.directory.entries = entries;
 
     // failed to read all entries in file
-    if (!read_data(entries, &dir_file, dir_info.num_entries)) {
+    if (dir_file.get_data(entries, dir_info.num_entries) != dir_info.num_entries) {
         BOOST_LOG_TRIVIAL(error) << "Failed to read all entires, expected " << dir_info.num_entries;
         return false;
     }
