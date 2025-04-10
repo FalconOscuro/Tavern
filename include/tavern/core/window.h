@@ -19,6 +19,7 @@ public:
     void operator=(const window&) = delete;
 
     bool init(const glm::ivec2& size, int flags = 0);
+    void show() const;
     void shutdown();
 
     bool open() const {

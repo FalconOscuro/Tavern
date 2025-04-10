@@ -49,6 +49,8 @@ void engine::run() {
     window& s_window               = window::singleton();
     graphics::renderer& s_renderer = graphics::renderer::singleton();
 
+    s_window.show();
+
     BOOST_LOG_TRIVIAL(trace) << "Entering main loop";
     while (handle_events()) {
 

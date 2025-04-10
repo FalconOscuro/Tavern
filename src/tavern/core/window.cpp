@@ -16,7 +16,7 @@ bool window::init(const glm::ivec2& size, int flags) {
         return false;
     }
 
-    flags |= SDL_WINDOW_RENDERER;
+    flags |= SDL_WINDOW_RENDERER | SDL_WINDOW_HIDDEN;
 
     m_window = SDL_CreateWindow(
         m_name.c_str(),
@@ -35,6 +35,11 @@ bool window::init(const glm::ivec2& size, int flags) {
     glm::ivec2 view_size = get_size();
     BOOST_LOG_TRIVIAL(trace) << "Created SDL Window: Width = " << view_size.x << ", Height = " << view_size.y;
     return true;
+}
+
+void window::show() const {
+    if (open())
+        SDL_ShowWindow(m_window);
 }
 
 void window::shutdown() {

@@ -6,8 +6,13 @@
 
 namespace tavern::resource {
 
-int file_read_callback(void* file, char* data, int size) {
-    return reinterpret_cast<file::ifile*>(file)->get_str(data, size);
+int file_read_callback(void* p, char* data, int size)
+{
+    file::ifile* file = reinterpret_cast<file::ifile*>(p);
+    int bytes_read = file->get_str(data, size);
+
+    //assert(bytes_read == size && "Read fewer bytes than anticipated");
+    return bytes_read;
 }
 
 void file_skip_callback(void* file, int n) {
@@ -27,17 +32,19 @@ graphics::texture2d* texture2d_manager::load_new(file::ifile* file)
     clbk.skip = &file_skip_callback;
     clbk.eof  = &file_eof_callback;
 
-    auto data = std::unique_ptr<unsigned char, decltype(stbi_image_free)*>(
-        stbi_load_from_callbacks(&clbk, file, &size.x, &size.y, &size.z, 0),
-        stbi_image_free
-    );
+    unsigned char* data =
+        stbi_load_from_callbacks(&clbk, file,
+                                 &size.x, &size.y, &size.z,
+                                 0
+        );
 
     if (!data) {
-        BOOST_LOG_TRIVIAL(error) << "Failed to load texture: " << file->get_path();
+        BOOST_LOG_TRIVIAL(error) << "Failed to load texture " << file->get_path() << ": " << stbi_failure_reason();
         return nullptr;
     }
 
-    graphics::texture2d* tex = new graphics::texture2d(data.get(), size);
+    graphics::texture2d* tex = new graphics::texture2d(data, size);
+    stbi_image_free(data);
     return tex;
 }
 

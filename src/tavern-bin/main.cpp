@@ -75,11 +75,11 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    //if (args.count("scene")) {
-    //    const std::string scene_file = args["scene"].as<std::string>();
+    if (args.count("scene")) {
+        const std::string scene_file = args["scene"].as<std::string>();
 
-    //    engine.get_scene().load_scene(scene_file);
-    //}
+        tavern::scene::singleton().load(scene_file);
+    }
     
     {
         auto& renderer = tavern::graphics::renderer::singleton();

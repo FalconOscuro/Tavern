@@ -104,11 +104,13 @@ char tpk_file::get_char()
 
 size_t tpk_file::get_str(char* const s, size_t len)
 {
+    size_t len_requested = len;
+
     if (!is_open())
         return 0;
 
     // clamp to prevent read beyond file end
-    len = std::min(len, pos() - size());
+    len = std::min(len, size() - pos());
 
     const size_t buffer_size = get_buffer_size();
 
@@ -117,18 +119,34 @@ size_t tpk_file::get_str(char* const s, size_t len)
         memcpy(s, m_buffer + m_buffer_pos, len);
         m_buffer_pos += len;
         m_file_pos += len;
-
-        return len;
     }
 
     else if (len < (buffer_size - 1))
     {
+        // read available data to prevent edge case where buffer head can be pushed beyond current buffer pos
+        size_t bytes_read = std::min(get_buffer_used_size() - get_buffer_abs_pos(), len);
+        
+        size_t read_back, read_front;
+        read_back  = std::min(bytes_read, buffer_size - m_buffer_pos);
+        read_front = bytes_read - read_back;
+
+        memcpy(s, m_buffer + m_buffer_pos, read_back);
+        memcpy(s + read_back, m_buffer, read_front);
+
+        m_buffer_pos = (m_buffer_pos + bytes_read) % buffer_size;
+        m_file_pos += bytes_read;
+
+        // data was fully available from already buffered, exit early
+        if (bytes_read == len)
+            return len;
+
+        len -= bytes_read;
         if (!populate_buffer(len))
             len = get_buffer_used_size() - get_buffer_abs_pos();
 
         // bytes to read from end/back of circular buffer
-        const size_t read_back  = std::min(len, buffer_size - m_buffer_pos);
-        const size_t read_front = len - read_back;
+        read_back  = std::min(len, buffer_size - m_buffer_pos);
+        read_front = len - read_back;
 
         memcpy(s, m_buffer + m_buffer_pos, read_back);
         memcpy(s + read_back, m_buffer, read_front);
@@ -136,7 +154,7 @@ size_t tpk_file::get_str(char* const s, size_t len)
         m_file_pos += len;
         m_buffer_pos = (m_buffer_pos + len) % buffer_size;
 
-        return len;
+        len += bytes_read;
     }
 
     // len longer than buffer size
@@ -155,36 +173,33 @@ size_t tpk_file::get_str(char* const s, size_t len)
 
         bytes_read += buffered_data;
         m_file_pos += bytes_read;
+        len        -= bytes_read;
 
-        const size_t new_pos = std::min(size() - (buffer_size - 1), m_file_pos + len - (bytes_read + read_backward_bias()));
+        const size_t new_pos = std::min(size() - (buffer_size - 1), m_file_pos + len - read_backward_bias());
 
         const size_t direct_read = new_pos - m_file_pos;
         const size_t bytes_read_direct = fread(s + bytes_read, sizeof(char), direct_read, m_file);
 
         bytes_read += bytes_read_direct;
-        m_file_pos += bytes_read;
+        len        -= bytes_read_direct;
+        m_file_pos = new_pos + len;
 
         // EOF?
         if (direct_read != bytes_read_direct)
             return bytes_read;
 
         reset_buffer();
-        // reading from start of cached read_back data
-        m_buffer_pos = 0;
+        len = std::min(len, m_buffer_pos);
 
-        len = std::min(len - bytes_read, get_buffer_used_size());
-        m_file_pos -= len;
-
-        return bytes_read + get_str(s + bytes_read, len);
+        memcpy(s + bytes_read, m_buffer, len);
+        len += bytes_read;
     }
 
-    size_t chars_read = 0;
-    // TODO: Could be more efficient with use of memcpy instead of iterating get_char
+    assert(((size() - pos()) >= (get_buffer_used_size() - get_buffer_abs_pos()) || fully_buffered()) && "Buffer misalignment!");;
 
-    for (char c; chars_read < len && !((c = get_char()) == EOF && eof()); ++chars_read)
-        s[chars_read] = c;
-
-    return chars_read;
+    if (len != len_requested)
+        BOOST_LOG_TRIVIAL(warning) << "Failed to read all bytes from " << get_path() << ", expected '" << len_requested << "' but only found '" << len << '\'';
+    return len;
 }
 
 // WARNING: Double check for safety
@@ -250,33 +265,34 @@ size_t tpk_file::get_buffer_abs_pos() const {
 
 bool tpk_file::populate_buffer(long offset) const
 {
-    const size_t buffer_size = get_buffer_size();
-    const size_t file_size   = size();
-
     // file fully populates buffer
     if (fully_buffered())
         return true;
 
+    const size_t buffer_size = get_buffer_size();
+    const size_t file_size   = size();
+
+    const size_t buffer_used = get_buffer_used_size();
+    const size_t buffer_abs_pos = get_buffer_abs_pos();
+
     const size_t file_pos = pos();
-    const size_t file_end_dist = file_size - file_pos;
+    const size_t file_end_dist = file_size - (file_pos + buffer_used - buffer_abs_pos);
 
     // clamp to not read beyond file end
     offset = std::clamp<long>(offset, -(long)file_pos, file_end_dist);
 
-    // long long because moving from unsigned to signed, need to prevent overflow
-    const size_t buffer_used = get_buffer_used_size();
-    const size_t buffer_abs_pos = get_buffer_abs_pos();
-
     assert(offset < (long)buffer_size && "Offset greater than buffer size!");
+    size_t read;
 
     // seek forward
     if (offset > 0 && offset + buffer_abs_pos > buffer_used)
     {
-        const size_t read = std::min(file_end_dist,     // do not read past file end
+        read = std::min(file_end_dist,     // do not read past file end
             std::max(
                 read_forward_bias(),
                 (offset + buffer_abs_pos) - buffer_used // ensure offset fully readable
         ));
+        assert(read <= buffer_abs_pos && "read from offset would push head beyond current buffer pos");
 
         // bytes to append to tail, ensuring not to write beyond buffer end
         const size_t read_back = std::min(read, buffer_size - m_buffer_tail);
@@ -285,10 +301,8 @@ bool tpk_file::populate_buffer(long offset) const
         // complete read by adding remaining bytes to start of buffer
         bytes_read += fread(m_buffer, sizeof(char), read - read_back, m_file);
 
-        if (bytes_read != read)
-        {
-            assert(false && "Hit unexpected file end!");
-
+        assert(bytes_read == read && "Hit unexpected file end!");
+        if (bytes_read != read) {
             BOOST_LOG_TRIVIAL(error) << "Hit unexpected file end!";
             return false;
         }
@@ -296,18 +310,19 @@ bool tpk_file::populate_buffer(long offset) const
         m_buffer_tail = (m_buffer_tail + read) % buffer_size;
         // only move head if necessary
         // is head needed?
-        if (read + buffer_abs_pos >= buffer_size)
-            m_buffer_head = (m_buffer_head + read) % buffer_size;
+        //if (read + buffer_abs_pos >= buffer_size)
+        m_buffer_head = (m_buffer_head + read) % buffer_size;
     }
 
     // seek back
     else if (offset < 0 && (size_t)-offset > buffer_abs_pos)
     {
-        const size_t read = std::min(file_pos,  // do not read before file start
+        read = std::min(file_pos,  // do not read before file start
             std::max<size_t>(
                 read_backward_bias(),
                 -offset                         // ensure offset fully readable
         ));
+        assert(read <= buffer_used - buffer_abs_pos && "offset would push tail over current buffer pos");
 
         const size_t read_front = std::min(read, m_buffer_head);
         const size_t read_back  = read - read_front;
@@ -319,9 +334,9 @@ bool tpk_file::populate_buffer(long offset) const
         // seek to place actual file position according to buffer end
         fseek(m_file, std::max(0L, (long)buffer_size - (long)read), SEEK_CUR);
 
+        assert(bytes_read == read && "Hit unexpected file start!");
         if (bytes_read != read)
         {
-            assert(false && "Hit unexpected file start!");
 
             BOOST_LOG_TRIVIAL(error) << "Hit unexpected file start!";
             return false;
@@ -333,6 +348,7 @@ bool tpk_file::populate_buffer(long offset) const
             m_buffer_tail = ((long long)m_buffer_tail - (long long)read) % buffer_size;
     }
 
+    assert(((size() - pos()) >= (get_buffer_used_size() - get_buffer_abs_pos()) || fully_buffered()) && "Buffer misalignment!");;
     return true;
 }
 
@@ -380,17 +396,18 @@ bool tpk_file::reset_buffer()
 
         else {
             read_forward = read_forward_min;
-            read_backward = (get_buffer_size() - 1) - read_backward_min;
+            read_backward = (get_buffer_size() - 1) - read_forward_min;
         }
 
         const size_t read = read_forward + read_backward;
 
-        fseek(m_file, file_pos - read_backward, SEEK_CUR);
+        if (fseek(m_file, file_pos - read_backward, SEEK_CUR) != 0)
+            return false;
 
         const size_t bytes_read = fread(m_buffer, sizeof(char), read, m_file);
 
-        if (bytes_read != read)
-        {
+        assert(bytes_read == read && "Hit unexpected file end");
+        if (bytes_read != read) {
             BOOST_LOG_TRIVIAL(error) << "Hit unexpected file end in: " << get_path();
             return false;
         }
