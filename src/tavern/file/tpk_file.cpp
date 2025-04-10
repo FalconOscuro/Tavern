@@ -148,8 +148,8 @@ size_t tpk_file::get_str(char* const s, size_t len)
         read_back  = std::min(len, buffer_size - m_buffer_pos);
         read_front = len - read_back;
 
-        memcpy(s, m_buffer + m_buffer_pos, read_back);
-        memcpy(s + read_back, m_buffer, read_front);
+        memcpy(s + bytes_read, m_buffer + m_buffer_pos, read_back);
+        memcpy(s + bytes_read + read_back, m_buffer, read_front);
 
         m_file_pos += len;
         m_buffer_pos = (m_buffer_pos + len) % buffer_size;
