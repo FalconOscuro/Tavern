@@ -8,7 +8,7 @@
 
 // bias towards populating file buffer whilst reading forwards as a percentage 0-1.0 of file buffer size
 // current value is picked arbitrarily
-#define TPK_READ_FORWARD_BIAS 0.9
+#define TPK_READ_FORWARD_BIAS 0.95
 
 namespace tavern::file {
 

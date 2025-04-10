@@ -1,5 +1,6 @@
 #include "tavern/core/file_system.h"
 
+#include <chrono>
 #include <filesystem>
 
 #include <boost/log/trivial.hpp>
@@ -22,6 +23,8 @@ bool file_system::init() {
 
 const file::imount* file_system::mount_tpk(std::string path, std::string& identifier)
 {
+    const auto start = std::chrono::high_resolution_clock::now();
+
     path = make_path_relative(path);
     if (path.empty())
         return nullptr;
@@ -61,7 +64,9 @@ const file::imount* file_system::mount_tpk(std::string path, std::string& identi
         }
     }
 
-    BOOST_LOG_TRIVIAL(trace) << "Successfully mounted TPK file '" << mount->get_mount_info() << '\'';
+    const auto end = std::chrono::high_resolution_clock::now();
+    BOOST_LOG_TRIVIAL(trace) << "Successfully mounted TPK file '" << mount->get_mount_info() << "', in "
+        << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " milliseconds";
 
     file::imount* ptr = mount.release();
     m_mounts.emplace(std::make_pair(identifier, std::unique_ptr<file::imount>(ptr)));
