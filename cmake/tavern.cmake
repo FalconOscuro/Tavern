@@ -29,7 +29,6 @@ target_sources(Tavern PRIVATE
 )
 
 target_link_libraries(Tavern
-    PUBLIC ecs
     PUBLIC Tavern-File
     PUBLIC glm::glm
     PUBLIC SDL2::SDL2

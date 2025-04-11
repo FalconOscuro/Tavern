@@ -4,15 +4,6 @@
 include(FetchContent)
 
 #============================
-# Entity Component System
-#============================
-FetchContent_Declare(
-    ecs
-    GIT_REPOSITORY git@github.com:FalconOscuro/Tavern-ECS.git
-    GIT_TAG origin/main
-)
-
-#============================
 # ryml for yaml files
 #============================
 FetchContent_Declare(
@@ -37,7 +28,7 @@ set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
 
 set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
 
-FetchContent_MakeAvailable(ecs ryml assimp)
+FetchContent_MakeAvailable(ryml assimp)
 
 #==========================================
 # local dependencies

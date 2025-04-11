@@ -8,7 +8,7 @@ target_include_directories(imgui PUBLIC
     imgui/backends
 )
 
-target_sources(imgui PUBLIC
+target_sources(imgui PRIVATE
     imgui/imgui.cpp
     imgui/imgui_draw.cpp
     imgui/imgui_tables.cpp
@@ -33,6 +33,6 @@ target_include_directories(stb_img PUBLIC
     stb
 )
 
-target_sources(stb_img PUBLIC
+target_sources(stb_img PRIVATE
     src/stb_image_impl.cpp
 )
