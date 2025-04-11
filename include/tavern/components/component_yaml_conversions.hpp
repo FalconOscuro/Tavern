@@ -37,6 +37,7 @@ namespace tavern::component {
 //    return std::string_view{static_cast<const char*>(c_str), tag_len + name_len};
 //}
 
+// NOTE: Will need to be resolvable at runtime later
 template <typename T>
 struct component_type_info
 {
