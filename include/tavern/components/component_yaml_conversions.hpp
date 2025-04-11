@@ -11,6 +11,13 @@
 
 #define TAVERN_TAG_DIRECTIVE "!t!"
 
+namespace tavern::file {
+
+bool read(const ryml::ConstNodeRef& n, mount_path* val);
+void write(ryml::NodeRef* n, const mount_path& val);
+
+} /* end of namespace tavern::file */
+
 namespace tavern::component {
 
 //template <typename T>

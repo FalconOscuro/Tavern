@@ -1,6 +1,6 @@
-#include "tavern/file/virtual_mount.h"
+#include "file/virtual_mount.h"
 
-#include "tavern/file/virtual_file.h"
+#include "file/virtual_file.h"
 
 namespace tavern::file {
 

@@ -8,7 +8,6 @@
 #include <boost/log/trivial.hpp>
 
 #include "resource_ptr.hpp"
-#include "tavern/file/path.h"
 #include "tavern/core/file_system.h"
 
 namespace tavern::resource {

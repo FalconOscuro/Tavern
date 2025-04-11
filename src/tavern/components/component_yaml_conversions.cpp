@@ -9,6 +9,29 @@
 
 #include "tavern/core/resource_manager.h"
 
+namespace tavern::file {
+
+bool read(const ryml::ConstNodeRef& n, mount_path* val)
+{
+    std::string identifier, path;
+
+    n["identifier"] >> identifier;
+    n["path"] >> path;
+
+    *val = mount_path(identifier, path);
+
+    return true;
+}
+
+void write(ryml::NodeRef* n, const mount_path& val)
+{
+    *n |= ryml::MAP;
+    n->append_child() << ryml::key("identifier") << std::string(val.get_identifier());
+    n->append_child() << ryml::key("path") << std::string(val.get_path());
+}
+
+} /* end of namespace tavern::file */
+
 namespace tavern::component {
 
 bool read(const ryml::ConstNodeRef& n, camera* val)

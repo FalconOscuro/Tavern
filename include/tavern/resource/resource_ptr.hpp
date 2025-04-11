@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "tavern/file/path.h"
+#include <file/path.h>
 
 namespace tavern::resource {
 

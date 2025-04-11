@@ -5,8 +5,6 @@
 #include <string>
 #include <ostream>
 
-#include <ryml.hpp>
-
 namespace tavern::file {
 
 class mount_path
@@ -43,9 +41,6 @@ private:
 }; /* end of class mount_path */
 
 std::ostream& operator<<(std::ostream& stream, const mount_path& mount);
-
-bool read(const ryml::ConstNodeRef& n, mount_path* val);
-void write(ryml::NodeRef* n, const mount_path& val);
 
 } /* end of namespace tavern::file */
 

@@ -23,6 +23,28 @@ include(cmake/dependencies.cmake)
 
 add_subdirectory(extern)
 
+add_library(Tavern-File STATIC)
+
+target_include_directories(Tavern-File
+    PUBLIC include/
+)
+
+target_sources(Tavern-File PRIVATE
+    src/file/path.cpp
+    src/file/physical_file.cpp
+    src/file/physical_mount.cpp
+    src/file/tpk_file.cpp
+    src/file/tpk_mount.cpp
+    src/file/virtual_file.cpp
+    src/file/virtual_mount.cpp
+    src/file/tpk/tpk_package.cpp
+)
+
+# NOTE: Could drop boost log dependency
+target_link_libraries(Tavern-File PRIVATE
+    Boost::log
+)
+
 message(STATUS "Configuring Tavern Library")
 include(cmake/tavern.cmake)
 

@@ -1,4 +1,4 @@
-#include "tavern/file/tpk/tpk_package.h"
+#include "file/tpk/tpk_package.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -7,8 +7,8 @@
 
 #include <boost/log/trivial.hpp>
 
-#include "tavern/file/path.h"
-#include "tavern/file/tpk/tpk.h"
+#include "file/path.h"
+#include "file/tpk/tpk.h"
 
 namespace fs = std::filesystem;
 

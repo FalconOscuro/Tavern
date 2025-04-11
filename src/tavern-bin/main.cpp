@@ -1,5 +1,5 @@
 #include <tavern/tavern.h>
-#include <tavern/file/tpk/tpk_package.h>
+#include <file/tpk/tpk_package.h>
 
 #include <iostream>
 

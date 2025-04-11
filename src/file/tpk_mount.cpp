@@ -1,11 +1,11 @@
-#include "tavern/file/tpk_mount.h"
+#include "file/tpk_mount.h"
 
 #include <cstring>
 
 #include <boost/log/trivial.hpp>
 
-#include "tavern/file/tpk_file.h"
-#include "tavern/file/physical_file.h"
+#include "file/tpk_file.h"
+#include "file/physical_file.h"
 
 namespace tavern::file {
 

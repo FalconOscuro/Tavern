@@ -1,4 +1,4 @@
-#include "tavern/file/tpk_file.h"
+#include "file/tpk_file.h"
 
 #include <algorithm>
 #include <cassert>

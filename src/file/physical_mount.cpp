@@ -1,8 +1,8 @@
-#include "tavern/file/physical_mount.h"
+#include "file/physical_mount.h"
 
 #include <filesystem>
 
-#include "tavern/file/physical_file.h"
+#include "file/physical_file.h"
 
 namespace tavern::file {
 

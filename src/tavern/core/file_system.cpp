@@ -5,9 +5,9 @@
 
 #include <boost/log/trivial.hpp>
 
-#include "tavern/file/physical_mount.h"
-#include "tavern/file/tpk_mount.h"
-#include "tavern/file/virtual_mount.h"
+#include <file/physical_mount.h>
+#include <file/tpk_mount.h>
+#include <file/virtual_mount.h>
 
 namespace tavern {
 

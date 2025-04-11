@@ -1,4 +1,4 @@
-#include "tavern/file/virtual_file.h"
+#include "file/virtual_file.h"
 
 #include <algorithm>
 #include <cassert>
