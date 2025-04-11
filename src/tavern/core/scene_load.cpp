@@ -100,6 +100,7 @@ bool scene::load(const std::string& file_name)
             continue;
 
         ecs::entity_type entity;
+        using namespace component;
 
         if (!eid_map.count(node.val_anchor())) {
             entity = m_registry.create();
@@ -113,7 +114,7 @@ bool scene::load(const std::string& file_name)
             std::string name;
             node["name"] >> name;
 
-            m_registry.emplace<component::entity_name>(entity, name);
+            m_registry.emplace<entity_name>(entity, name);
         }
 
         // load individual components
@@ -122,12 +123,12 @@ bool scene::load(const std::string& file_name)
         // Currently using std::string for has_child calls, temporary measure as std::string_view is unsupported
 
         // transform
-        if (components.has_child(component::get_type_name<component::transform>().c_str()))
+        if (components.has_child(component_type_info<transform>::c4_name()))
         {
-            auto& transf = m_registry.emplace<component::transform>(entity);
+            auto& transf = m_registry.emplace<transform>(entity);
 
             size_t transf_doc_id;
-            components[component::get_type_name<component::transform>().c_str()] >> transf_doc_id;
+            components[component_type_info<transform>::c4_name()] >> transf_doc_id;
             ryml::ConstNodeRef transf_node = root.child(transf_doc_id);
 
             transf_node >> transf;
@@ -150,20 +151,20 @@ bool scene::load(const std::string& file_name)
         }
 
         // camera
-        if (components.has_child(component::get_type_name<component::camera>().c_str()))
+        if (components.has_child(component_type_info<camera>::c4_name()))
         {
-            auto& camera = m_registry.emplace<component::camera>(entity);
+            auto& cam = m_registry.emplace<camera>(entity);
             size_t doc_id;
-            components[component::get_type_name<component::camera>().c_str()] >> doc_id;
+            components[component_type_info<camera>::c4_name()] >> doc_id;
 
-            root.child(doc_id) >> camera;
+            root.child(doc_id) >> cam;
         }
 
-        if (components.has_child(component::get_type_name<component::render_mesh>().c_str()))
+        if (components.has_child(component_type_info<render_mesh>::c4_name()))
         {
-            auto& mesh = m_registry.emplace<component::render_mesh>(entity);
+            auto& mesh = m_registry.emplace<render_mesh>(entity);
             size_t doc_id;
-            components[component::get_type_name<component::render_mesh>().c_str()] >> doc_id;
+            components[component_type_info<render_mesh>::c4_name()] >> doc_id;
 
             root.child(doc_id) >> mesh;
         }

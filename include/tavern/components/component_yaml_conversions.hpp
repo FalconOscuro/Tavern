@@ -13,22 +13,66 @@
 
 namespace tavern::component {
 
-// Temporary fix!!
-// ryml doesn't support string_views which are not null terminated at the expected position
-// and using constexpr with char* may be causing memory leaks
+//template <typename T>
+//constexpr size_t get_name_length() {
+//    return ecs::internal::get_type_name<T>().length();
+//}
+//
+//template <typename T>
+//[[nodiscard]] constexpr const std::string_view get_type_tag() noexcept
+//{
+//    std::string_view name = ecs::internal::get_type_name<T>();
+//
+//    constexpr size_t tag_len  = sizeof(TAVERN_TAG_DIRECTIVE) - 1;
+//    constexpr size_t name_len = get_name_length<T>();
+//
+//    char c_str[tag_len + name_len] = {};
+//
+//    for (size_t i = 0; i < tag_len; ++i)
+//        c_str[i] = TAVERN_TAG_DIRECTIVE[i];
+//
+//    for (size_t i = 0; i < name_len; ++i)
+//        c_str[tag_len + i] = name[i];
+//
+//    return std::string_view{static_cast<const char*>(c_str), tag_len + name_len};
+//}
+
 template <typename T>
-std::string get_type_name() {
-    return std::string(ecs::internal::get_type_name<T>());
+struct component_type_info
+{
+    static constexpr std::string_view name = ecs::internal::get_type_name<T>();
+    static const std::string tag;
+
+    static inline c4::csubstr c4_name() {
+        return convert_sv(name);
+    }
+
+    static inline c4::csubstr c4_tag() {
+        return convert_sv(tag);
+    }
+
+private:
+
+    static inline c4::csubstr convert_sv(const std::string_view sv) {
+        return c4::csubstr(sv.begin(), sv.length());
+    }
+}; /* end of struct component_type_info */
+
+template <typename T>
+[[nodiscard]] std::string get_type_tag() noexcept
+{
+    std::string_view name = ecs::internal::get_type_name<T>();
+
+    std::string str;
+    str.reserve(strlen(TAVERN_TAG_DIRECTIVE) + name.length());
+    str.append(TAVERN_TAG_DIRECTIVE);
+    str.append(name);
+
+    return str;
 }
 
 template <typename T>
-std::string get_type_tag()
-{
-    std::string str = get_type_name<T>();
-    str.reserve(str.length() + strlen(TAVERN_TAG_DIRECTIVE));
-    str.append(TAVERN_TAG_DIRECTIVE);
-    return str;
-}
+const std::string component_type_info<T>::tag = get_type_tag<T>();
 
 //template <typename T>
 //constexpr const char* get_type_tag() {
