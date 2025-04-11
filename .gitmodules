@@ -2,3 +2,9 @@
 	path = extern/imgui
 	url = https://github.com/ocornut/imgui.git
 	branch = v1.91.8
+[submodule "extern/rapidyaml"]
+	path = extern/rapidyaml
+	url = https://github.com/biojppm/rapidyaml.git
+[submodule "extern/assimp"]
+	path = extern/assimp
+	url = https://github.com/assimp/assimp.git

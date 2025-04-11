@@ -36,3 +36,18 @@ target_include_directories(stb_img PUBLIC
 target_sources(stb_img PRIVATE
     src/stb_image_impl.cpp
 )
+
+#==========================================
+# rapid yaml
+#==========================================
+set(RYML_INSTALL OFF)
+add_subdirectory(rapidyaml)
+
+#==========================================
+# assimp
+#==========================================
+set(ASSIMP_BUILD_TESTS OFF)
+set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
+
+add_subdirectory(assimp)
