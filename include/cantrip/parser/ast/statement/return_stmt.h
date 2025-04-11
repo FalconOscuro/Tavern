@@ -1,0 +1,27 @@
+#ifndef RETURN_STMT_H
+#define RETURN_STMT_H
+
+#include "statement.h"
+
+#include "../expression/expression.h"
+#include "../visitor.h"
+
+namespace cantrip::ast {
+
+struct return_stmt : public statement
+{
+    // Expression being returned, when set to nullptr no value is returned
+    expression* returned = nullptr;
+
+    ~return_stmt() {
+        delete returned;
+    }
+
+    void accept(visitor* v) override {
+        v->visit_return_stmt(this);
+    }
+}; /* class return_stmt */
+
+} /* namespace cantrip::ast */
+
+#endif /* end of include guard: RETURN_STMT_H */
