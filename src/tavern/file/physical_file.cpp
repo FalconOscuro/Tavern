@@ -60,15 +60,15 @@ size_t physical_file::get_str(char* s, const size_t len)
     if (!is_open())
         return 0;
 
-    size_t chars_read = 0;
+    //size_t chars_read = 0;
 
     // cursed for loop
     // c stores character from file
     // loops so long as c not end of file marker and less than len chars read
-    for (char c; chars_read < len && !((c = fgetc(m_file)) == EOF && eof()); ++chars_read)
-        s[chars_read] = c;
+    //for (char c; chars_read < len && !((c = fgetc(m_file)) == EOF && eof()); ++chars_read)
+    //    s[chars_read] = c;
 
-    return chars_read;
+    return fread(s, sizeof(char), len, m_file);
 }
 
 bool physical_file::seek(const long offset, const origin mode)
