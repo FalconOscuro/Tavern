@@ -1,7 +1,7 @@
 #ifndef SYNTAX_ERROR_H
 #define SYNTAX_ERROR_H
 
-#include <exception>
+#include <stdexcept>
 
 #include "cantrip/scanner/token.h"
 

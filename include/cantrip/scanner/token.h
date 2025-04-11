@@ -1,8 +1,6 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include <flib/filereader.hpp>
-
 #include <string>
 #include <cassert>
 
@@ -103,7 +101,8 @@ struct token {
     };
 
     type ttype = FILE_END;
-    flib::file::pos pos;
+    // Need file pos tracking
+    //flib::file::pos pos;
 
     token& operator=(const token& t);
 

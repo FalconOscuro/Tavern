@@ -45,6 +45,24 @@ target_link_libraries(Tavern-File PRIVATE
     Boost::log
 )
 
+add_library(Cantrip STATIC)
+
+target_sources(Cantrip PRIVATE
+    src/cantrip/scanner/scanner.cpp
+    src/cantrip/scanner/token.cpp
+
+    src/cantrip/parser/parser-expr.cpp
+    src/cantrip/parser/parser-stmt.cpp
+    src/cantrip/parser/parser.cpp
+
+    src/cantrip/parser/ast/expression/literal.cpp
+    
+    src/cantrip/parser/ast/node.cpp
+    src/cantrip/parser/ast/visitor.cpp
+)
+
+target_link_libraries(Cantrip PUBLIC Tavern-File)
+
 message(STATUS "Configuring Tavern Library")
 include(cmake/tavern.cmake)
 

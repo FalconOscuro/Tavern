@@ -1,10 +1,12 @@
 #include "cantrip/scanner/token.h"
 
+#include <cstring>
+
 namespace cantrip {
 
 token::token(const token& t) {
     ttype = t.ttype;
-    pos = t.pos;
+    //pos = t.pos;
 
     switch (ttype)
     {
@@ -36,7 +38,7 @@ token& token::operator=(const token& t) {
     clear_data();
 
     ttype = t.ttype;
-    pos = t.pos;
+    //pos = t.pos;
 
     switch (ttype) {
         case IDENTIFIER:
@@ -63,7 +65,7 @@ token& token::operator=(const token& t) {
 
 #define TOKEN_STRING_SW_CASE(t) \
     case t:                     \
-        str = "["  + std::to_string(pos.row) + ", " + std::to_string(pos.col) + "]: " #t;
+        //str = "["  + std::to_string(pos.row) + ", " + std::to_string(pos.col) + "]: " #t;
 
 std::string token::to_string() const
 {
