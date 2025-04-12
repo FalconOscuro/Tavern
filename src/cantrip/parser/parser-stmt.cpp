@@ -227,8 +227,8 @@ ast::component* parser::component()
     // component body only accepts function and variable declarations,
     // requires different handling as cannot just use block statement
 
-    flib::uint_32 outer_indent = previous().pos.indent;
-    flib::uint_32 inner_indent = 0;
+    uint32_t outer_indent = previous().pos.indent;
+    uint32_t inner_indent = 0;
 
     bool block_implicit = false;
 
