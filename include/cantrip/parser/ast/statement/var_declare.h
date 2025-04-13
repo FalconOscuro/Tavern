@@ -28,8 +28,8 @@ struct var_declare : public statement
 
     ~var_declare() {
         delete expr;
-        delete type;
-        delete name;
+        delete[] type;
+        delete[] name;
     }
 
     void accept(visitor* v) override {

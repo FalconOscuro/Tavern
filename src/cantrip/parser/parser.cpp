@@ -3,6 +3,12 @@
 
 namespace cantrip {
 
+// TODO:
+// Need to differentiate between top-level statements.
+// Top-level statements include:
+// - Functions
+// - Classes?? (are classes still a thing?)
+// - Components
 std::vector<std::unique_ptr<ast::statement>> parser::parse()
 {
     std::vector<std::unique_ptr<ast::statement>> stmts;

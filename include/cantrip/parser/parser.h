@@ -17,6 +17,15 @@
 
 namespace cantrip {
 
+struct module_info
+{
+    using component_ptr = std::unique_ptr<ast::component>;
+    using function_ptr  = std::unique_ptr<ast::function>;
+
+    std::vector<component_ptr> components;
+    std::vector<function_ptr> functions;
+}; /* end of struct module_info */
+
 class parser {
 public:
 

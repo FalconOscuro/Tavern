@@ -19,7 +19,7 @@ struct identifier : public expression
     }
 
     ~identifier() {
-        delete name;
+        delete[] name;
     }
 
     void accept(visitor* v) override {

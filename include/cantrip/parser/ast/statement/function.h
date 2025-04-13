@@ -35,8 +35,8 @@ struct function : public statement
     }
 
     ~function() {
-        delete return_type;
-        delete name;
+        delete[] return_type;
+        delete[] name;
         delete body;
 
         for (auto p : params)

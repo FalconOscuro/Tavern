@@ -23,7 +23,7 @@ private:
 
     void clear_data() {
         if (m_type == STRING)
-            delete m_data.string;
+            delete[] m_data.string;
     }
 
     union {

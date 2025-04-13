@@ -25,7 +25,7 @@ struct component : public statement
     }
 
     ~component() {
-        delete name;
+        delete[] name;
 
         for (auto v : vars)
             delete v;

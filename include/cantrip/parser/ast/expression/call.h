@@ -25,7 +25,7 @@ struct call : public expression
 
     ~call() {
         delete caller;
-        delete name;
+        delete[] name;
         for (auto p : params)
             delete p;
     }
