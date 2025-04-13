@@ -4,6 +4,8 @@
 #include <string>
 #include <cassert>
 
+#include "file_interface.h"
+
 namespace cantrip {
 
 struct token {
@@ -102,7 +104,7 @@ struct token {
 
     type ttype = FILE_END;
     // Need file pos tracking
-    //flib::file::pos pos;
+    file_pos pos;
 
     token& operator=(const token& t);
 

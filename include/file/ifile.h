@@ -2,7 +2,7 @@
 #define IFILE_H
 
 #include <cstddef>
-#include <string>
+#include <memory>
 
 #include "path.h"
 
@@ -64,6 +64,8 @@ private:
     const mount_path m_path;
 
 }; /* end of class ifile */
+
+typedef std::unique_ptr<ifile> file_handle;
 
 //template <typename T>
 //bool read_data(T* dest, ifile* file, const size_t count = 1) {

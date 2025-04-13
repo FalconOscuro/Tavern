@@ -1,11 +1,9 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
-#include <memory>
 #include <queue>
 
-#include <file/ifile.h>
-
+#include "file_interface.h"
 #include "token.h"
 
 namespace cantrip {
@@ -13,22 +11,22 @@ namespace cantrip {
 class scanner {
 public:
 
-    scanner(tavern::file::ifile* file): m_file(file) {
+    scanner(tavern::file::file_handle& file): m_file(file) {
         assert(file != nullptr);
     }
 
     ~scanner() = default;
 
     bool open() {
-        return m_file->open();
+        return m_file.open();
     }
 
     bool is_open() const {
-        return m_file->is_open();
+        return m_file.is_open();
     }
 
     void close() {
-        m_file->close();
+        m_file.close();
     }
 
     const token& peek() const {
@@ -56,7 +54,7 @@ private:
     token read_float(token token_num) const;
     token read_complex_token() const;
 
-    mutable std::unique_ptr<tavern::file::ifile> m_file;
+    mutable file_interface m_file;
 
     mutable std::queue<token> m_tokens;
     token::type m_last_token_type;

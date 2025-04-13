@@ -7,7 +7,7 @@
 #define SIMPLE_TOKEN(tchar, p_ttype)    \
     case tchar:                         \
         t.ttype = p_ttype;              \
-        m_file->get_char();             \
+        m_file.pop();                   \
         break;
 
 #define IS_NUMBER(c)        \
@@ -28,7 +28,7 @@ void scanner::read_tokens() const
     token t;
     //const flib::file::pos fpos = m_file->get_pos();
 
-    switch (m_file->peek_char())
+    switch (m_file.peek_char())
     {
         SIMPLE_TOKEN('{' , token::BLOCK_START       )
         SIMPLE_TOKEN('}' , token::BLOCK_END         )
@@ -45,12 +45,12 @@ void scanner::read_tokens() const
             break;
 
         case '.':
-            if (IS_NUMBER(m_file->peek_char(1)))
+            if (IS_NUMBER(m_file.peek_char(1)))
                 t = read_number();
 
             else {
                 t.ttype = token::type::DOT;
-                m_file->get_char();
+                m_file.pop();
             }
             break;
 
@@ -68,162 +68,141 @@ void scanner::read_tokens() const
             break;
 
         case '=':
-            if (m_file->peek_char(1) == '=') {
+            if (m_file.peek_char(1) == '=') {
                 t.ttype = token::type::IS_EQUAL;
-
-                m_file->get_char();
-                m_file->get_char();
+                m_file.pop(2);
             }
 
             else {
                 t.ttype = token::type::ASSIGN;
-                m_file->get_char();
+                m_file.pop();
             }
 
             break;
 
         case '-': {
-            const char peek = m_file->peek_char(1);
+            const char peek = m_file.peek_char(1);
 
             if (IS_NUMBER(peek))
                 t = read_number();
 
             else if (peek == '=') {
                 t.ttype = token::ASSIGN_SUBTRACT;
-
-                // pop 2 chars
-                m_file->get_char();
-                m_file->get_char();
+                m_file.pop(2);
             }
 
             else {
                 t.ttype = token::SUBTRACT;
-                m_file->get_char();
+                m_file.pop();
             }
         }
             break;
 
 
         case '+': {
-            const char peek = m_file->peek_char(1);
+            const char peek = m_file.peek_char(1);
 
             if (IS_NUMBER(peek))
                 t = read_number();
 
             else if (peek == '=') {
                 t.ttype = token::ASSIGN_ADD;
-
-                m_file->get_char();
-                m_file->get_char();
+                m_file.pop(2);
             }
 
             else {
                 t.ttype = token::ADD;
-                m_file->get_char();
+                m_file.pop();
             }
         }
             break;
 
         case '*':
-            if (m_file->peek_char(1) == '=') {
+            if (m_file.peek_char(1) == '=') {
                 t.ttype = token::ASSIGN_MULTIPLY;
-
-                m_file->get_char();
-                m_file->get_char();
+                m_file.pop(2);
             }
 
             else {
                 t.ttype = token::MULTIPLY;
-                m_file->get_char();
+                m_file.pop();
             }
             break;
 
         case '/':
-            if (m_file->peek_char(1) == '=') {
+            if (m_file.peek_char(1) == '=') {
                 t.ttype = token::ASSIGN_DIVIDE;
-
-                m_file->get_char();
-                m_file->get_char();
+                m_file.pop(2);
             }
 
             else {
                 t.ttype = token::DIVIDE;
-                m_file->get_char();
+                m_file.pop();
             }
             break;
 
         case '!':
-            if (m_file->peek_char(1) == '=') {
+            if (m_file.peek_char(1) == '=') {
                 t.ttype = token::NOT_EQUAL;
-
-                m_file->get_char();
-                m_file->get_char();
+                m_file.pop(2);
             }
 
             else {
                 t.ttype = token::BOOL_NOT;
-                m_file->get_char();
+                m_file.pop();
             }
             break;
 
         case '<':
-            if (m_file->peek_char(1) == '=') {
+            if (m_file.peek_char(1) == '=') {
                 t.ttype = token::LESS_THAN_EQUAL;
-
-                m_file->get_char();
-                m_file->get_char();
+                m_file.pop(2);
             }
 
             else {
                 t.ttype = token::LESS_THAN;
-                m_file->get_char();
+                m_file.pop();
             }
             break;
 
         case '>':
-            if (m_file->peek_char(1) == '=') {
+            if (m_file.peek_char(1) == '=') {
                 t.ttype = token::GREATER_THAN_EQUAL;
-
-                m_file->get_char();
-                m_file->get_char();
+                m_file.pop(2);
             }
 
             else {
                 t.ttype = token::GREATER_THAN;
-                m_file->get_char();
+                m_file.pop();
             }
             break;
 
         case '&':
-            if (m_file->peek_char(1) == '&') {
+            if (m_file.peek_char(1) == '&') {
                 t.ttype = token::BOOL_AND;
-
-                m_file->get_char();
-                m_file->get_char();
+                m_file.pop(2);
             }
 
             else {
                 t.ttype = token::BITWISE_AND;
-                m_file->get_char();
+                m_file.pop();
             }
             break;
 
         case '|':
-            if (m_file->peek_char(1) == '|') {
+            if (m_file.peek_char(1) == '|') {
                 t.ttype = token::BOOL_OR;
-
-                m_file->get_char();
-                m_file->get_char();
+                m_file.pop(2);
             }
 
             else {
                 t.ttype = token::BITWISE_OR;
-                m_file->get_char();
+                m_file.pop();
             }
             break;
 
         case EOF:
-            if (m_file->eof())
+            if (m_file.eof())
                 t.ttype = token::FILE_END;
 
             else {
@@ -247,27 +226,30 @@ void scanner::eat_whitespace() const
 {
     // Note: For simplicity syntax is c-like, will later adapt to use python syntax
     while (true) {
-        switch (m_file->peek_char())
+        switch (m_file.peek_char())
         {
         case ' ':
         case '\t':
-            m_file->get_char();
+            m_file.pop();
             break;
 
         case '\n':
+            // avoid producing multiple new_line tokens
+            // by checking the token queue/last popped token
             if (!((
                     m_last_token_type == token::NEW_LINE
                     || m_last_token_type == token::STATEMENT_END
-                ) || (
-                    m_tokens.back() == token::NEW_LINE)
+                ) || (!m_tokens.empty() && (
+                    m_tokens.back() == token::NEW_LINE
                     || m_tokens.back() == token::STATEMENT_END
-                )) {
+                ))))
+            {
                 token t;
                 t.ttype = token::NEW_LINE;
-                //t.pos = m_file->get_pos();
+                t.pos = m_file.pos();
                 m_tokens.push(t);
             }
-            m_file->get_char();
+            m_file.pop();
             break;
 
         case '#':
@@ -282,10 +264,10 @@ void scanner::eat_whitespace() const
 
 void scanner::eat_comment() const {
     // Comment ended by line end OR end of file
-    while (m_file->peek_char() != '\n' && m_file->peek_char() != EOF) {
-        m_file->get_char();
+    while (m_file.peek_char() != '\n' && !m_file.eof()) {
+        m_file.pop();
     }
-    m_file->get_char();
+    m_file.pop();
 };
 
 token scanner::read_string() const {
@@ -295,7 +277,7 @@ token scanner::read_string() const {
     std::string str;
     uint i = 1;
 
-    for (char c = m_file->peek_char(i++); c != '"'; c = m_file->peek_char(i++))
+    for (char c = m_file.peek_char(i++); c != '"'; c = m_file.peek_char(i++))
     {
         if (c == EOF) {
             //m_file->get_char(i);
@@ -317,7 +299,7 @@ token scanner::read_string() const {
 
     t.ttype = token::type::STRING_LITERAL;
     t.data.string = new char[str.size() + 1];
-    m_file->seek(i, tavern::file::CURRENT);
+    m_file.pop(i);
 
     strcpy(t.data.string, str.c_str());
     return t;
@@ -328,9 +310,9 @@ token scanner::read_number() const
     token t;
     t.ttype = token::INTEGER_LITERAL;
 
-    while (IS_NUMBER(m_file->peek_char())) {
-        t.data.literal_int = (t.data.literal_int * 10) + (m_file->peek_char() - '0');
-        m_file->get_char();
+    while (IS_NUMBER(m_file.peek_char())) {
+        t.data.literal_int = (t.data.literal_int * 10) + (int)(m_file.peek_char() - '0');
+        m_file.pop();
     }
 
     return read_float(t);
@@ -338,32 +320,35 @@ token scanner::read_number() const
 
 token scanner::read_float(token token_num) const
 {
-    if (m_file->peek_char() == '.')
+    // floating point number inferred from decimal point
+    if (m_file.peek_char() == '.')
     {
-        m_file->get_char();
+        m_file.pop();
         token_num.ttype = token::FLOAT_LITERAL;
         token_num.data.literal_float = token_num.data.literal_int;
 
         uint n = 10;
 
-        while (IS_NUMBER(m_file->peek_char())) {
-            token_num.data.literal_float += (m_file->peek_char() - '0') / (float)n;
+        while (IS_NUMBER(m_file.peek_char())) {
+            token_num.data.literal_float += (int)(m_file.peek_char() - '0') / (float)n;
             n *= 10;
-            m_file->get_char();
+            m_file.pop();
         }
 
-        if (m_file->peek_char() == 'f')
-            m_file->get_char();
+        if (m_file.peek_char() == 'f')
+            m_file.pop();
     }
 
-    else if (m_file->peek_char() == 'f') {
+    // floating point literal specifier
+    else if (m_file.peek_char() == 'f') {
         token_num.ttype = token::FLOAT_LITERAL;
         token_num.data.literal_float = token_num.data.literal_int;
-        m_file->get_char();
+        m_file.pop();
     }
 
-    else if (m_file->peek_char() == 'i')
-        m_file->get_char();
+    // integer literal specifer
+    else if (m_file.peek_char() == 'i')
+        m_file.pop();
 
     return token_num;
 }
@@ -412,10 +397,10 @@ token scanner::read_complex_token() const
 
     std::string token_str;
 
-    while (IS_ALPHANUMERIC(m_file->peek_char()) || m_file->peek_char() == '_')
+    while (IS_ALPHANUMERIC(m_file.peek_char()) || m_file.peek_char() == '_')
     {
-        token_str.push_back(m_file->peek_char());
-        m_file->get_char();
+        token_str.push_back(m_file.peek_char());
+        m_file.pop();
     }
 
     if (KEYWORD_MAP.find(token_str) != KEYWORD_MAP.end())

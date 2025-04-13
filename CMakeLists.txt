@@ -48,6 +48,7 @@ target_link_libraries(Tavern-File PRIVATE
 add_library(Cantrip STATIC)
 
 target_sources(Cantrip PRIVATE
+    src/cantrip/scanner/file_interface.cpp
     src/cantrip/scanner/scanner.cpp
     src/cantrip/scanner/token.cpp
 

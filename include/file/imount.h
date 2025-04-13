@@ -1,15 +1,12 @@
 #ifndef IMOUNT_H
 #define IMOUNT_H
 
-#include <memory>
 #include <string>
 
 #include "ifile.h"
 #include "path.h"
 
 namespace tavern::file {
-
-typedef std::unique_ptr<ifile> file_handle;
 
 class imount
 {
