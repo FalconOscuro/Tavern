@@ -1,4 +1,3 @@
-#include "cantrip/parser/ast/expression/core_type.h"
 #include "cantrip/parser/parser.h"
 
 #include <flib/exception/unimplemented.hpp>
@@ -9,6 +8,7 @@
 #include "cantrip/parser/ast/expression/literal.hpp"
 #include "cantrip/parser/ast/expression/identifier.h"
 #include "cantrip/parser/ast/expression/call.h"
+#include "cantrip/parser/ast/expression/core_type.h"
 
 namespace cantrip {
 

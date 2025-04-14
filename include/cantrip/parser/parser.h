@@ -1,6 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include <stack>
 #include <vector>
 #include <memory>
 #include <cassert>
@@ -12,6 +13,7 @@
 #include "ast/statement/var_declare.h"
 #include "ast/statement/function.h"
 #include "ast/statement/component.h"
+#include "ast/statement/type.h"
 
 #include "cantrip/scanner/token.h"
 
@@ -31,6 +33,8 @@ public:
 
     parser(std::vector<token>& tokens): m_tokens(tokens)
     {}
+
+    module_info parse_module();
 
     std::vector<std::unique_ptr<ast::statement>> parse();
 

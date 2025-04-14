@@ -3,8 +3,9 @@
 
 #include "statement.h"
 
-#include <vector>
 #include <cstring>
+#include <unordered_map>
+#include <vector>
 
 #include "../visitor.h"
 #include "function.h"
@@ -15,6 +16,10 @@ namespace cantrip::ast {
 struct component : public statement
 {
     char* name;
+
+    // give vars/functions an id
+    // refer through id?
+    // use shared ptr?
 
     std::vector<var_declare*> vars;
     std::vector<function*> funcs;

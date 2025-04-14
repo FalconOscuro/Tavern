@@ -46,11 +46,11 @@ parser::stmt_ptr parser::statement()
     else if (match(token::BREAK) || match(token::CONTINUE))
         return flow();
 
-    else if (match(token::FUNCTION))
-        return function();
+    //else if (match(token::FUNCTION))
+    //    return function();
 
-    else if (match(token::COMPONENT))
-        return component();
+    //else if (match(token::COMPONENT))
+    //    return component();
 
     return expression_statement();
 }
