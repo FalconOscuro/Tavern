@@ -24,14 +24,17 @@ bool tpk_file::open()
         return true;
 
     m_file = fopen(m_tpk_path.c_str(), "rb");
-    // disable buffering
-    setbuf(m_file, nullptr);
+
+    // disable stream buffering
+    setbuf(m_file, NULL);
     m_buffer = new char[get_buffer_size()]();
     m_file_pos = 0;
     
+    // ensure file opened and buffer population succeeds
     if (is_open() && reset_buffer())
         return true;
 
+    // cleanup if failed to open file
     close();
     return false;
 }
@@ -41,6 +44,7 @@ void tpk_file::close()
     if (!is_open())
         return;
 
+    // Fully buffered files do not keep the file open as entire file can be stored in memory
     if (m_file != NULL) {
         fclose(m_file);
         m_file = NULL;
@@ -97,6 +101,7 @@ char tpk_file::get_char()
     const char c = m_buffer[m_buffer_pos];
     ++m_file_pos;
 
+    // loop circular buffer
     m_buffer_pos = (m_buffer_pos + 1) % get_buffer_size();
 
     return c;
@@ -104,6 +109,7 @@ char tpk_file::get_char()
 
 size_t tpk_file::get_str(char* const s, size_t len)
 {
+    // store for error reporting
     size_t len_requested = len;
 
     if (!is_open())
@@ -114,6 +120,7 @@ size_t tpk_file::get_str(char* const s, size_t len)
 
     const size_t buffer_size = get_buffer_size();
 
+    // copy straight from fully buffer file
     if (fully_buffered())
     {
         memcpy(s, m_buffer + m_buffer_pos, len);
@@ -121,11 +128,17 @@ size_t tpk_file::get_str(char* const s, size_t len)
         m_file_pos += len;
     }
 
+    // requested data smaller than the buffer size
     else if (len < (buffer_size - 1))
     {
+        // NOTE: Alternative approach could be done using singular call to populate_buffer,
+        // changed to this due to causing issue in populate_buffer where buffer_head could
+        // be pushed past buffer pos
+
         // read available data to prevent edge case where buffer head can be pushed beyond current buffer pos
         size_t bytes_read = std::min(get_buffer_used_size() - get_buffer_abs_pos(), len);
         
+        // circular buffer, data may be split across back/front
         size_t read_back, read_front;
         read_back  = std::min(bytes_read, buffer_size - m_buffer_pos);
         read_front = bytes_read - read_back;
@@ -141,6 +154,7 @@ size_t tpk_file::get_str(char* const s, size_t len)
             return len;
 
         len -= bytes_read;
+        // buffer remaining data
         if (!populate_buffer(len))
             len = get_buffer_used_size() - get_buffer_abs_pos();
 
@@ -175,6 +189,9 @@ size_t tpk_file::get_str(char* const s, size_t len)
         m_file_pos += bytes_read;
         len        -= bytes_read;
 
+        // calculate how many bytes can be read direct from file into user buffer
+        // minus number of bytes which will be available in the buffer after repopulating the buffer
+        // due to either the read_backward_bias or reaching file end
         const size_t new_pos = std::min(size() - (buffer_size - 1), m_file_pos + len - read_backward_bias());
 
         const size_t direct_read = new_pos - m_file_pos;
@@ -182,21 +199,29 @@ size_t tpk_file::get_str(char* const s, size_t len)
 
         bytes_read += bytes_read_direct;
         len        -= bytes_read_direct;
+        // actual new pos must account for residual bytes expected to be in buffer
         m_file_pos = new_pos + len;
 
         // EOF?
         if (direct_read != bytes_read_direct)
             return bytes_read;
 
+        // repopulate buffer skipping to new position
         reset_buffer();
         len = std::min(len, m_buffer_pos);
 
+        // extract residual bytes
         memcpy(s + bytes_read, m_buffer, len);
         len += bytes_read;
     }
 
+    // check for misalignment between circular buffer and actual file position, leftover from old bug
+    // misalignment is only detectable when circular buffer reaches to the end of file
+    // NOTE: Only detects misalignment when buffer has fallen behind, there is no check for misalignment when buffer is ahead of the file
+    // WARNING: eof condition may still cause misalignment!
     assert(((size() - pos()) >= (get_buffer_used_size() - get_buffer_abs_pos()) || fully_buffered()) && "Buffer misalignment!");;
 
+    // error reporting
     if (len != len_requested)
         BOOST_LOG_TRIVIAL(warning) << "Failed to read all bytes from " << get_path() << ", expected '" << len_requested << "' but only found '" << len << '\'';
     return len;
@@ -224,17 +249,24 @@ bool tpk_file::seek(const long offset, const origin mode)
         break;
     }
 
+    // clamp to file bounds
     const long offset_actual = std::clamp(offset, -(seek_pos), (long)size() - seek_pos);
 
     const size_t buffer_used = get_buffer_used_size();
-
     const size_t new_pos  = seek_pos + offset_actual;
     const long pos_offset = (long)new_pos - (long)m_file_pos;
+
     m_file_pos = new_pos;
 
+    // new seek pos is outside of buffer, repopulate
+    // NOTE: Innacurate, assumes buffer pos sits at one of extremes,
+    // distance should be measure from buffer pos to head/tail
     if ((size_t)std::abs(pos_offset) > buffer_used)
         return reset_buffer();
 
+    // current buffer overlaps with seek position
+    // populate missing data
+    // NOTE: Could raise error for pushing buffer bounds over buffer position
     else {
         const bool success = populate_buffer(pos_offset);
         m_buffer_pos = ((long)m_buffer_pos + pos_offset) % get_buffer_size();
@@ -266,6 +298,7 @@ size_t tpk_file::get_buffer_abs_pos() const {
 bool tpk_file::populate_buffer(long offset) const
 {
     // file fully populates buffer
+    // assume data is available
     if (fully_buffered())
         return true;
 
@@ -281,6 +314,8 @@ bool tpk_file::populate_buffer(long offset) const
     // clamp to not read beyond file end
     offset = std::clamp<long>(offset, -(long)file_pos, file_end_dist);
 
+    // NOTE: Innacurate, assumes buffer pos sits at one of extremes,
+    // distance should be measure from buffer pos to head/tail
     assert(offset < (long)buffer_size && "Offset greater than buffer size!");
     size_t read;
 
@@ -308,9 +343,6 @@ bool tpk_file::populate_buffer(long offset) const
         }
 
         m_buffer_tail = (m_buffer_tail + read) % buffer_size;
-        // only move head if necessary
-        // is head needed?
-        //if (read + buffer_abs_pos >= buffer_size)
         m_buffer_head = (m_buffer_head + read) % buffer_size;
     }
 
@@ -343,9 +375,7 @@ bool tpk_file::populate_buffer(long offset) const
         }
 
         m_buffer_head = ((long long)m_buffer_head - (long long)read) % buffer_size;
-        // only move tail if necessary
-        if (read + buffer_abs_pos >= buffer_size)
-            m_buffer_tail = ((long long)m_buffer_tail - (long long)read) % buffer_size;
+        m_buffer_tail = ((long long)m_buffer_tail - (long long)read) % buffer_size;
     }
 
     assert(((size() - pos()) >= (get_buffer_used_size() - get_buffer_abs_pos()) || fully_buffered()) && "Buffer misalignment!");;
