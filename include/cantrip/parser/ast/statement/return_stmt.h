@@ -10,16 +10,18 @@ namespace cantrip::ast {
 
 struct return_stmt : public statement
 {
-    // Expression being returned, when set to nullptr no value is returned
-    expression* returned = nullptr;
+    return_stmt() = default;
+    ~return_stmt() = default;
 
-    ~return_stmt() {
-        delete returned;
-    }
+    return_stmt(const return_stmt&) = delete;
+    void operator=(const return_stmt&) = delete;
 
     void accept(visitor* v) override {
         v->visit_return_stmt(this);
     }
+
+    // Expression being returned, when set to nullptr no value is returned
+    u_expression_ptr returned = nullptr;
 }; /* class return_stmt */
 
 } /* namespace cantrip::ast */

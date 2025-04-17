@@ -13,6 +13,7 @@ struct flow : public statement
 
     flow(bool is_continue) : is_continue(is_continue)
     {}
+    ~flow() = default;
 
     void accept(visitor* v) override {
         v->visit_flow(this);

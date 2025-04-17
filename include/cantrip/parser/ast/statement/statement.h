@@ -3,12 +3,16 @@
 
 #include "../node.h"
 
+#include <memory>
+
 namespace cantrip::ast {
 
 struct statement : public node
 {
-    virtual ~statement() = 0;
+    virtual ~statement() = default;
 }; /* class statement */
+
+typedef std::unique_ptr<statement> u_statement_ptr;
     
 } /* namespace cantrip::ast */
 

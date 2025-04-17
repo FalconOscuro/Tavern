@@ -2,31 +2,33 @@
 #define UNARY_H
 
 #include "expression.h"
+#include <memory>
 
 #include "../visitor.h"
 
 namespace cantrip::ast {
 
+enum unary_operator {
+    LOGICAL_NOT,
+    MINUS
+};
+
 struct unary : public expression
 {
-    enum operation_type {
-        LOGICAL_NOT,
-        MINUS
-    } type;
-
-    expression* expr = nullptr;
-
-    unary(operation_type type, expression* expr):
+    unary(unary_operator type, expression* expr):
         type(type), expr(expr)
     {}
+    ~unary() = default;
 
-    ~unary() {
-        delete expr;
-    }
+    unary(const unary&) = delete;
+    void operator=(const unary&) = delete;
 
     void accept(visitor* v) override {
         v->visit_unary(this);
     }
+
+    unary_operator type;
+    u_expression_ptr expr = nullptr;
 }; /* class unary */
 
 } /* namespace cantrip::ast */

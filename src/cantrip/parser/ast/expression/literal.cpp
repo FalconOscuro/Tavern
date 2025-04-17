@@ -5,23 +5,23 @@
 
 namespace cantrip::ast {
 
-literal::literal(const char* c): m_type(literal::STRING) {
+literal::literal(const char* c): m_type(literal_type::STRING) {
     m_data.string = new char[strlen(c) + 1];
     strcpy(m_data.string, c);
 }
 
 int literal::get_integer() const {
-    assert(m_type == literal::INTEGER);
+    assert(m_type == literal_type::INTEGER);
     return m_data.integer;
 }
 
 float literal::get_float() const {
-    assert(m_type == literal::FLOAT);
+    assert(m_type == literal_type::FLOAT);
     return m_data.floating;
 }
 
 const char* literal::get_string() const {
-    assert(m_type == literal::STRING);
+    assert(m_type == literal_type::STRING);
     return m_data.string;
 }
 

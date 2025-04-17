@@ -7,7 +7,7 @@ class visitor;
 
 struct node
 {
-    virtual ~node() = 0;
+    virtual ~node() = default;
 
     virtual void accept(visitor* v) = 0;
 }; /* class node */

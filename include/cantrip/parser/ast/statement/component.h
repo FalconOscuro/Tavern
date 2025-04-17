@@ -1,43 +1,20 @@
 #ifndef AST_COMPONENT_H
 #define AST_COMPONENT_H
 
-#include "statement.h"
-
-#include <cstring>
-#include <unordered_map>
-#include <vector>
+#include "struct.h"
 
 #include "../visitor.h"
-#include "function.h"
-#include "var_declare.h"
 
 namespace cantrip::ast {
 
-struct component : public statement
+struct component : public c_struct
 {
-    char* name;
+    component(const char* p_name): c_struct(p_name)
+    {}
+    ~component() = default;
 
-    // give vars/functions an id
-    // refer through id?
-    // use shared ptr?
-
-    std::vector<var_declare*> vars;
-    std::vector<function*> funcs;
-
-    component(const char* p_name) {
-        name = new char[std::strlen(p_name) + 1];
-        std::strcpy(name, p_name);
-    }
-
-    ~component() {
-        delete[] name;
-
-        for (auto v : vars)
-            delete v;
-
-        for (auto f : funcs)
-            delete f;
-    }
+    component(const component&) = delete;
+    void operator=(const component&) = delete;
 
     void accept(visitor* v) override {
         v->visit_component(this);

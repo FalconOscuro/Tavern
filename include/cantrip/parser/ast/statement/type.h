@@ -3,10 +3,13 @@
 
 #include "statement.h"
 
+#include <memory>
+
+#include "struct.h"
 #include "cantrip/scanner/token.h"
 #include "cantrip/parser/ast/visitor.h"
 
-#define CORE_TYPE_DEF(t) token::t - token::CORE_TYPE_START
+#define CORE_TYPE_DEF(t) token_type::t - token_type::CORE_TYPE_START
 
 namespace cantrip::ast {
 
@@ -18,21 +21,17 @@ struct type : public statement
         FLOAT   = CORE_TYPE_DEF(TYPE_FLOAT)  ,
         BOOLEAN = CORE_TYPE_DEF(TYPE_BOOLEAN),
         STRING  = CORE_TYPE_DEF(TYPE_STRING) ,
+        COMPONENT,
         UNKNOWN
     } info = UNKNOWN;
 
-    type(token::type t);
-    type(const char* s);
-    ~type();
+    type(token_type t);
+    ~type() = default;
 
     type(const type&) = delete;
     void operator=(const type&) = delete;
 
-    char* name = nullptr;
-
-private:
-
-    void set_name(const char* c);
+    std::shared_ptr<c_struct> type_struct = nullptr;
 }; /* end of struct type : public statement */
 
 } /* end of namespace cantrip::ast */

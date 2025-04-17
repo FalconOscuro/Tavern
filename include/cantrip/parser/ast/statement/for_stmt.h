@@ -10,17 +10,18 @@ namespace cantrip::ast {
 
 struct for_stmt : public statement
 {
-    expression* loop_expr = nullptr;
-    statement* body = nullptr;
+    for_stmt() = default;
+    ~for_stmt() = default;
 
-    ~for_stmt() {
-        delete loop_expr;
-        delete body;
-    }
+    for_stmt(const for_stmt&) = delete;
+    void operator=(const for_stmt&) = delete;
 
     void accept(visitor* v) override {
         v->visit_for_stmt(this);
     }
+
+    u_expression_ptr loop_expr = nullptr;
+    u_statement_ptr body = nullptr;
 }; /* class for_stmt */
 
 } /* namespace cantrip::ast */

@@ -3,7 +3,7 @@
 
 #include "expression.h"
 
-#include <cstring>
+#include <string>
 
 #include "../visitor.h"
 
@@ -11,20 +11,14 @@ namespace cantrip::ast {
 
 struct identifier : public expression
 {
-    char* name;
-
-    identifier(const char* s) {
-        name = new char[std::strlen(s) + 1];
-        std::strcpy(name, s);
-    }
-
-    ~identifier() {
-        delete[] name;
-    }
+    identifier(const char* s): name(s) {}
+    ~identifier() = default;
 
     void accept(visitor* v) override {
         v->visit_identifier(this);
     }
+
+    std::string name;
 }; /* class identifier */
 
 } /* namespace cantrip::ast */

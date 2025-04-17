@@ -3,12 +3,16 @@
 
 #include "../node.h"
 
+#include <memory>
+
 namespace cantrip::ast {
     
 struct expression : public node
 {
-    virtual ~expression() = 0;
+    virtual ~expression() = default;
 }; /* class expression */
+
+typedef std::unique_ptr<expression> u_expression_ptr;
 
 } /* namespace cantrip::ast */
 

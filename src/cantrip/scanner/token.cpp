@@ -5,10 +5,10 @@
 namespace cantrip {
 
 token::token(const token& t) {
-    ttype = t.ttype;
+    type = t.type;
     pos = t.pos;
 
-    switch (ttype)
+    switch (type)
     {
         case IDENTIFIER:
         case STRING_LITERAL:
@@ -37,10 +37,10 @@ token::~token() {
 token& token::operator=(const token& t) {
     clear_data();
 
-    ttype = t.ttype;
+    type = t.type;
     pos = t.pos;
 
-    switch (ttype) {
+    switch (type) {
         case IDENTIFIER:
         case STRING_LITERAL:
         case ERROR:
@@ -71,7 +71,7 @@ std::string token::to_string() const
 {
     std::string str;
 
-    switch (ttype)
+    switch (type)
     {
         TOKEN_STRING_SW_CASE(IDENTIFIER)
             str += ": ";
@@ -271,7 +271,7 @@ std::string token::to_string() const
 #undef TOKEN_STRING_SW_CASE
 
 void token::clear_data() {
-    switch (ttype)
+    switch (type)
     {
         case IDENTIFIER:
         case STRING_LITERAL:
@@ -285,16 +285,24 @@ void token::clear_data() {
     }
 }
 
-const char* get_token_coretype_name(token::type t)
+const char* get_token_type_name(const token& t)
 {
-    assert(t >= token::CORE_TYPE_START && t <= token::CORE_TYPE_END &&
-           "Token type must be a core type to get coretype name.");
+    assert(((t >= token_type::CORE_TYPE_START && t <= token_type::CORE_TYPE_END) || t == token_type::IDENTIFIER)
+           && "Token type must be a core type or identifier to get type name.");
 
     static const char* CORE_TYPE_NAMES[] = {
         "int", "float", "bool", "string"
     };
 
-    return CORE_TYPE_NAMES[t - token::CORE_TYPE_START];
+    if (t >= token_type::CORE_TYPE_START && t <= token_type::CORE_TYPE_END)
+        return CORE_TYPE_NAMES[t.type - token_type::CORE_TYPE_START];
+
+    else if (t == token_type::IDENTIFIER)
+        return t.data.string;
+
+    // should never reach here!
+    else
+        return nullptr;
 }
 
 } /* namespace cantrip */

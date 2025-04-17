@@ -4,9 +4,9 @@
 #include <cstring>
 #include <unordered_map>
 
-#define SIMPLE_TOKEN(tchar, p_ttype)    \
+#define SIMPLE_TOKEN(tchar, p_type)     \
     case tchar:                         \
-        t.ttype = p_ttype;              \
+        t.type = token_type::p_type;    \
         m_file.pop();                   \
         break;
 
@@ -30,15 +30,15 @@ void scanner::read_tokens() const
 
     switch (m_file.peek_char())
     {
-        SIMPLE_TOKEN('{' , token::BLOCK_START       )
-        SIMPLE_TOKEN('}' , token::BLOCK_END         )
-        SIMPLE_TOKEN(';' , token::STATEMENT_END     )
-        SIMPLE_TOKEN(':' , token::COLON             )
-        SIMPLE_TOKEN(',' , token::COMMA             )
-        SIMPLE_TOKEN('(' , token::BRACKET_L         )
-        SIMPLE_TOKEN(')' , token::BRACKET_R         )
-        SIMPLE_TOKEN('[' , token::BRACKET_SQUARE_L  )
-        SIMPLE_TOKEN(']' , token::BRACKET_SQUARE_R  )
+        SIMPLE_TOKEN('{' , BLOCK_START       )
+        SIMPLE_TOKEN('}' , BLOCK_END         )
+        SIMPLE_TOKEN(';' , STATEMENT_END     )
+        SIMPLE_TOKEN(':' , COLON             )
+        SIMPLE_TOKEN(',' , COMMA             )
+        SIMPLE_TOKEN('(' , BRACKET_L         )
+        SIMPLE_TOKEN(')' , BRACKET_R         )
+        SIMPLE_TOKEN('[' , BRACKET_SQUARE_L  )
+        SIMPLE_TOKEN(']' , BRACKET_SQUARE_R  )
 
         case '"':
             t = read_string();
@@ -49,7 +49,7 @@ void scanner::read_tokens() const
                 t = read_number();
 
             else {
-                t.ttype = token::type::DOT;
+                t.type = token_type::DOT;
                 m_file.pop();
             }
             break;
@@ -69,12 +69,12 @@ void scanner::read_tokens() const
 
         case '=':
             if (m_file.peek_char(1) == '=') {
-                t.ttype = token::type::IS_EQUAL;
+                t.type = IS_EQUAL;
                 m_file.pop(2);
             }
 
             else {
-                t.ttype = token::type::ASSIGN;
+                t.type = ASSIGN;
                 m_file.pop();
             }
 
@@ -87,12 +87,12 @@ void scanner::read_tokens() const
                 t = read_number();
 
             else if (peek == '=') {
-                t.ttype = token::ASSIGN_SUBTRACT;
+                t.type = ASSIGN_SUBTRACT;
                 m_file.pop(2);
             }
 
             else {
-                t.ttype = token::SUBTRACT;
+                t.type = SUBTRACT;
                 m_file.pop();
             }
         }
@@ -106,12 +106,12 @@ void scanner::read_tokens() const
                 t = read_number();
 
             else if (peek == '=') {
-                t.ttype = token::ASSIGN_ADD;
+                t.type = ASSIGN_ADD;
                 m_file.pop(2);
             }
 
             else {
-                t.ttype = token::ADD;
+                t.type = ADD;
                 m_file.pop();
             }
         }
@@ -119,94 +119,94 @@ void scanner::read_tokens() const
 
         case '*':
             if (m_file.peek_char(1) == '=') {
-                t.ttype = token::ASSIGN_MULTIPLY;
+                t.type = ASSIGN_MULTIPLY;
                 m_file.pop(2);
             }
 
             else {
-                t.ttype = token::MULTIPLY;
+                t.type = MULTIPLY;
                 m_file.pop();
             }
             break;
 
         case '/':
             if (m_file.peek_char(1) == '=') {
-                t.ttype = token::ASSIGN_DIVIDE;
+                t.type = ASSIGN_DIVIDE;
                 m_file.pop(2);
             }
 
             else {
-                t.ttype = token::DIVIDE;
+                t.type = DIVIDE;
                 m_file.pop();
             }
             break;
 
         case '!':
             if (m_file.peek_char(1) == '=') {
-                t.ttype = token::NOT_EQUAL;
+                t.type = NOT_EQUAL;
                 m_file.pop(2);
             }
 
             else {
-                t.ttype = token::BOOL_NOT;
+                t.type = BOOL_NOT;
                 m_file.pop();
             }
             break;
 
         case '<':
             if (m_file.peek_char(1) == '=') {
-                t.ttype = token::LESS_THAN_EQUAL;
+                t.type = LESS_THAN_EQUAL;
                 m_file.pop(2);
             }
 
             else {
-                t.ttype = token::LESS_THAN;
+                t.type = LESS_THAN;
                 m_file.pop();
             }
             break;
 
         case '>':
             if (m_file.peek_char(1) == '=') {
-                t.ttype = token::GREATER_THAN_EQUAL;
+                t.type = GREATER_THAN_EQUAL;
                 m_file.pop(2);
             }
 
             else {
-                t.ttype = token::GREATER_THAN;
+                t.type = GREATER_THAN;
                 m_file.pop();
             }
             break;
 
         case '&':
             if (m_file.peek_char(1) == '&') {
-                t.ttype = token::BOOL_AND;
+                t.type = BOOL_AND;
                 m_file.pop(2);
             }
 
             else {
-                t.ttype = token::BITWISE_AND;
+                t.type = BITWISE_AND;
                 m_file.pop();
             }
             break;
 
         case '|':
             if (m_file.peek_char(1) == '|') {
-                t.ttype = token::BOOL_OR;
+                t.type = BOOL_OR;
                 m_file.pop(2);
             }
 
             else {
-                t.ttype = token::BITWISE_OR;
+                t.type = BITWISE_OR;
                 m_file.pop();
             }
             break;
 
         case EOF:
             if (m_file.eof())
-                t.ttype = token::FILE_END;
+                t.type = FILE_END;
 
             else {
-                t.ttype = token::ERROR;
+                t.type = ERROR;
                 static const char EOF_ERROR[] = "File read error!";
                 t.data.string = new char[strlen(EOF_ERROR) + 1];
                 strcpy(t.data.string, EOF_ERROR);
@@ -237,15 +237,15 @@ void scanner::eat_whitespace() const
             // avoid producing multiple new_line tokens
             // by checking the token queue/last popped token
             if (!((
-                    m_last_token_type == token::NEW_LINE
-                    || m_last_token_type == token::STATEMENT_END
+                    m_last_token_type == NEW_LINE
+                    || m_last_token_type == STATEMENT_END
                 ) || (!m_tokens.empty() && (
-                    m_tokens.back() == token::NEW_LINE
-                    || m_tokens.back() == token::STATEMENT_END
+                    m_tokens.back() == NEW_LINE
+                    || m_tokens.back() == STATEMENT_END
                 ))))
             {
                 token t;
-                t.ttype = token::NEW_LINE;
+                t.type = NEW_LINE;
                 t.pos = m_file.pos();
                 m_tokens.push(t);
             }
@@ -281,7 +281,7 @@ token scanner::read_string() const {
     {
         if (c == EOF) {
             //m_file->get_char(i);
-            t.ttype = token::type::ERROR;
+            t.type = ERROR;
             static const char STRING_ERROR[] = "Failed to find string end symbol before end of file!";
             t.data.string = new char[strlen(STRING_ERROR) + 1];
             strcpy(t.data.string, STRING_ERROR);
@@ -297,7 +297,7 @@ token scanner::read_string() const {
         str.push_back(c);
     }
 
-    t.ttype = token::type::STRING_LITERAL;
+    t.type = STRING_LITERAL;
     t.data.string = new char[str.size() + 1];
     m_file.pop(i);
 
@@ -308,7 +308,7 @@ token scanner::read_string() const {
 token scanner::read_number() const
 {
     token t;
-    t.ttype = token::INTEGER_LITERAL;
+    t.type = INTEGER_LITERAL;
 
     while (IS_NUMBER(m_file.peek_char())) {
         t.data.literal_int = (t.data.literal_int * 10) + (int)(m_file.peek_char() - '0');
@@ -324,7 +324,7 @@ token scanner::read_float(token token_num) const
     if (m_file.peek_char() == '.')
     {
         m_file.pop();
-        token_num.ttype = token::FLOAT_LITERAL;
+        token_num.type = FLOAT_LITERAL;
         token_num.data.literal_float = token_num.data.literal_int;
 
         uint n = 10;
@@ -341,7 +341,7 @@ token scanner::read_float(token token_num) const
 
     // floating point literal specifier
     else if (m_file.peek_char() == 'f') {
-        token_num.ttype = token::FLOAT_LITERAL;
+        token_num.type = FLOAT_LITERAL;
         token_num.data.literal_float = token_num.data.literal_int;
         m_file.pop();
     }
@@ -357,42 +357,42 @@ token scanner::read_complex_token() const
 {
     token t;
 
-    static const std::unordered_map<std::string, const token::type> KEYWORD_MAP = {
-        { "if",         token::IF               },
-        { "elif",       token::ELSE_IF          },
-        { "else",       token::ELSE             },
+    static const std::unordered_map<std::string, const token_type> KEYWORD_MAP = {
+        { "if",         IF               },
+        { "elif",       ELSE_IF          },
+        { "else",       ELSE             },
 
-        { "for",        token::FOR              },
-        { "while",      token::WHILE            },
+        { "for",        FOR              },
+        { "while",      WHILE            },
 
-        { "continue",   token::CONTINUE         },
-        { "break",      token::BREAK            },
-        { "return",     token::RETURN           },
+        { "continue",   CONTINUE         },
+        { "break",      BREAK            },
+        { "return",     RETURN           },
 
-        { "and",        token::BOOL_AND         },
-        { "or",         token::BOOL_OR          },
-        { "not",        token::BOOL_NOT         },
+        { "and",        BOOL_AND         },
+        { "or",         BOOL_OR          },
+        { "not",        BOOL_NOT         },
 
-        { "true",       token::BOOL_TRUE        },
-        { "false",      token::BOOL_FALSE       },
-        { "null",       token::KEYWORD_NULL     },
-        { "self",       token::KEYWORD_SELF     },
+        { "true",       BOOL_TRUE        },
+        { "false",      BOOL_FALSE       },
+        { "null",       KEYWORD_NULL     },
+        { "self",       KEYWORD_SELF     },
 
-        { "is",         token::KEYWORD_IS       },
-        { "as",         token::KEYWORD_AS       },
+        { "is",         KEYWORD_IS       },
+        { "as",         KEYWORD_AS       },
 
-        { "class",      token::CLASS            },
-        { "comp",       token::COMPONENT        },
-        { "func",       token::FUNCTION         },
+        { "class",      CLASS            },
+        { "comp",       COMPONENT        },
+        { "func",       FUNCTION         },
 
-        { "virtual",    token::KEYWORD_VIRTUAL  },
-        { "static",     token::KEYWORD_STATIC   },
-        { "const",      token::KEYWORD_CONST    },
+        { "virtual",    KEYWORD_VIRTUAL  },
+        { "static",     KEYWORD_STATIC   },
+        { "const",      KEYWORD_CONST    },
 
-        { "int",        token::TYPE_INTEGER     },
-        { "bool",       token::TYPE_BOOLEAN     },
-        { "float",      token::TYPE_FLOAT       },
-        { "string",     token::TYPE_STRING      }
+        { "int",        TYPE_INTEGER     },
+        { "bool",       TYPE_BOOLEAN     },
+        { "float",      TYPE_FLOAT       },
+        { "string",     TYPE_STRING      }
     };
 
     std::string token_str;
@@ -404,18 +404,18 @@ token scanner::read_complex_token() const
     }
 
     if (KEYWORD_MAP.find(token_str) != KEYWORD_MAP.end())
-        t.ttype = KEYWORD_MAP.at(token_str);
+        t.type = KEYWORD_MAP.at(token_str);
 
     // Should be impossible, if this happens something has gone very wrong
     else if (token_str.size() == 0) {
-        t.ttype = token::ERROR;
+        t.type = ERROR;
         static const char SIZE_ERR[] = "Tried to read complex token but size was 0!";
         t.data.string = new char[strlen(SIZE_ERR) + 1];
         strcpy(t.data.string, SIZE_ERR);
     }
 
     else {
-        t.ttype = token::IDENTIFIER;
+        t.type = IDENTIFIER;
         t.data.string = new char[token_str.size() + 1];
         strcpy(t.data.string, token_str.c_str());
     }

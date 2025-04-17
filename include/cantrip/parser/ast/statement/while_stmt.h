@@ -10,17 +10,18 @@ namespace cantrip::ast {
 
 struct while_stmt : public statement
 {
-    expression* condition = nullptr;
-    statement* exec_stmt = nullptr;
+    while_stmt() = default;
+    ~while_stmt() = default;
 
-    ~while_stmt() {
-        delete condition;
-        delete exec_stmt;
-    }
+    while_stmt(const while_stmt&) = delete;
+    void operator=(const while_stmt&) = delete;
 
     void accept(visitor* v) override {
         v->visit_while_stmt(this);
     }
+
+    u_expression_ptr condition = nullptr;
+    u_statement_ptr exec_stmt = nullptr;
 }; /* class while_stmt */
 
 } /* namespace cantrip::ast */

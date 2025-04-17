@@ -4,9 +4,4 @@
 
 namespace cantrip::ast {
 
-// required for semantics to allow base node types to be pure virtual
-node::~node() {}
-expression::~expression() {}
-statement::~statement() {}
-
 } /* namespace cantrip::ast */

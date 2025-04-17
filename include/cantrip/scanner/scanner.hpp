@@ -38,7 +38,7 @@ public:
         read_tokens();
         
         if (m_tokens.size()) {
-            m_last_token_type = m_tokens.front().ttype;
+            m_last_token_type = m_tokens.front().type;
             m_tokens.pop();
         }
     }
@@ -57,7 +57,7 @@ private:
     mutable file_interface m_file;
 
     mutable std::queue<token> m_tokens;
-    token::type m_last_token_type;
+    token_type m_last_token_type;
 };
 
 } /* namespace cantrip */

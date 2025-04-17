@@ -7,17 +7,17 @@
 
 namespace cantrip::ast {
 
+enum literal_type {
+    TRUE,
+    FALSE,
+    LIT_NULL,
+    STRING,
+    INTEGER,
+    FLOAT
+};
+
 struct literal : public expression
 {
-    enum literal_type {
-        TRUE,
-        FALSE,
-        LIT_NULL,
-        STRING,
-        INTEGER,
-        FLOAT
-    };
-
 private:
     literal_type m_type = LIT_NULL;
 

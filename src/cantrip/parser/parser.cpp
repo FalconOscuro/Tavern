@@ -9,10 +9,10 @@ module_info parser::parse_module()
 
     while (!at_end())
     {
-        if (match(token::COMPONENT))
+        if (match(COMPONENT))
             info.components.emplace_back(component());
 
-        else if (match(token::FUNCTION))
+        else if (match(FUNCTION))
             info.functions.emplace_back(function());
 
         else 

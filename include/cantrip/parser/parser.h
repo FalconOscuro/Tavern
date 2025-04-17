@@ -13,7 +13,6 @@
 #include "ast/statement/var_declare.h"
 #include "ast/statement/function.h"
 #include "ast/statement/component.h"
-#include "ast/statement/type.h"
 
 #include "cantrip/scanner/token.h"
 
@@ -21,14 +20,21 @@ namespace cantrip {
 
 struct module_info
 {
-    using component_ptr = std::unique_ptr<ast::component>;
-    using function_ptr  = std::unique_ptr<ast::function>;
+    using component_ptr = std::shared_ptr<ast::component>;
+    using function_ptr  = std::shared_ptr<ast::function>;
 
     std::vector<component_ptr> components;
     std::vector<function_ptr> functions;
 }; /* end of struct module_info */
 
-class parser {
+class parser
+{
+    using stmt_ptr = ast::u_statement_ptr;
+    using expr_ptr = ast::u_expression_ptr;
+
+    template<typename T>
+    using u_ptr = std::unique_ptr<T>;
+
 public:
 
     parser(std::vector<token>& tokens): m_tokens(tokens)
@@ -36,9 +42,9 @@ public:
 
     module_info parse_module();
 
-    std::vector<std::unique_ptr<ast::statement>> parse();
+    std::vector<stmt_ptr> parse();
 
-    ast::expression* generate_ast() {
+    expr_ptr generate_ast() {
         return expression();
     }
 
@@ -52,15 +58,13 @@ private:
     // ==============================
     // Listed in order of priority, low to high
 
-    using stmt_ptr = ast::statement*;
-
     stmt_ptr statement();
 
     stmt_ptr block_implicit();
     stmt_ptr block_explicit();
 
     // Does not pop tokens like standard match function does
-    ast::var_declare* var_declare();
+    u_ptr<ast::var_declare> var_declare();
 
     stmt_ptr if_else();
     stmt_ptr while_stmt();
@@ -68,41 +72,39 @@ private:
     stmt_ptr return_stmt();
     stmt_ptr flow();
 
-    ast::function* function();
-    ast::component* component();
+    u_ptr<ast::function> function();
+    u_ptr<ast::component> component();
 
     stmt_ptr expression_statement();
 
     // peek for type token which could either be IDENTIFER or CORE_TYPE_*
-    bool peek_is_type() {
-        return peek() == token::IDENTIFIER || (
-                peek() >= token::CORE_TYPE_START 
-                    && peek() <= token::CORE_TYPE_END
+    inline bool peek_is_type() {
+        return peek() == token_type::IDENTIFIER || (
+                peek() >= token_type::CORE_TYPE_START 
+                    && peek() <= token_type::CORE_TYPE_END
         );
     }
 
     // peek for var declare production which is type token followed by IDENTIFIER
-    bool peek_is_var_declare() {
+    inline bool peek_is_var_declare() {
         // var declare is either coretype or user type (token::IDENTIFIER) followed by IDENTIFIER
-        return (peek_is_type() && next() == token::IDENTIFIER);
+        return (peek_is_type() && next() == token_type::IDENTIFIER);
     }
 
-    void match_stmt_end() {
-        if (!(match(token::STATEMENT_END) || match(token::NEW_LINE)))
+    inline void match_stmt_end() {
+        if (!(match(token_type::STATEMENT_END) || match(token_type::NEW_LINE)))
             throw syntax_error(peek(), "Expected to find statement end token");
     }
 
     // discard newline and semicolon tokens to find next consumable token
-    void discard_tokens() {
-        while (match(token::STATEMENT_END) || match(token::NEW_LINE));
+    inline void discard_tokens() {
+        while (match(token_type::STATEMENT_END) || match(token_type::NEW_LINE));
     }
 
     // ==============================
     // EXPRESSION PARSE FUNCTIONS
     // ==============================
     // Listed in order of priority, low to high
-
-    using expr_ptr = ast::expression*;
 
     expr_ptr expression();
 
@@ -142,7 +144,7 @@ private:
 
     expr_ptr primary();
 
-    expr_ptr expect_expression() {
+    inline expr_ptr expect_expression() {
         const token& t = peek();
 
         try { return expression(); }
@@ -151,12 +153,12 @@ private:
         }
     }
 
-    bool at_end() const {
+    inline bool at_end() const {
         return m_index >= m_tokens.size()
-            || peek() == token::FILE_END;
+            || peek() == token_type::FILE_END;
     }
 
-    bool match(token::type t) {
+    inline bool match(token_type t) {
         // Always evaluates to false if index beyond bounds of token index
         if (!at_end() && peek() == t) {
             m_index++;
@@ -166,27 +168,27 @@ private:
         return false;
     }
 
-    const token& peek() const {
+    inline const token& peek() const {
         // WARNING: error if token stream empty
         assert(!m_tokens.empty() && "Tried to peek token but token stream was empty.");
         return m_tokens[m_index];
     }
 
-    const token& previous() const {
+    inline const token& previous() const {
         // WARNING: leads to errors if index = 0
         // rare to occur, previous used to see matched tokens
         assert(m_index > 0 && "Tried to peek previous token whilst at token stream start.");
         return m_tokens[m_index - 1];
     }
 
-    const token& next() const {
+    inline const token& next() const {
         // WARNING: leads to errors if index at end
         // rare to occur, stream should always end with file end token
         assert(m_index < m_tokens.size() - 1 && "Tried to peek next token whilst at token stream end.");
         return m_tokens[m_index + 1];
     }
 
-    void match_or_throw(token::type t_match, const token& t_throw, const char* err_msg) {
+    inline void match_or_throw(token_type t_match, const token& t_throw, const char* err_msg) {
         if (!match(t_match))
             throw syntax_error(t_throw, err_msg);
     }

@@ -10,18 +10,17 @@ namespace cantrip::ast {
 
 struct expr_stmt : public statement
 {
-    expression* expr = nullptr;
+    expr_stmt(expression* expr) : expr(expr) {}
+    ~expr_stmt() = default;
 
-    expr_stmt(expression* expr) : expr(expr)
-    {}
-
-    ~expr_stmt() {
-        delete expr;
-    }
+    expr_stmt(const expr_stmt&) = delete;
+    void operator=(const expr_stmt&) = delete;
 
     void accept(visitor* v) override {
         v->visit_expr_stmt(this);
     }
+
+    u_expression_ptr expr = nullptr;
 }; /* class expr_stmt */
 
 } /* namespace cantrip::ast */

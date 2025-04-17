@@ -11,16 +11,17 @@ namespace cantrip::ast {
 
 struct block : public statement
 {
-    std::vector<statement*> stmts;
+    block() = default;
+    ~block() = default;
 
-    ~block() {
-        for (std::size_t i = 0; i < stmts.size(); i++)
-            delete stmts[i];
-    }
+    block(const block&) = delete;
+    void operator=(const block&) = delete;
 
     void accept(visitor* v) override {
         v->visit_block(this);
     }
+    
+    std::vector<u_statement_ptr> stmts;
 }; /* class block */
 
 } /* namespace cantrip::ast */

@@ -11,16 +11,15 @@ namespace cantrip::ast {
 struct core_type : public expression
 {
     enum c_type {
-        INTEGER = token::TYPE_INTEGER,
-        BOOLEAN = token::TYPE_BOOLEAN,
-        FLOAT   = token::TYPE_FLOAT  ,
-        STRING  = token::TYPE_STRING
+        INTEGER = token_type::TYPE_INTEGER,
+        BOOLEAN = token_type::TYPE_BOOLEAN,
+        FLOAT   = token_type::TYPE_FLOAT  ,
+        STRING  = token_type::TYPE_STRING
     } type;
 
-    core_type(token::type type) : type((c_type)type)
-    {
-        // assert?
-    }
+    core_type(token_type type) : type((c_type)type)
+    {}
+    ~core_type() = default;
 
     void accept(visitor* v) override {
         v->visit_core_type(this);
