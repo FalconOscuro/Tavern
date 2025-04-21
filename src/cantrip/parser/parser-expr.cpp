@@ -21,9 +21,10 @@ parser::expr_ptr parser::expression() {
 #define PARSE_BINARY_EXPR(TOKEN_MATCH, EXPR_TYPE, CALL_NEXT)    \
     expr_ptr expr = CALL_NEXT;                                  \
                                                                 \
-    while (match(token_type::TOKEN_MATCH)) {                    \
+    while (match(TOKEN_MATCH)) {                                \
         expr = std::make_unique<ast::binary>(                   \
-                ast::binary_operator::EXPR_TYPE,                \
+                previous().pos,                                 \
+                ast::EXPR_TYPE,                                 \
                 expr.release(), CALL_NEXT.release()             \
         );                                                      \
     }                                                           \
@@ -114,16 +115,26 @@ parser::expr_ptr parser::attribute() {
 
 parser::expr_ptr parser::logical_not()
 {
-    if (match(token_type::BOOL_NOT))
-        return std::make_unique<ast::unary>(ast::unary_operator::LOGICAL_NOT, logical_not().release());
+    if (match(BOOL_NOT)) {
+        return std::make_unique<ast::unary>(
+            previous().pos,
+            ast::LOGICAL_NOT,
+            logical_not().release()
+        );
+    }
 
     return is_equal();
 }
 
 parser::expr_ptr parser::sign()
 {
-    if (match(token_type::SUBTRACT))
-        return std::make_unique<ast::unary>(ast::unary_operator::MINUS, sign().release());
+    if (match(SUBTRACT)) {
+        return std::make_unique<ast::unary>(
+            previous().pos,
+            ast::MINUS,
+            sign().release()
+        );
+    }
 
     return is();
 }
@@ -134,8 +145,13 @@ parser::expr_ptr parser::call()
 
     // branch here to allow for constructor/public function calls
     // NOTE: Prevents builtin types from having constructors
-    if (peek() == token_type::IDENTIFIER && next() == token_type::BRACKET_L) {
-        u_ptr<ast::call> call = std::make_unique<ast::call>(peek().data.string);
+    if (peek() == IDENTIFIER && next() == BRACKET_L)
+    {
+        u_ptr<ast::call> call = std::make_unique<ast::call>(
+            previous().pos,
+            peek().data.string
+        );
+
         m_index += 2;
         call->params = call_param_list();
         expr = expr_ptr(call.release());
@@ -146,9 +162,14 @@ parser::expr_ptr parser::call()
         expr = subscription();
 
     // handling of object member function calls
-    while (peek() == token_type::DOT && next() == token_type::IDENTIFIER && m_tokens[m_index + 2] == token_type::BRACKET_L)
+    while (peek() == DOT && next() == IDENTIFIER && m_tokens[m_index + 2] == BRACKET_L)
     {
-        u_ptr<ast::call> call = std::make_unique<ast::call>(next().data.string, expr.release());
+        u_ptr<ast::call> call = std::make_unique<ast::call>(
+            previous().pos,
+            next().data.string,
+            expr.release()
+        );
+
         m_index += 3;
         call->params = call_param_list();
         expr = expr_ptr(call.release());
@@ -162,13 +183,13 @@ std::vector<parser::expr_ptr> parser::call_param_list()
     std::vector<expr_ptr> params;
     const token& t = previous();
 
-    if (peek() != token_type::BRACKET_R) {
+    if (peek() != BRACKET_R) {
         do {
             params.push_back(expression());
-        } while (match(token_type::COMMA));
+        } while (match(COMMA));
     }
 
-    match_or_throw(token_type::BRACKET_R, t, "Failed to find closing ')'.");
+    match_or_throw(BRACKET_R, t, "Failed to find closing ')'.");
     return params;
 }
 
@@ -176,11 +197,18 @@ parser::expr_ptr parser::subscription()
 {
     expr_ptr expr = primary();
 
-    if (match(token_type::BRACKET_SQUARE_L)) {
+    if (match(BRACKET_SQUARE_L))
+    {
         const token& t = previous();
-        expr = std::make_unique<ast::binary>(ast::binary_operator::SUBSCRIPTION, expr.release(), expression().release());
 
-        match_or_throw(token_type::BRACKET_SQUARE_R, t, "Could not find closing ']'.");
+        expr = std::make_unique<ast::binary>(
+            t.pos,
+            ast::SUBSCRIPTION,
+            expr.release(),
+            expression().release()
+        );
+
+        match_or_throw(BRACKET_SQUARE_R, t, "Could not find closing ']'.");
     }
 
     return expr;
@@ -188,56 +216,93 @@ parser::expr_ptr parser::subscription()
 
 parser::expr_ptr parser::primary()
 {
-    // grouping
-    if (match(token_type::BRACKET_L)) {
-        token t = previous();
-        expr_ptr expr = std::make_unique<ast::grouping>(expression().release());
+    const token& t = peek();
 
-        match_or_throw(token_type::BRACKET_R, t, "Expected closing ')' but was not found!");
+    // grouping
+    if (match(BRACKET_L))
+    {
+        expr_ptr expr = std::make_unique<ast::grouping>(
+            t.pos,
+            expression().release()
+        );
+
+        match_or_throw(BRACKET_R, t, "Expected closing ')' but was not found!");
         return expr;
     }
 
     // literal false
-    else if (match(token_type::BOOL_TRUE))
-        return std::make_unique<ast::literal>(true);
+    else if (match(BOOL_TRUE))
+        return std::make_unique<ast::literal>(t.pos, true);
 
     // literal true
-    else if (match(token_type::BOOL_FALSE))
-        return std::make_unique<ast::literal>(false);
+    else if (match(BOOL_FALSE))
+        return std::make_unique<ast::literal>(t.pos, false);
 
     // literal null
-    else if (match(token_type::KEYWORD_NULL))
-        return std::make_unique<ast::literal>();
+    else if (match(KEYWORD_NULL))
+        return std::make_unique<ast::literal>(t.pos);
 
-    else if (match(token_type::INTEGER_LITERAL))
-        return std::make_unique<ast::literal>(previous().data.literal_int);
+    else if (match(INTEGER_LITERAL)) {
+        return std::make_unique<ast::literal>(
+            t.pos,
+            previous().data.literal_int
+        );
+    }
 
-    else if (match(token_type::FLOAT_LITERAL))
-        return std::make_unique<ast::literal>(previous().data.literal_float);
+    else if (match(FLOAT_LITERAL)) {
+        return std::make_unique<ast::literal>(
+            t.pos,
+            previous().data.literal_float
+        );
+    }
 
-    else if (match(token_type::STRING_LITERAL))
-        return std::make_unique<ast::literal>(previous().data.string);
+    else if (match(STRING_LITERAL)) {
+        return std::make_unique<ast::literal>(
+            t.pos,
+            previous().data.string
+        );
+    }
 
     // core type int
-    else if (match(token_type::TYPE_INTEGER))
-        return std::make_unique<ast::core_type>(previous().type);
+    else if (match(TYPE_INTEGER)) {
+        return std::make_unique<ast::core_type>(
+            t.pos,
+            previous().type
+        );
+    }
 
     // core type bool
-    else if (match(token_type::TYPE_BOOLEAN))
-        return std::make_unique<ast::core_type>(previous().type);
+    else if (match(TYPE_BOOLEAN)) {
+        return std::make_unique<ast::core_type>(
+            t.pos,
+            previous().type
+        );
+    }
 
     // core type float
-    else if (match(token_type::TYPE_FLOAT))
-        return std::make_unique<ast::core_type>(previous().type);
+    else if (match(TYPE_FLOAT)) {
+        return std::make_unique<ast::core_type>(
+            t.pos,
+            previous().type
+        );
+    }
 
     // core type string
-    else if (match(token_type::TYPE_STRING))
-        return std::make_unique<ast::core_type>(previous().type);
+    else if (match(TYPE_STRING)) {
+        return std::make_unique<ast::core_type>(
+            t.pos,
+            previous().type
+        );
+    }
 
-    else if (match(token_type::IDENTIFIER))
-        return std::make_unique<ast::identifier>(previous().data.string);
+    else if (match(IDENTIFIER)) {
+        return std::make_unique<ast::identifier>(
+            t.pos,
+            previous().data.string
+        );
+    }
 
-    throw syntax_error(peek(), "Unexpected/invalid token found!");
+    throw error::syntax(peek(), "Unexpected/invalid token found!");
     return nullptr;
 }
 

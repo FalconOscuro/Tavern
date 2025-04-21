@@ -65,7 +65,7 @@ token& token::operator=(const token& t) {
 
 #define TOKEN_STRING_SW_CASE(t) \
     case t:                     \
-        str = "["  + std::to_string(pos.row) + ", " + std::to_string(pos.col) + "]: " #t;
+        str = #t;
 
 std::string token::to_string() const
 {

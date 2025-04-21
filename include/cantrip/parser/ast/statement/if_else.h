@@ -8,8 +8,9 @@
 
 namespace cantrip::ast {
 
-struct if_else : public statement
+class if_else : public statement
 {
+public:
     if_else() = default;
     ~if_else() = default;
 

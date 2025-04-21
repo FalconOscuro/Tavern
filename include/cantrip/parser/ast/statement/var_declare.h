@@ -10,8 +10,9 @@
 
 namespace cantrip::ast {
 
-struct var_declare : public statement
+class var_declare : public statement
 {
+public:
     var_declare(const char* p_type, const char* p_name):
         type(p_type), name(p_name)
     {}
@@ -22,6 +23,11 @@ struct var_declare : public statement
 
     void accept(visitor* v) override {
         v->visit_var_declare(this);
+    }
+
+    // TODO: Extend in future for implementing proper type resolution through ast nodes
+    const std::string_view get_type_name() const {
+        return type;
     }
 
     // TODO: Could be replaced by ID system, would require scope tracking through parsing to maintain unmagled name for runtime referencing

@@ -8,8 +8,9 @@
 
 namespace cantrip::ast {
 
-struct core_type : public expression
+class core_type : public expression
 {
+public:
     enum c_type {
         INTEGER = token_type::TYPE_INTEGER,
         BOOLEAN = token_type::TYPE_BOOLEAN,
@@ -17,7 +18,8 @@ struct core_type : public expression
         STRING  = token_type::TYPE_STRING
     } type;
 
-    core_type(token_type type) : type((c_type)type)
+    core_type(const file_pos& pos, token_type type) :
+        expression(pos), type((c_type)type)
     {}
     ~core_type() = default;
 

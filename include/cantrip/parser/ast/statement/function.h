@@ -11,8 +11,9 @@
 
 namespace cantrip::ast {
 
-struct function : public statement
+class function : public statement
 {
+public:
     function(const char* p_name, const char* p_return = nullptr) {
         // NOTE: Recurring code block, can be made flib function
         name = std::string(p_name);

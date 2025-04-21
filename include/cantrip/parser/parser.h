@@ -6,7 +6,7 @@
 #include <memory>
 #include <cassert>
 
-#include "syntax_error.h"
+#include "cantrip/error/syntax.h"
 #include "ast/statement/statement.h"
 #include "ast/expression/expression.h"
 
@@ -79,26 +79,26 @@ private:
 
     // peek for type token which could either be IDENTIFER or CORE_TYPE_*
     inline bool peek_is_type() {
-        return peek() == token_type::IDENTIFIER || (
-                peek() >= token_type::CORE_TYPE_START 
-                    && peek() <= token_type::CORE_TYPE_END
+        return peek() == IDENTIFIER || (
+                peek() >= CORE_TYPE_START 
+                    && peek() <= CORE_TYPE_END
         );
     }
 
     // peek for var declare production which is type token followed by IDENTIFIER
     inline bool peek_is_var_declare() {
         // var declare is either coretype or user type (token::IDENTIFIER) followed by IDENTIFIER
-        return (peek_is_type() && next() == token_type::IDENTIFIER);
+        return (peek_is_type() && next() == IDENTIFIER);
     }
 
     inline void match_stmt_end() {
-        if (!(match(token_type::STATEMENT_END) || match(token_type::NEW_LINE)))
-            throw syntax_error(peek(), "Expected to find statement end token");
+        if (!(match(STATEMENT_END) || match(NEW_LINE)))
+            throw error::syntax(peek(), "Expected to find statement end token");
     }
 
     // discard newline and semicolon tokens to find next consumable token
     inline void discard_tokens() {
-        while (match(token_type::STATEMENT_END) || match(token_type::NEW_LINE));
+        while (match(STATEMENT_END) || match(NEW_LINE));
     }
 
     // ==============================
@@ -149,13 +149,13 @@ private:
 
         try { return expression(); }
         catch (std::exception& e) {
-            throw syntax_error(t, "Expected expression");
+            throw error::syntax(t, "Expected expression");
         }
     }
 
     inline bool at_end() const {
         return m_index >= m_tokens.size()
-            || peek() == token_type::FILE_END;
+            || peek() == FILE_END;
     }
 
     inline bool match(token_type t) {
@@ -190,7 +190,7 @@ private:
 
     inline void match_or_throw(token_type t_match, const token& t_throw, const char* err_msg) {
         if (!match(t_match))
-            throw syntax_error(t_throw, err_msg);
+            throw error::syntax(t_throw, err_msg);
     }
 
 }; /* class parser */

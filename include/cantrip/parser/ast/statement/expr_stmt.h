@@ -8,8 +8,9 @@
 
 namespace cantrip::ast {
 
-struct expr_stmt : public statement
+class expr_stmt : public statement
 {
+public:
     expr_stmt(expression* expr) : expr(expr) {}
     ~expr_stmt() = default;
 

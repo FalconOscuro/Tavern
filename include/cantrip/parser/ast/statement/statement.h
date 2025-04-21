@@ -7,8 +7,9 @@
 
 namespace cantrip::ast {
 
-struct statement : public node
+class statement : public node
 {
+public:
     virtual ~statement() = default;
 }; /* class statement */
 

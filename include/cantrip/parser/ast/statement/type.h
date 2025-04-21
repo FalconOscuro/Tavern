@@ -13,8 +13,9 @@
 
 namespace cantrip::ast {
 
-struct type : public statement
+class type : public statement
 {
+public:
     // can be used to quickly identify core types
     enum tinfo{
         INTEGER = CORE_TYPE_DEF(TYPE_INTEGER),

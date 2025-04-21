@@ -7,8 +7,17 @@
 
 namespace cantrip::ast {
     
-struct expression : public node
+class expression : public node
 {
+protected:
+    // expressions evaluated using recusive descent,
+    // requiring passing token position for constructor here
+    // to reduce verbosity/temporary variables
+    expression(const file_pos& p_pos) {
+        pos = p_pos;
+    }
+
+public:
     virtual ~expression() = default;
 }; /* class expression */
 

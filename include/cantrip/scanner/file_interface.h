@@ -6,19 +6,9 @@
 
 #include <file/ifile.h>
 
+#include "file_pos.h"
+
 namespace cantrip {
-
-struct file_pos
-{
-    uint32_t col = 0;
-    uint32_t row = 0;
-
-    uint32_t indent = 0;
-
-    // NOTE: Equality operators do not account for indent, they only compare the absolute file position
-    bool operator==(const file_pos& rhs) const;
-    bool operator!=(const file_pos& rhs) const;
-}; /* end of struct file_pos */
 
 class file_interface
 {

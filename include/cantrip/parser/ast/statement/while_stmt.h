@@ -8,8 +8,9 @@
 
 namespace cantrip::ast {
 
-struct while_stmt : public statement
+class while_stmt : public statement
 {
+public:
     while_stmt() = default;
     ~while_stmt() = default;
 

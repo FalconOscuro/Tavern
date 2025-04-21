@@ -7,8 +7,9 @@
 
 namespace cantrip::ast {
 
-struct component : public c_struct
+class component : public c_struct
 {
+public:
     component(const char* p_name): c_struct(p_name)
     {}
     ~component() = default;

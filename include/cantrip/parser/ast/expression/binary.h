@@ -40,10 +40,11 @@ enum binary_operator {
     SUBSCRIPTION,
 };
 
-struct binary : public expression
+class binary : public expression
 {
-    binary(binary_operator type, expression* left, expression* right):
-        type(type), left(left), right(right)
+public:
+    binary(const file_pos& pos, binary_operator type, expression* left, expression* right):
+        expression(pos), type(type), left(left), right(right)
     {}
     ~binary() = default;
 

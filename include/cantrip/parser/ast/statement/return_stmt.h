@@ -8,8 +8,9 @@
 
 namespace cantrip::ast {
 
-struct return_stmt : public statement
+class return_stmt : public statement
 {
+public:
     return_stmt() = default;
     ~return_stmt() = default;
 

@@ -18,61 +18,67 @@ parser::stmt_ptr parser::statement()
 {
     discard_tokens();
 
-    if (match(token_type::COLON))
-        return block_implicit();
+    parser::stmt_ptr stmt;
+    const file_pos pos = peek().pos;
 
-    else if (match(token_type::BLOCK_START))
-        return block_explicit();
+    if (match(COLON))
+        stmt = block_implicit();
+
+    else if (match(BLOCK_START))
+        stmt = block_explicit();
 
     // variable declare is identifier/core_type followed by identifier
     else if (peek_is_var_declare()) {
-        stmt_ptr stmt = var_declare();
+        stmt = var_declare();
         match_stmt_end();
-        return stmt;
     }
 
-    else if (match(token_type::IF))
-        return if_else();
+    else if (match(IF))
+        stmt = if_else();
 
     // syntax error for orphaned elif and else statments
-    else if (match(token_type::ELSE_IF) || match(token_type::ELSE))
-        throw syntax_error(previous(), "No preceeding if or elif statement");
+    else if (match(ELSE_IF) || match(ELSE))
+        throw error::syntax(previous(), "No preceeding if or elif statement");
 
-    else if (match(token_type::WHILE))
-        return while_stmt();
+    else if (match(WHILE))
+        stmt = while_stmt();
 
-    else if (match(token_type::RETURN))
-        return return_stmt();
+    else if (match(RETURN))
+        stmt = return_stmt();
 
-    else if (match(token_type::BREAK) || match(token_type::CONTINUE))
-        return flow();
+    else if (match(BREAK) || match(CONTINUE))
+        stmt = flow();
 
-    //else if (match(token::FUNCTION))
-    //    return function();
+    else if (match(FUNCTION))
+        throw error::syntax(previous(), "Function definitions only supported at global scope or within data structures");
 
-    //else if (match(token::COMPONENT))
-    //    return component();
+    else if (match(COMPONENT))
+        throw error::syntax(previous(), "Component definitions only supported at global scope");
 
-    return expression_statement();
+    else
+        stmt = expression_statement();
+
+    stmt->pos = pos;
+    return stmt;
 }
 
 parser::u_ptr<ast::var_declare> parser::var_declare()
 {
-    const token& t_type = peek();
+    const token& t = peek();
     const char* type;
 
-    if (t_type == token_type::IDENTIFIER)
-        type = t_type.data.string;
+    if (t == IDENTIFIER)
+        type = t.data.string;
 
     else
-        type = get_token_type_name(t_type);
+        type = get_token_type_name(t);
 
     u_ptr<ast::var_declare> stmt =
         std::make_unique<ast::var_declare>(type, next().data.string);
 
     m_index += 2;
 
-    if (match(token_type::ASSIGN))
+    if (match(ASSIGN))
         stmt->expr = expression();
 
     return stmt;
@@ -80,21 +86,21 @@ parser::u_ptr<ast::var_declare> parser::var_declare()
 
 parser::stmt_ptr parser::block_implicit()
 {
-    match_or_throw(token_type::NEW_LINE, previous(), "Expected newline after ':' at implicit block start");
-
     // indent level of outer code portion
-    const auto outer_indent = previous().pos.indent;
+    const file_pos pos = previous().pos;
+
+    match_or_throw(NEW_LINE, previous(), "Expected newline after ':' at implicit block start");
 
     u_ptr<ast::block> block = std::make_unique<ast::block>();
 
     // loop so long as indent level is greater than outer code block
-    while (peek().pos.indent > outer_indent) {
+    while (peek().pos.indent > pos.indent) {
         block->stmts.emplace_back(statement());
     }
 
     // prevent empty code blocks
     if (block->stmts.empty()) {
-        throw syntax_error(peek(),
+        throw error::syntax(peek(),
             "Implicit blocks must contain at least one(1) statement and increase the indent level by at least one(1)"
         );
     }
@@ -107,17 +113,17 @@ parser::stmt_ptr parser::block_explicit()
     u_ptr<ast::block> block = std::make_unique<ast::block>();
 
     // loop until block end
-    while (!match(token_type::BLOCK_END)) {
+    while (!match(BLOCK_END)) {
         // error if file ends before block
         if (at_end())
-            throw syntax_error(peek(), "Expected explicit block end '}' but found file end instead");
+            throw error::syntax(peek(), "Expected explicit block end '}' but found file end instead");
 
         block->stmts.emplace_back(statement());
     }
 
     // prevent empty code blocks
     if (block->stmts.empty())
-        throw syntax_error(previous(), "Empty blocks are unsupported!");
+        throw error::syntax(previous(), "Empty blocks are unsupported!");
 
     return block;
 }
@@ -129,10 +135,10 @@ parser::stmt_ptr parser::if_else()
     stmt->condition = expect_expression();
     stmt->exec_stmt = statement();
 
-    if (match(token_type::ELSE_IF))
+    if (match(ELSE_IF))
         stmt->else_stmt = if_else();
 
-    else if (match(token_type::ELSE))
+    else if (match(ELSE))
         stmt->else_stmt = statement();
 
     return stmt;
@@ -151,7 +157,7 @@ parser::stmt_ptr parser::return_stmt()
 {
     u_ptr<ast::return_stmt> stmt = std::make_unique<ast::return_stmt>();
 
-    if (!(peek() == token_type::STATEMENT_END || peek() == token_type::NEW_LINE))
+    if (!(peek() == STATEMENT_END || peek() == NEW_LINE))
         stmt->returned = expect_expression();
 
     match_stmt_end();
@@ -160,7 +166,7 @@ parser::stmt_ptr parser::return_stmt()
 
 parser::stmt_ptr parser::flow()
 {
-    stmt_ptr stmt = std::make_unique<ast::flow>(previous() == token_type::CONTINUE);
+    stmt_ptr stmt = std::make_unique<ast::flow>(previous() == CONTINUE);
 
     match_stmt_end();
     return stmt;
@@ -173,26 +179,26 @@ parser::u_ptr<ast::function> parser::function()
     const token& t_name = peek();
     const char* return_type = nullptr;
 
-    match_or_throw(token_type::IDENTIFIER, t_func, "Expected identifier after function keyword.");
+    match_or_throw(IDENTIFIER, t_func, "Expected identifier after function keyword.");
 
-    match_or_throw(token_type::BRACKET_L, t_func, "Expected to find '(' character for function paramaters.");
+    match_or_throw(BRACKET_L, t_func, "Expected to find '(' character for function paramaters.");
 
     std::vector<u_ptr<ast::var_declare>> params;
 
-    if (peek() != token_type::BRACKET_R) {
+    if (peek() != BRACKET_R) {
         do {
             if (!peek_is_var_declare())
-                throw syntax_error(peek(), "Expected function paramater declaration.");
+                throw error::syntax(peek(), "Expected function paramater declaration.");
 
             params.emplace_back(var_declare());
-        } while(match(token_type::COMMA));
+        } while(match(COMMA));
     }
 
-    match_or_throw(token_type::BRACKET_R, peek(), "Could not find closing ')' for function paramater list.");
+    match_or_throw(BRACKET_R, peek(), "Could not find closing ')' for function paramater list.");
 
     // function return type defined with '>'
     // func IDENTIFIER() [> [CORE_TYPE_* | IDENTIFIER | KEYWORD_NULL]
-    if (match(token_type::GREATER_THAN))
+    if (match(GREATER_THAN))
     {
         const token& t_type = peek();
 
@@ -201,12 +207,12 @@ parser::u_ptr<ast::function> parser::function()
             m_index++;
         }
 
-        else if (t_type == token_type::KEYWORD_NULL) {
+        else if (t_type == KEYWORD_NULL) {
             m_index++;
         }
 
         else
-            throw syntax_error(t_type, "Expected type or null for function return type.");
+            throw error::syntax(t_type, "Expected type or null for function return type.");
     }
 
     stmt = std::make_unique<ast::function>(t_name.data.string, return_type);
@@ -225,7 +231,7 @@ parser::u_ptr<ast::function> parser::function()
 parser::u_ptr<ast::component> parser::component()
 {
     const token& t_name = peek();
-    match_or_throw(token_type::IDENTIFIER, t_name, "Expected component name.");
+    match_or_throw(IDENTIFIER, t_name, "Expected component name.");
 
     u_ptr<ast::component> stmt = std::make_unique<ast::component>(t_name.data.string);
 
@@ -237,16 +243,16 @@ parser::u_ptr<ast::component> parser::component()
 
     bool block_implicit = false;
 
-    if (match(token_type::COLON) && match(token_type::NEW_LINE)) {
+    if (match(COLON) && match(NEW_LINE)) {
         block_implicit = true;
         inner_indent = peek().pos.indent;
 
         if (inner_indent <= outer_indent)
-            throw syntax_error(peek(), "Body of implicit block should have greater indent than the outer body.");
+            throw error::syntax(peek(), "Body of implicit block should have greater indent than the outer body.");
     }
 
-    else if (!match(token_type::BLOCK_START))
-        throw syntax_error(peek(), "Expected block start after component declaration.");
+    else if (!match(BLOCK_START))
+        throw error::syntax(peek(), "Expected block start after component declaration.");
 
     do
     {
@@ -257,15 +263,15 @@ parser::u_ptr<ast::component> parser::component()
             match_stmt_end();
         }
 
-        if (match(token_type::FUNCTION))
+        if (match(FUNCTION))
             stmt->funcs.push_back(function());
 
-    } while (peek() != token_type::FILE_END
-                && ((!block_implicit && !match(token_type::BLOCK_END))
+    } while (peek() != FILE_END
+                && ((!block_implicit && !match(BLOCK_END))
              || (block_implicit && peek().pos.indent >= inner_indent)));
 
-    if (!block_implicit && previous() != token_type::BLOCK_END)
-        throw syntax_error(peek(), "Expected could not find enclosing '}' for block.");
+    if (!block_implicit && previous() != BLOCK_END)
+        throw error::syntax(peek(), "Expected could not find enclosing '}' for block.");
 
     return stmt;
 }

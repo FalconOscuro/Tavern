@@ -9,8 +9,9 @@
 
 namespace cantrip::ast {
 
-struct block : public statement
+class block : public statement
 {
+public:
     block() = default;
     ~block() = default;
 

@@ -10,10 +10,11 @@
 
 namespace cantrip::ast {
 
-struct call : public expression
+class call : public expression
 {
-    call(const char* p_name, expression* caller = nullptr) :
-        caller(caller), name(p_name)
+public:
+    call(const file_pos& pos, const char* p_name, expression* caller = nullptr) :
+        expression(pos), caller(caller), name(p_name)
     {}
     ~call() = default;
 

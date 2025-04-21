@@ -8,8 +8,9 @@
 
 namespace cantrip::ast {
 
-struct for_stmt : public statement
+class for_stmt : public statement
 {
+public:
     for_stmt() = default;
     ~for_stmt() = default;
 

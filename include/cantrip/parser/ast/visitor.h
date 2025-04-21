@@ -3,47 +3,47 @@
 
 namespace cantrip::ast {
 
-struct node;
+class node;
 
-struct binary;
-struct call;
-struct core_type;
-struct grouping;
-struct identifier;
-struct literal;
-struct unary;
+class binary;
+class call;
+class core_type;
+class grouping;
+class identifier;
+class literal;
+class unary;
 
-struct block;
-struct component;
-struct expr_stmt;
-struct flow;
-struct for_stmt;
-struct function;
-struct if_else;
-struct return_stmt;
-struct var_declare;
-struct while_stmt;
+class block;
+class component;
+class expr_stmt;
+class flow;
+class for_stmt;
+class function;
+class if_else;
+class return_stmt;
+class var_declare;
+class while_stmt;
 
 class visitor
 {
-    friend struct binary;
-    friend struct call;
-    friend struct core_type;
-    friend struct grouping;
-    friend struct identifier;
-    friend struct literal;
-    friend struct unary;
+    friend class binary;
+    friend class call;
+    friend class core_type;
+    friend class grouping;
+    friend class identifier;
+    friend class literal;
+    friend class unary;
 
-    friend struct block;
-    friend struct component;
-    friend struct expr_stmt;
-    friend struct flow;
-    friend struct for_stmt;
-    friend struct function;
-    friend struct if_else;
-    friend struct return_stmt;
-    friend struct var_declare;
-    friend struct while_stmt;
+    friend class block;
+    friend class component;
+    friend class expr_stmt;
+    friend class flow;
+    friend class for_stmt;
+    friend class function;
+    friend class if_else;
+    friend class return_stmt;
+    friend class var_declare;
+    friend class while_stmt;
 
 public:
 

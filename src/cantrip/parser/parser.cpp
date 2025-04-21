@@ -16,7 +16,7 @@ module_info parser::parse_module()
             info.functions.emplace_back(function());
 
         else 
-            throw syntax_error(peek(), "Invalid top-level statement!");
+            throw error::syntax(peek(), "Invalid top-level statement!");
     }
 
     return info;

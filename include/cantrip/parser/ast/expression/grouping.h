@@ -7,9 +7,11 @@
 
 namespace cantrip::ast {
 
-struct grouping : public expression
+class grouping : public expression
 {
-    grouping(expression* expr): expr(expr)
+public:
+    grouping(const file_pos& pos, expression* expr):
+       expression(pos), expr(expr)
     {}
     ~grouping() = default;
 

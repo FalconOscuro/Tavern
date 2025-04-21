@@ -13,10 +13,11 @@ enum unary_operator {
     MINUS
 };
 
-struct unary : public expression
+class unary : public expression
 {
-    unary(unary_operator type, expression* expr):
-        type(type), expr(expr)
+public:
+    unary(const file_pos& pos, unary_operator type, expression* expr):
+        expression(pos), type(type), expr(expr)
     {}
     ~unary() = default;
 

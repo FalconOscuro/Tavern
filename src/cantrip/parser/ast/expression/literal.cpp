@@ -5,7 +5,9 @@
 
 namespace cantrip::ast {
 
-literal::literal(const char* c): m_type(literal_type::STRING) {
+literal::literal(const file_pos& pos, const char* c):
+    expression(pos), m_type(literal_type::STRING)
+{
     m_data.string = new char[strlen(c) + 1];
     strcpy(m_data.string, c);
 }

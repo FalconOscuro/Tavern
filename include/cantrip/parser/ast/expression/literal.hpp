@@ -16,39 +16,31 @@ enum literal_type {
     FLOAT
 };
 
-struct literal : public expression
+class literal : public expression
 {
-private:
-    literal_type m_type = LIT_NULL;
-
-    void clear_data() {
-        if (m_type == STRING)
-            delete[] m_data.string;
-    }
-
-    union {
-        char* string = nullptr;
-        int integer;
-        float floating;
-    } m_data;
-
 public:
 
-    literal(): m_type(LIT_NULL) {}
+    literal(const file_pos& pos): 
+        expression(pos), m_type(LIT_NULL)
+    {}
 
-    literal(bool b) {
+    literal(const file_pos& pos, bool b): expression(pos) {
         m_type = (b ? TRUE : FALSE);
     }
 
-    literal(int i): m_type(INTEGER) {
+    literal(const file_pos& pos, int i):
+        expression(pos), m_type(INTEGER)
+    {
         m_data.integer = i;
     }
 
-    literal(float f): m_type(FLOAT) {
+    literal(const file_pos& pos, float f):
+        expression(pos), m_type(FLOAT)
+    {
         m_data.floating = f;
     }
 
-    literal(const char* c);
+    literal(const file_pos& pos, const char* c);
 
     ~literal() {
         clear_data();
@@ -65,6 +57,20 @@ public:
     int get_integer() const;
     float get_float() const;
     const char* get_string() const;
+
+private:
+    literal_type m_type = LIT_NULL;
+
+    void clear_data() {
+        if (m_type == STRING)
+            delete[] m_data.string;
+    }
+
+    union {
+        char* string = nullptr;
+        int integer;
+        float floating;
+    } m_data;
 }; /* class literal */
 
 } /* namespace cantrip::ast */

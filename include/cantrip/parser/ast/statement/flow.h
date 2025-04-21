@@ -7,8 +7,9 @@
 
 namespace cantrip::ast {
 
-struct flow : public statement
+class flow : public statement
 {
+public:
     bool is_continue;
 
     flow(bool is_continue) : is_continue(is_continue)

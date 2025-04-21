@@ -14,8 +14,9 @@
 
 namespace cantrip::ast {
 
-struct c_struct : public statement
+class c_struct : public statement
 {
+public:
     c_struct(const char* p_name): name(p_name) {}
     virtual ~c_struct() = default;
 

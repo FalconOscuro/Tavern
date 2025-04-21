@@ -9,9 +9,12 @@
 
 namespace cantrip::ast {
 
-struct identifier : public expression
+class identifier : public expression
 {
-    identifier(const char* s): name(s) {}
+public:
+    identifier(const file_pos& pos, const char* s): 
+        expression(pos), name(s)
+    {}
     ~identifier() = default;
 
     void accept(visitor* v) override {

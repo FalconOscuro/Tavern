@@ -61,6 +61,11 @@ target_sources(Cantrip PRIVATE
     
     src/cantrip/parser/ast/node.cpp
     src/cantrip/parser/ast/visitor.cpp
+
+    src/cantrip/analyzer/semantic.cpp
+
+    src/cantrip/error/exception.cpp
+    src/cantrip/error/semantic_error.cpp
 )
 
 target_link_libraries(Cantrip PUBLIC Tavern-File)
