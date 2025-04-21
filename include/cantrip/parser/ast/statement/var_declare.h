@@ -10,12 +10,51 @@
 
 namespace cantrip::ast {
 
+class c_struct;
+
+enum var_type_info {
+    UNRESOLVED,
+    CORE_INT,
+    CORE_FLOAT,
+    CORE_STRING,
+    CORE_BOOL,
+    CUSTOM
+};
+
+class var_type
+{
+public:
+    var_type(const char* type_name);
+    var_type(const var_type& t);
+    ~var_type();
+
+    var_type_info type_info() const {
+        return m_type;
+    }
+
+    const std::string_view name() const;
+    const c_struct* get_custom_type() const;
+
+    void resolve(const c_struct* type);
+
+    var_type& operator=(const var_type& t);
+
+private:
+    void set_unresolved_name(const char* type_name);
+    void clear_data();
+
+    var_type_info m_type;
+
+    union {
+        char* unresolved_name = nullptr;
+        const c_struct* custom;
+    } m_data;
+};
+
 class var_declare : public statement
 {
 public:
-    var_declare(const char* p_type, const char* p_name):
-        type(p_type), name(p_name)
-    {}
+    var_declare(const char* p_type, const char* p_name);
     ~var_declare() = default;
 
     var_declare(const var_declare&) = delete;
@@ -25,13 +64,8 @@ public:
         v->visit_var_declare(this);
     }
 
-    // TODO: Extend in future for implementing proper type resolution through ast nodes
-    const std::string_view get_type_name() const {
-        return type;
-    }
 
-    // TODO: Could be replaced by ID system, would require scope tracking through parsing to maintain unmagled name for runtime referencing
-    std::string type;
+    var_type type;
     std::string name;
 
     u_expression_ptr expr = nullptr;

@@ -9,7 +9,6 @@
 #include "statement/function.h"
 #include "statement/if_else.h"
 #include "statement/return_stmt.h"
-#include "statement/type.h"
 #include "statement/var_declare.h"
 #include "statement/while_stmt.h"
 
