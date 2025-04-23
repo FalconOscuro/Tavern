@@ -190,7 +190,12 @@ parser::u_ptr<ast::function> parser::function()
             if (!peek_is_var_declare())
                 throw error::syntax(peek(), "Expected function paramater declaration.");
 
-            params.emplace_back(var_declare());
+            u_ptr<ast::var_declare> param = var_declare();
+            if (param->expr)
+                throw error::syntax(previous(), "Default parameter assignment is unsupported");
+
+
+            params.emplace_back(param.release());
         } while(match(COMMA));
     }
 

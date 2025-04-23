@@ -3,23 +3,38 @@
 
 namespace cantrip {
 
-module_info parser::parse_module()
+void parser::parse_module(ast::module& module)
 {
-    module_info info;
-
     while (!at_end())
     {
+        // for error throwing
+        const token& t = peek();
+
         if (match(COMPONENT))
-            info.components.emplace_back(component());
+        {
+            using u_component_ptr = ast::module::u_component_ptr;
+            u_component_ptr stmt = component();
+
+            if (module.components.count(stmt->name))
+                throw error::syntax(t, "Typename redifinition");
+
+            module.components.emplace(std::make_pair(stmt->name, u_component_ptr(stmt.release())));
+        }
 
         else if (match(FUNCTION))
-            info.functions.emplace_back(function());
+        {
+            using u_function_ptr = ast::module::u_function_ptr;
+            u_function_ptr stmt = function();
+
+            if (module.functions.count(stmt->name))
+                throw error::syntax(t, "Function redinition, overloaded functions are currently unsupported");
+
+            module.functions.emplace(std::make_pair(stmt->name, u_function_ptr(stmt.release())));
+        }
 
         else 
-            throw error::syntax(peek(), "Invalid top-level statement!");
+            throw error::syntax(t, "Invalid top-level statement!");
     }
-
-    return info;
 }
 
 // TODO:

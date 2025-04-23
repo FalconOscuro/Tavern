@@ -33,6 +33,7 @@ public:
     // refer through id?
     // use shared ptr?
 
+    // TODO: Switch to unordered_map
     std::vector<std::unique_ptr<var_declare>> vars;
     std::vector<std::unique_ptr<function>> funcs;
 

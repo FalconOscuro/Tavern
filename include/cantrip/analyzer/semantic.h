@@ -3,6 +3,9 @@
 
 #include "cantrip/parser/ast/visitor.h"
 
+#include "cantrip/parser/ast/module.h"
+#include "cantrip/parser/ast/statement/var_declare.h"
+
 #include <deque>
 #include <string_view>
 #include <unordered_map>
@@ -45,6 +48,8 @@ public:
     semantic();
     virtual ~semantic();
 
+    void analyze_module(ast::module* module);
+
 protected:
 
     // expressions
@@ -71,10 +76,13 @@ protected:
 private:
 
     environment_stack m_env_stack;
+    ast::var_type m_type;
 
     // currently only used for member function lookup within struct
     // could be useful later on if self/this keyword added
     const ast::component* m_self_env;
+
+    ast::module* m_module;
 }; /* end of class semantic_analyzer */
 
 } /* namespace cantrip::analyzer */

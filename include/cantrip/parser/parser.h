@@ -7,9 +7,12 @@
 #include <cassert>
 
 #include "cantrip/error/syntax.h"
-#include "ast/statement/statement.h"
+
+#include "ast/module.h"
+
 #include "ast/expression/expression.h"
 
+#include "ast/statement/statement.h"
 #include "ast/statement/var_declare.h"
 #include "ast/statement/function.h"
 #include "ast/statement/component.h"
@@ -17,15 +20,6 @@
 #include "cantrip/scanner/token.h"
 
 namespace cantrip {
-
-struct module_info
-{
-    using component_ptr = std::shared_ptr<ast::component>;
-    using function_ptr  = std::shared_ptr<ast::function>;
-
-    std::vector<component_ptr> components;
-    std::vector<function_ptr> functions;
-}; /* end of struct module_info */
 
 class parser
 {
@@ -40,7 +34,7 @@ public:
     parser(std::vector<token>& tokens): m_tokens(tokens)
     {}
 
-    module_info parse_module();
+    void parse_module(ast::module& module);
 
     std::vector<stmt_ptr> parse();
 

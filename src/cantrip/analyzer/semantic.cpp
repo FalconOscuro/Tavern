@@ -39,6 +39,21 @@ bool environment_stack::check_identifier(const ast::identifier*identifier) const
     return false;
 }
 
+void semantic::analyze_module(ast::module* module)
+{
+    m_module = module;
+
+    // iterate components
+    for (auto it = module->components.begin(); it != module->components.end(); ++it)
+        visit_component(it->second.get());
+
+    // iterate functions
+    for (auto it = module->functions.begin(); it != module->functions.end(); ++it)
+        visit_function(it->second.get());
+
+    m_module = nullptr;
+}
+
 // expressions
 void semantic::visit_binary(ast::binary* binary)
 {

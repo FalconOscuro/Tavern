@@ -24,8 +24,11 @@ enum var_type_info {
 class var_type
 {
 public:
+    var_type();
     var_type(const char* type_name);
+    var_type(var_type_info type_info);
     var_type(const var_type& t);
+
     ~var_type();
 
     var_type_info type_info() const {
@@ -38,6 +41,9 @@ public:
     void resolve(const c_struct* type);
 
     var_type& operator=(const var_type& t);
+
+    bool operator==(const var_type& t) const;
+    bool operator!=(const var_type& t) const;
 
 private:
     void set_unresolved_name(const char* type_name);

@@ -35,7 +35,9 @@ public:
     std::string name;
 
     // NOTE: Temporary
+    // Should this make use of custom type instead of re-use of var_declare?
     // no further inheritance chain, assigment used for default param values
+    // TODO: Switch to unordered_map
     std::vector<std::unique_ptr<var_declare>> params;
     
     u_statement_ptr body;
