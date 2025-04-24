@@ -1,4 +1,4 @@
-#include "cantrip/parser/ast/statement/struct.h"
+#include "cantrip/ast/statement/struct.h"
 
 namespace cantrip::ast {
 

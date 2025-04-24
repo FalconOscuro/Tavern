@@ -1,6 +1,6 @@
-#include "cantrip/parser/ast/statement/var_declare.h"
+#include "cantrip/ast/statement/var_declare.h"
 
-#include "cantrip/parser/ast/statement/struct.h"
+#include "cantrip/ast/statement/struct.h"
 
 namespace cantrip::ast {
 

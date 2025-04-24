@@ -8,14 +8,14 @@
 
 #include "cantrip/error/syntax.h"
 
-#include "ast/module.h"
+#include "cantrip/ast/module.h"
 
-#include "ast/expression/expression.h"
+#include "cantrip/ast/expression/expression.h"
 
-#include "ast/statement/statement.h"
-#include "ast/statement/var_declare.h"
-#include "ast/statement/function.h"
-#include "ast/statement/component.h"
+#include "cantrip/ast/statement/statement.h"
+#include "cantrip/ast/statement/var_declare.h"
+#include "cantrip/ast/statement/function.h"
+#include "cantrip/ast/statement/component.h"
 
 #include "cantrip/scanner/token.h"
 

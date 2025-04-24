@@ -56,14 +56,13 @@ target_sources(Cantrip PRIVATE
     src/cantrip/parser/parser-stmt.cpp
     src/cantrip/parser/parser.cpp
 
-    src/cantrip/parser/ast/expression/literal.cpp
+    src/cantrip/ast/expression/literal.cpp
 
-    src/cantrip/parser/ast/statement/struct.cpp
-    src/cantrip/parser/ast/statement/type.cpp
-    src/cantrip/parser/ast/statement/var_declare.cpp
+    src/cantrip/ast/statement/struct.cpp
+    src/cantrip/ast/statement/type.cpp
+    src/cantrip/ast/statement/var_declare.cpp
     
-    src/cantrip/parser/ast/node.cpp
-    src/cantrip/parser/ast/visitor.cpp
+    src/cantrip/ast/visitor.cpp
 
     src/cantrip/analyzer/semantic.cpp
 

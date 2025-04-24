@@ -1,4 +1,4 @@
-#include "cantrip/parser/ast/expression/literal.hpp"
+#include "cantrip/ast/expression/literal.hpp"
 
 #include <cassert>
 #include <cstring>

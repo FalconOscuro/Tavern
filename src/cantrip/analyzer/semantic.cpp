@@ -1,7 +1,7 @@
 #include "cantrip/analyzer/semantic.h"
 
-#include "cantrip/parser/ast/ast_expr.h"
-#include "cantrip/parser/ast/ast_stmt.h"
+#include "cantrip/ast/ast_expr.h"
+#include "cantrip/ast/ast_stmt.h"
 
 #include "cantrip/error/semantic_error.h"
 

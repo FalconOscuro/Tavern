@@ -1,6 +1,6 @@
-#include "cantrip/parser/ast/visitor.h"
+#include "cantrip/ast/visitor.h"
 
-#include "cantrip/parser/ast/node.h"
+#include "cantrip/ast/node.h"
 
 namespace cantrip::ast {
 

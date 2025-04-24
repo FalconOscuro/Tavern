@@ -1,9 +1,9 @@
-#include "cantrip/parser/ast/statement/type.h"
+#include "cantrip/ast/statement/type.h"
 
 #include <cassert>
 #include <cstring>
 
-#include "cantrip/parser/ast/statement/struct.h"
+#include "cantrip/ast/statement/struct.h"
 
 namespace cantrip::ast {
 

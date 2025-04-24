@@ -1,10 +1,10 @@
 #ifndef SEMANTIC_ANALYZER_H
 #define SEMANTIC_ANALYZER_H
 
-#include "cantrip/parser/ast/visitor.h"
+#include "cantrip/ast/visitor.h"
 
-#include "cantrip/parser/ast/module.h"
-#include "cantrip/parser/ast/statement/var_declare.h"
+#include "cantrip/ast/module.h"
+#include "cantrip/ast/statement/var_declare.h"
 
 #include <deque>
 #include <string_view>

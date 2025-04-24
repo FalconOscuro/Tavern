@@ -3,11 +3,11 @@
 
 #include "exception.h"
 
-#include "cantrip/parser/ast/expression/identifier.h"
+#include "cantrip/ast/expression/identifier.h"
 
-#include "cantrip/parser/ast/statement/struct.h"
-#include "cantrip/parser/ast/statement/function.h"
-#include "cantrip/parser/ast/statement/var_declare.h"
+#include "cantrip/ast/statement/struct.h"
+#include "cantrip/ast/statement/function.h"
+#include "cantrip/ast/statement/var_declare.h"
 
 // not all strictly used in semantic analyzer,
 // some ast nodes have been shifted to utilize

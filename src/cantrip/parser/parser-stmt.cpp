@@ -1,17 +1,15 @@
 #include "cantrip/parser/parser.h"
 
-#include <exception>
+#include "cantrip/ast/expression/expression.h"
 
-#include "cantrip/parser/ast/expression/expression.h"
-
-#include "cantrip/parser/ast/statement/expr_stmt.h"
-#include "cantrip/parser/ast/statement/block.h"
-#include "cantrip/parser/ast/statement/var_declare.h"
-#include "cantrip/parser/ast/statement/if_else.h"
-#include "cantrip/parser/ast/statement/while_stmt.h"
-#include "cantrip/parser/ast/statement/return_stmt.h"
-#include "cantrip/parser/ast/statement/flow.h"
-#include "cantrip/parser/ast/statement/function.h"
+#include "cantrip/ast/statement/expr_stmt.h"
+#include "cantrip/ast/statement/block.h"
+#include "cantrip/ast/statement/var_declare.h"
+#include "cantrip/ast/statement/if_else.h"
+#include "cantrip/ast/statement/while_stmt.h"
+#include "cantrip/ast/statement/return_stmt.h"
+#include "cantrip/ast/statement/flow.h"
+#include "cantrip/ast/statement/function.h"
 
 #include "cantrip/error/semantic_error.h"
 

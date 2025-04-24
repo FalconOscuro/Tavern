@@ -2,13 +2,13 @@
 
 #include <flib/exception/unimplemented.hpp>
 
-#include "cantrip/parser/ast/expression/binary.h"
-#include "cantrip/parser/ast/expression/unary.h"
-#include "cantrip/parser/ast/expression/grouping.h"
-#include "cantrip/parser/ast/expression/literal.hpp"
-#include "cantrip/parser/ast/expression/identifier.h"
-#include "cantrip/parser/ast/expression/call.h"
-#include "cantrip/parser/ast/expression/core_type.h"
+#include "cantrip/ast/expression/binary.h"
+#include "cantrip/ast/expression/unary.h"
+#include "cantrip/ast/expression/grouping.h"
+#include "cantrip/ast/expression/literal.hpp"
+#include "cantrip/ast/expression/identifier.h"
+#include "cantrip/ast/expression/call.h"
+#include "cantrip/ast/expression/core_type.h"
 
 namespace cantrip {
 
