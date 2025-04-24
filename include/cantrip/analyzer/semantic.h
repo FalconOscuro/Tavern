@@ -76,7 +76,7 @@ protected:
 private:
 
     environment_stack m_env_stack;
-    ast::var_type m_type;
+    ast::type m_type;
 
     // currently only used for member function lookup within struct
     // could be useful later on if self/this keyword added

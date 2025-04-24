@@ -189,8 +189,22 @@ void semantic::visit_return_stmt(ast::return_stmt* return_stmt)
 
 void semantic::visit_var_declare(ast::var_declare* var_declare)
 {
+    if (var_declare->vtype.get_type_info() == ast::UNRESOLVED)
+    {
+        auto found = m_module->components.find(var_declare->vtype.name());
+
+        if (found == m_module->components.end())
+            throw error::unkown_typename(var_declare);
+
+        var_declare->vtype.resolve(found->second.get());
+    }
+
     if (var_declare->expr)
+    {
         var_declare->expr->accept(this);
+
+        // TODO: Check if same type or convertable
+    }
 
     if (!m_env_stack.push_var(var_declare))
         throw error::redefinition(var_declare);
