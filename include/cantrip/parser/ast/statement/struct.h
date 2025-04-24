@@ -17,6 +17,18 @@ namespace cantrip::ast {
 class c_struct : public statement
 {
 public:
+    using u_var_ptr = std::unique_ptr<var_declare>;
+    using u_func_ptr = std::unique_ptr<function>;
+
+    using var_declare_container = std::vector<var_declare*>;
+    using function_containter = std::vector<function*>;
+
+    using var_iterator = var_declare_container::iterator;
+    using const_var_iterator = var_declare_container::const_iterator;
+
+    using func_iterator = function_containter::iterator;
+    using const_func_iterator = function_containter::const_iterator;
+
     c_struct(const char* p_name): name(p_name) {}
     virtual ~c_struct() = default;
 
@@ -29,13 +41,80 @@ public:
 
     std::string name;
 
+    // overloads for unique_ptrs
+    // will take ownership if add is successful
+    bool try_add_func(u_func_ptr& func);
+    bool try_add_var(u_var_ptr& var);
+
+    bool try_add_func(function* func);
+    bool try_add_var(var_declare* var);
+
+    function* try_get_func(const std::string_view func_name);
+    var_declare* try_get_var(const std::string_view var_name);
+
+    const function* try_get_func(const std::string_view func_name) const;
+    const var_declare* try_get_var(const std::string_view var_name) const;
+
+    /// iterators
+    // var
+    inline var_iterator vars_begin() noexcept {
+        return m_vars.begin();
+    }
+
+    inline const_var_iterator vars_begin() const noexcept {
+        return m_vars.cbegin();
+    }
+
+    inline const_var_iterator vars_cbegin() const noexcept {
+        return m_vars.cbegin();
+    }
+
+    inline var_iterator vars_end() noexcept {
+        return m_vars.end();
+    }
+
+    inline const_var_iterator vars_end() const noexcept {
+        return m_vars.cend();
+    }
+
+    inline const_var_iterator vars_cend() const noexcept {
+        return m_vars.cend();
+    }
+
+    // function
+    inline func_iterator funcs_begin() noexcept {
+        return m_funcs.begin();
+    }
+
+    inline const_func_iterator funcs_begin() const noexcept {
+        return m_funcs.cbegin();
+    }
+
+    inline const_func_iterator funcs_cbegin() const noexcept {
+        return m_funcs.cbegin();
+    }
+
+    inline func_iterator funcs_end() noexcept {
+        return m_funcs.end();
+    }
+
+    inline const_func_iterator funcs_end() const noexcept {
+        return m_funcs.cend();
+    }
+
+    inline const_func_iterator funcs_cend() const noexcept {
+        return m_funcs.cend();
+    }
+
+private:
+
     // give vars/functions an id
     // refer through id?
-    // use shared ptr?
+    var_declare_container m_vars;
+    function_containter m_funcs;
 
-    // TODO: Switch to unordered_map
-    std::vector<std::unique_ptr<var_declare>> vars;
-    std::vector<std::unique_ptr<function>> funcs;
+    std::unordered_map<std::string_view, u_var_ptr> m_var_map;
+    std::unordered_map<std::string_view, u_func_ptr> m_func_map;
 
 }; /* end of struct c_struct */
 

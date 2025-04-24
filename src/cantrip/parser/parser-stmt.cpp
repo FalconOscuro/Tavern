@@ -1,7 +1,8 @@
-#include "cantrip/parser/ast/expression/expression.h"
 #include "cantrip/parser/parser.h"
 
 #include <exception>
+
+#include "cantrip/parser/ast/expression/expression.h"
 
 #include "cantrip/parser/ast/statement/expr_stmt.h"
 #include "cantrip/parser/ast/statement/block.h"
@@ -11,6 +12,8 @@
 #include "cantrip/parser/ast/statement/return_stmt.h"
 #include "cantrip/parser/ast/statement/flow.h"
 #include "cantrip/parser/ast/statement/function.h"
+
+#include "cantrip/error/semantic_error.h"
 
 namespace cantrip {
 
@@ -263,13 +266,23 @@ parser::u_ptr<ast::component> parser::component()
     {
         discard_tokens();
 
-        if (peek_is_var_declare()) {
-            stmt->vars.push_back(var_declare());
+        if (peek_is_var_declare())
+        {
+            u_ptr<ast::var_declare> var = var_declare();
+
+            if (!stmt->try_add_var(var))
+                throw error::redefinition(var.get());
+
             match_stmt_end();
         }
 
         if (match(FUNCTION))
-            stmt->funcs.push_back(function());
+        {
+            u_ptr<ast::function> func = function();
+
+            if (!stmt->try_add_func(func))
+                throw error::redefinition(func.get());
+        }
 
     } while (peek() != FILE_END
                 && ((!block_implicit && !match(BLOCK_END))

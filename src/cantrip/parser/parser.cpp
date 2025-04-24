@@ -1,5 +1,8 @@
 #include "cantrip/parser/parser.h"
+
 #include <stdexcept>
+
+#include "cantrip/error/semantic_error.h"
 
 namespace cantrip {
 
@@ -16,7 +19,7 @@ void parser::parse_module(ast::module& module)
             u_component_ptr stmt = component();
 
             if (module.components.count(stmt->name))
-                throw error::syntax(t, "Typename redifinition");
+                throw error::redefinition(stmt.get());
 
             module.components.emplace(std::make_pair(stmt->name, u_component_ptr(stmt.release())));
         }
@@ -27,7 +30,7 @@ void parser::parse_module(ast::module& module)
             u_function_ptr stmt = function();
 
             if (module.functions.count(stmt->name))
-                throw error::syntax(t, "Function redinition, overloaded functions are currently unsupported");
+                throw error::redefinition(stmt.get());
 
             module.functions.emplace(std::make_pair(stmt->name, u_function_ptr(stmt.release())));
         }

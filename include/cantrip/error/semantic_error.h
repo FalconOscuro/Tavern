@@ -9,6 +9,11 @@
 #include "cantrip/parser/ast/statement/function.h"
 #include "cantrip/parser/ast/statement/var_declare.h"
 
+// not all strictly used in semantic analyzer,
+// some ast nodes have been shifted to utilize
+// hash maps, and are capable of picking up on
+// redefinitions during parsing
+
 namespace cantrip::error {
 
 class redefinition : public exception {

@@ -111,19 +111,14 @@ void semantic::visit_component(ast::component* component)
 
     m_env_stack.push();
 
-    // first pass, visit var decls for analysis
-    for (size_t i = 0; i < component->vars.size(); ++i)
+    // visit vars
+    for (auto it = component->vars_begin(); it != component->vars_end(); ++it)
         // Should not cause issues if following visitor pattern
-        visit_var_declare(component->vars[i].get());
-
-    // second pass, add declared vars to current scope
-    //for (size_t i = 0; i < component->vars.size(); ++i)
-        // TODO: Throw err on push failure
-    //    m_env_stack.top().push_var(component->vars[i].get());
+        visit_var_declare(*it);
 
     // visit functions
-    for (size_t i = 0; i < component->funcs.size(); ++i)
-        visit_function(component->funcs[i].get());
+    for (auto it = component->funcs_begin(); it != component->funcs_end(); ++it)
+        visit_function(*it);
 
     m_env_stack.pop();
     m_self_env = nullptr;
