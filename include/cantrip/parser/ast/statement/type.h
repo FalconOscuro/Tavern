@@ -9,7 +9,7 @@ class c_struct;
 
 enum type_info {
     UNRESOLVED,
-    VOID, // Used for functions without return, should throw error if used elsewhere
+    NONE, // Used for functions without return, should throw error if used elsewhere
     CORE_INT,
     CORE_FLOAT,
     CORE_STRING,

@@ -8,12 +8,15 @@
 namespace cantrip::ast {
 
 type::type():
-    m_type(VOID)
+    m_type(NONE)
 {}
 
 type::type(const char* type_name)
 {
-    if (strcmp(type_name, "int") == 0)
+    if (!type_name || "null")
+        m_type = NONE;
+
+    else if (strcmp(type_name, "int") == 0)
         m_type = CORE_INT;
 
     else if (strcmp(type_name, "float") == 0)
@@ -48,8 +51,8 @@ const std::string_view type::name() const
 {
     switch (m_type)
     {
-    case VOID:
-        return "void";
+    case NONE:
+        return "null";
 
     case CORE_INT:
         return "int";
