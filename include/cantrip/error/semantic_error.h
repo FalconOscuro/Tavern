@@ -8,6 +8,7 @@
 #include "cantrip/ast/statement/struct.h"
 #include "cantrip/ast/statement/function.h"
 #include "cantrip/ast/statement/var_declare.h"
+#include "cantrip/ast/statement/flow.h"
 
 // not all strictly used in semantic analyzer,
 // some ast nodes have been shifted to utilize
@@ -37,13 +38,20 @@ public:
 class unkown_typename : public exception
 {
 public:
-
     unkown_typename(const ast::function* func);
     unkown_typename(const ast::var_declare* var);
     
     unkown_typename(const file_pos& pos, const ast::type& type);
 
     ~unkown_typename() = default;
+};
+
+class not_in_loop : public exception
+{
+public:
+    not_in_loop(const ast::flow* flow);
+
+    ~not_in_loop() = default;
 };
 
 } /* namespace cantrip::error */

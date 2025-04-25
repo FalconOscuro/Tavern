@@ -17,16 +17,20 @@ struct environment
 {
     // need better way for storing variable types?
     std::unordered_map<std::string_view, const ast::var_declare*> variables;
+
+    bool is_loop = false;
 };
 
 struct environment_stack
 {
     // check for matching var declares at this level
     bool push_var(const ast::var_declare* var);
-    bool check_identifier(const ast::identifier* identifier) const;
+    const ast::var_declare* check_identifier(const ast::identifier* identifier) const;
 
-    void push() {
-        env_stack.emplace_back();
+    bool in_loop() const;
+
+    void push(bool is_loop = false) {
+        env_stack.emplace_back().is_loop = is_loop;
     }
 
     void pop() {
@@ -82,7 +86,11 @@ private:
     // could be useful later on if self/this keyword added
     const ast::component* m_self_env;
 
-    ast::module* m_module;
+    // scope for current module being explored, for member function resolution
+    ast::module* m_module = nullptr;
+
+    // scope for current function being explored
+    ast::function* m_function = nullptr;
 }; /* end of class semantic_analyzer */
 
 } /* namespace cantrip::analyzer */

@@ -27,14 +27,24 @@ bool environment_stack::push_var(const ast::var_declare* var)
     }
 }
 
-bool environment_stack::check_identifier(const ast::identifier*identifier) const
+const ast::var_declare* environment_stack::check_identifier(const ast::identifier*identifier) const
 {
     for (size_t i = 0; i < env_stack.size(); ++i) {
         const environment& env = env_stack[env_stack.size() - (i + 1)];
+        auto found = env.variables.find(identifier->name);
 
-        if (env.variables.find(identifier->name) != env.variables.end())
-            return true;
+        if (found != env.variables.end())
+            return found->second;
     }
+
+    return nullptr;
+}
+
+bool environment_stack::in_loop() const
+{
+    for (size_t i = 0; i < env_stack.size(); ++i)
+        if (env_stack[i].is_loop)
+            return true;
 
     return false;
 }
@@ -79,12 +89,39 @@ void semantic::visit_grouping(ast::grouping* grouping) {
 
 void semantic::visit_identifier(ast::identifier* identifier)
 {
-    if (!m_env_stack.check_identifier(identifier))
+    const ast::var_declare* var = m_env_stack.check_identifier(identifier);
+
+    if (var == nullptr)
         throw error::undeclared_identifier(identifier);
+
+    else
+        m_type = var->vtype;
 }
 
-void semantic::visit_literal(ast::literal* literal) {
-    // TODO: Resolve literal type to stack
+void semantic::visit_literal(ast::literal* literal)
+{
+    switch (literal->get_type())
+    {
+    case ast::INTEGER:
+        m_type = ast::type(ast::CORE_INT);
+        break;
+
+    case ast::FLOAT:
+        m_type = ast::CORE_FLOAT;
+        break;
+
+    case ast::TRUE:
+    case ast::FALSE:
+        m_type = ast::type(ast::CORE_BOOL);
+        break;
+
+    case ast::STRING:
+        m_type = ast::type(ast::CORE_STRING);
+        break;
+
+    default:
+        m_type = ast::type();
+    }
 }
 
 void semantic::visit_unary(ast::unary* unary)
@@ -126,17 +163,24 @@ void semantic::visit_component(ast::component* component)
 
 void semantic::visit_expr_stmt(ast::expr_stmt* expr_stmt) {
     expr_stmt->expr->accept(this);    
+    // discard type info
+    m_type = ast::type();
 }
 
-void semantic::visit_flow(ast::flow* flow) {
-    // TODO: Check if scoped inside of while/continue
+void semantic::visit_flow(ast::flow* flow)
+{
+    if (!m_env_stack.in_loop())
+        throw error::not_in_loop(flow);
 }
 
 void semantic::visit_for_stmt(ast::for_stmt* for_stmt)
 {
-    m_env_stack.push();
+    m_env_stack.push(true);
 
+    // UNIMPLEMENTED && TEMPORARY!!
     for_stmt->loop_expr->accept(this);
+    m_type = ast::type();
+
     for_stmt->body->accept(this);
 
     m_env_stack.pop();
@@ -144,6 +188,8 @@ void semantic::visit_for_stmt(ast::for_stmt* for_stmt)
 
 void semantic::visit_function(ast::function* function)
 {
+    // Check if already in function? should be impossible??
+    m_function = function;
     m_env_stack.push();
 
     // WARNING: step out of env stack for checking?
@@ -152,17 +198,19 @@ void semantic::visit_function(ast::function* function)
     for (size_t i = 0; i < function->params.size(); ++i)
         visit_var_declare(function->params[i].get());
 
-    //for (size_t i = 0; i < function->params.size(); ++i)
-    //    m_env_stack.top().push_var(function->params[i].get());
+    // need to check return type, requires caching state as being in function to compare return type in flow
 
     function->body->accept(this);
 
     m_env_stack.pop();
+    m_function = nullptr;
 }
 
 void semantic::visit_if_else(ast::if_else* if_else)
 {
     if_else->condition->accept(this);
+    // check boolean?
+    m_type = ast::type();
 
     // prevent case where single statement if/else
     // defines variable, should warn user if never used
@@ -176,10 +224,16 @@ void semantic::visit_if_else(ast::if_else* if_else)
 
 void semantic::visit_return_stmt(ast::return_stmt* return_stmt)
 {
-    // NOTE: Need to be able to check against encapsulated function return type
+    // not in function throw error, should be impossible?
+    if (!m_function);
 
     if (return_stmt->returned)
         return_stmt->returned->accept(this);
+
+    // mismatched return type, throw error
+    if (m_type != m_function->return_type);
+
+    m_type = ast::type();
 }
 
 void semantic::visit_var_declare(ast::var_declare* var_declare)
@@ -198,7 +252,8 @@ void semantic::visit_var_declare(ast::var_declare* var_declare)
     {
         var_declare->expr->accept(this);
 
-        // TODO: Check if same type or convertable
+        // type mismatch throw err
+        if (m_type != var_declare->vtype);
     }
 
     if (!m_env_stack.push_var(var_declare))
@@ -208,9 +263,10 @@ void semantic::visit_var_declare(ast::var_declare* var_declare)
 void semantic::visit_while_stmt(ast::while_stmt* while_stmt)
 {
     while_stmt->condition->accept(this);
+    m_type = ast::type();
 
     // Avoid issues from declaration in single statement loop
-    m_env_stack.push();
+    m_env_stack.push(true);
     while_stmt->exec_stmt->accept(this);
     m_env_stack.pop();
 }
