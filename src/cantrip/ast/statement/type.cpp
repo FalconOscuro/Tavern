@@ -106,6 +106,52 @@ type& type::operator=(const type& t)
     return *this;
 }
 
+bool type::operator==(const type& t) const
+{
+    // both custom fully resolved types
+    // allows for fast check against pointers
+    // could do additional check against names, but currently deemed un-necessary
+    if (m_type == CUSTOM && t == CUSTOM)
+        return m_data.custom == t.m_data.custom;
+
+    // both custom types with at least one being unresolved
+    // first case is simple both being unresolved
+    // second is fast hacky XOR check of one unresolved other resolved
+    else if ((m_type == UNRESOLVED && t == UNRESOLVED)
+        || ((m_type ^ t.m_type) == (UNRESOLVED ^ CUSTOM)))
+    {
+        // compare names
+        return name() == t.name();
+    }
+
+    else
+        return t == m_type;
+}
+
+bool type::operator!=(const type& t) const
+{
+    // see above
+    if (m_type == CUSTOM && t == CUSTOM)
+        return m_data.custom != t.m_data.custom;
+
+    else if ((m_type == UNRESOLVED && t == UNRESOLVED)
+        || ((m_type ^ t.m_type) == (UNRESOLVED ^ CUSTOM)))
+    {
+        return name() != t.name();
+    }
+
+    else
+        return t != m_type;
+}
+
+bool type::operator==(type_info t) const {
+    return m_type == t;
+}
+
+bool type::operator!=(type_info t) const {
+    return m_type != t;
+}
+
 void type::set_unresolved_name(const char* type_name)
 {
     assert(type_name != nullptr);

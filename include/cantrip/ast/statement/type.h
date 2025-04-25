@@ -41,6 +41,9 @@ public:
     bool operator==(const type& t) const;
     bool operator!=(const type& t) const;
 
+    bool operator==(type_info t) const;
+    bool operator!=(type_info t) const;
+
 private:
     void set_unresolved_name(const char* type_name);
     void clear_data();
