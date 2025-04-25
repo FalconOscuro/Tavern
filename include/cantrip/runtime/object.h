@@ -18,7 +18,6 @@ typedef bool        cantrip_bool;
 typedef std::string cantrip_string;
 
 class object;
-class object_ref;
 struct member_info;
 
 // factory?
@@ -27,6 +26,7 @@ class object_info
 public:
 
     object_info(const ast::type& type);
+    ~object_info() = default;
 
     inline uint32_t size() const {
         return m_size;
@@ -38,7 +38,9 @@ public:
 
     uint32_t offset_of(const std::string_view member) const;
 
-    object_ref create(void* ptr) const;
+    object create(void* ptr) const;
+
+    void destroy(object& obj) const;
     void destroy(void* ptr) const;
 
     inline const ast::type& get_type() const {
@@ -46,7 +48,6 @@ public:
     }
 
 private:
-
 
     ast::type m_type;
 
@@ -64,6 +65,9 @@ struct member_info
         info(args...)
     {}
 
+    object create(void* ptr) const;
+    void destroy(void* ptr) const;
+
     // TODO: eventually could use shared_ptr to reduce repetition of data?
     object_info info;
 
@@ -72,26 +76,48 @@ struct member_info
 }; /* end of struct member_info */
 
 // called object_ref as does not destroy pointed to type when going out of scope
-class object_ref
+class object
 {
 public:
 
-    object_ref(const ast::type& type, void* ptr);
-    object_ref(const object_info& obj_inf, void* ptr);
+    object();
+    object(const object_info* obj_inf, void* ptr);
 
-    ~object_ref();
+    ~object();
+
+    bool is_ref() const {
+        return m_is_ref;
+    }
 
     object call(const std::string_view func_name);
-    object call(const std::string_view func_name, std::vector<object_ref>& args);
+    object call(const std::string_view func_name, std::vector<object>& args);
 
-    object_ref get(const std::string_view var_name);
+    object get(const std::string_view var_name);
 
-    object_ref operator[](const object_ref& obj);
-    object_ref operator[](size_t i);
+    cantrip_int*    get_int();
+    cantrip_float*  get_float();
+    cantrip_bool*   get_bool();
+    cantrip_string* get_string();
+
+    const cantrip_int*    get_int() const;
+    const cantrip_float*  get_float() const;
+    const cantrip_bool*   get_bool() const;
+    const cantrip_string* get_string() const;
+
+    object operator[](const object& obj);
+    object operator[](size_t i);
+
+    const ast::type get_type() const;
 
 private:
 
     void* m_ptr;
+
+    // WARNING: Need to ensure all instances of object are not outlived
+    // by their descriptor, enforce this in the factory
+    object_info* m_info;
+
+    bool m_is_ref;
 }; /* end of class object_ref */
 
 } /* end of namespace cantrip::runtime */
