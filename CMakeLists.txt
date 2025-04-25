@@ -68,6 +68,8 @@ target_sources(Cantrip PRIVATE
 
     src/cantrip/error/exception.cpp
     src/cantrip/error/semantic_error.cpp
+
+    src/cantrip/runtime/object.cpp
 )
 
 target_link_libraries(Cantrip PUBLIC Tavern-File)

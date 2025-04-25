@@ -40,12 +40,10 @@ public:
 
     unkown_typename(const ast::function* func);
     unkown_typename(const ast::var_declare* var);
+    
+    unkown_typename(const file_pos& pos, const ast::type& type);
 
     ~unkown_typename() = default;
-
-private:
-
-    unkown_typename(const file_pos& pos, const ast::type& type);
 };
 
 } /* namespace cantrip::error */
