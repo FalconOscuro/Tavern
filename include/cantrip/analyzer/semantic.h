@@ -59,6 +59,7 @@ protected:
     // expressions
     void visit_binary(ast::binary*) override;
     void visit_call(ast::call*) override;
+    void visit_cast(ast::cast*) override;
     void visit_core_type(ast::core_type*) override;
     void visit_grouping(ast::grouping*) override;
     void visit_identifier(ast::identifier*) override;

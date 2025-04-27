@@ -41,6 +41,7 @@ public:
     unkown_typename(const ast::function* func);
     unkown_typename(const ast::var_declare* var);
     unkown_typename(const ast::call* call);
+    unkown_typename(const ast::cast* cast);
     
     unkown_typename(const file_pos& pos, const ast::type& type);
 

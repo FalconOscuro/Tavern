@@ -124,6 +124,17 @@ void semantic::visit_call(ast::call* call)
         call->params[i]->accept(this);
 }
 
+void semantic::visit_cast(ast::cast* cast)
+{
+    cast->expr->accept(this);
+
+    if (!resolve_type(cast->as_type) || cast->as_type == ast::NONE)
+        throw error::unkown_typename(cast);
+
+    // check if type is convertable...
+    m_type = cast->as_type;
+}
+
 void semantic::visit_grouping(ast::grouping* grouping) {
     grouping->expr->accept(this);
 }

@@ -3,6 +3,7 @@
 
 #include "expression/binary.h"
 #include "expression/call.h"
+#include "expression/cast.h"
 #include "expression/grouping.h"
 #include "expression/identifier.h"
 #include "expression/literal.hpp"
