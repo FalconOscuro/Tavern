@@ -77,12 +77,12 @@ const std::string_view type::name() const
     return "";
 }
 
-const c_struct* type::get_custom_type() const {
+c_struct* type::get_custom_type() const {
     assert(m_type == CUSTOM && "This function is only valid for custom data-types");
     return m_data.custom;
 }
 
-void type::resolve(const c_struct* type)
+void type::resolve(c_struct* type)
 {
     assert(m_type == UNRESOLVED && "Type has alread been resolved");
     assert(type->name == m_data.unresolved_name && "Type names must match");

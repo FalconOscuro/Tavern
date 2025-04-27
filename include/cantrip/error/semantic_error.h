@@ -40,6 +40,7 @@ class unkown_typename : public exception
 public:
     unkown_typename(const ast::function* func);
     unkown_typename(const ast::var_declare* var);
+    unkown_typename(const ast::call* call);
     
     unkown_typename(const file_pos& pos, const ast::type& type);
 
@@ -52,6 +53,23 @@ public:
     not_in_loop(const ast::flow* flow);
 
     ~not_in_loop() = default;
+};
+
+class not_structure : public exception
+{
+public:
+
+    not_structure(const file_pos& pos, const ast::type& type);
+    ~not_structure() = default;
+};
+
+class no_member : public exception
+{
+public:
+
+    no_member(const ast::call* call, const ast::c_struct* struc);
+
+    ~no_member() = default;
 };
 
 } /* namespace cantrip::error */

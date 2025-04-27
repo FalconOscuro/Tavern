@@ -32,9 +32,9 @@ public:
     }
 
     const std::string_view name() const;
-    const c_struct* get_custom_type() const;
+    c_struct* get_custom_type() const;
 
-    void resolve(const c_struct* type);
+    void resolve(c_struct* type);
 
     type& operator=(const type& t);
 
@@ -52,7 +52,7 @@ private:
 
     union {
         char* unresolved_name = nullptr;
-        const c_struct* custom;
+        c_struct* custom;
     } m_data;
 };
 

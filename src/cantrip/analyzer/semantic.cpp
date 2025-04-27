@@ -75,9 +75,50 @@ void semantic::visit_binary(ast::binary* binary)
 void semantic::visit_call(ast::call* call)
 {
     // TODO: Resolve types of args and check function exists
+    ast::function* func = nullptr;
 
     if (call->caller)
+    {
         call->caller->accept(this);
+
+        if (m_type == ast::UNRESOLVED || m_type == ast::NONE)
+            throw error::unkown_typename(call->caller->pos, m_type);
+
+        else if (m_type == ast::CUSTOM)
+        {
+            ast::c_struct* struc = m_type.get_custom_type();
+
+            func = struc->try_get_func(call->name);
+
+            if (func == nullptr)
+                throw error::no_member(call, struc);
+        }
+
+        else
+            throw error::not_structure(call->caller->pos, m_type);
+    }
+
+    else
+    {
+        // check member scope
+        if (m_self_env != nullptr)
+            func = m_self_env->try_get_func(call->name);
+
+        // not in member scope
+        if (func == nullptr)
+        {
+            auto found = m_module->functions.find(call->name);
+
+            // TODO: resolve as constructor!
+            if (found == m_module->functions.end())
+                throw error::unkown_typename(call);
+
+            func = found->second.get();
+        }
+    }
+
+    resolve_func_return_type(func);
+    m_type = func->return_type;
 
     for (size_t i = 0; i < call->params.size(); ++i)
         call->params[i]->accept(this);
@@ -188,6 +229,8 @@ void semantic::visit_for_stmt(ast::for_stmt* for_stmt)
 
 void semantic::visit_function(ast::function* function)
 {
+    resolve_func_return_type(function);
+
     // Check if already in function? should be impossible??
     m_function = function;
     m_env_stack.push();
@@ -238,14 +281,8 @@ void semantic::visit_return_stmt(ast::return_stmt* return_stmt)
 
 void semantic::visit_var_declare(ast::var_declare* var_declare)
 {
-    if (var_declare->vtype.get_type_info() == ast::UNRESOLVED)
-    {
-        auto found = m_module->components.find(var_declare->vtype.name());
-
-        if (found == m_module->components.end())
-            throw error::unkown_typename(var_declare);
-
-        var_declare->vtype.resolve(found->second.get());
+    if (!resolve_type(var_declare->vtype) || var_declare->vtype == ast::NONE) {
+        throw error::unkown_typename(var_declare);
     }
 
     if (var_declare->expr)
@@ -254,6 +291,8 @@ void semantic::visit_var_declare(ast::var_declare* var_declare)
 
         // type mismatch throw err
         if (m_type != var_declare->vtype);
+
+        m_type = ast::type();
     }
 
     if (!m_env_stack.push_var(var_declare))
@@ -269,6 +308,25 @@ void semantic::visit_while_stmt(ast::while_stmt* while_stmt)
     m_env_stack.push(true);
     while_stmt->exec_stmt->accept(this);
     m_env_stack.pop();
+}
+
+void semantic::resolve_func_return_type(ast::function* func) {
+    if (!resolve_type(func->return_type))
+        throw error::unkown_typename(func);
+}
+
+bool semantic::resolve_type(ast::type& type)
+{
+    if (type != ast::UNRESOLVED)
+        return true;
+
+    auto found = m_module->components.find(type.name());
+
+    if (found == m_module->components.end())
+        return false;
+
+    type.resolve(found->second.get());
+    return true;
 }
 
 } /* namespace cantrip::analyzer */

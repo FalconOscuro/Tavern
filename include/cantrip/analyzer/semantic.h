@@ -79,12 +79,15 @@ protected:
 
 private:
 
+    void resolve_func_return_type(ast::function* func);
+    bool resolve_type(ast::type& type);
+
     environment_stack m_env_stack;
     ast::type m_type;
 
     // currently only used for member function lookup within struct
     // could be useful later on if self/this keyword added
-    const ast::component* m_self_env;
+    ast::component* m_self_env;
 
     // scope for current module being explored, for member function resolution
     ast::module* m_module = nullptr;
