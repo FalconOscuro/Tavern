@@ -18,6 +18,7 @@ protected:
     }
 
 public:
+
     virtual ~expression() = default;
 }; /* class expression */
 

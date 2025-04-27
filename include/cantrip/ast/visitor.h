@@ -7,6 +7,7 @@ class node;
 
 class binary;
 class call;
+class cast;
 class core_type;
 class grouping;
 class identifier;
@@ -28,6 +29,7 @@ class visitor
 {
     friend class binary;
     friend class call;
+    friend class cast;
     friend class core_type;
     friend class grouping;
     friend class identifier;
@@ -54,6 +56,7 @@ protected:
     // expressions
     virtual void visit_binary(binary*)         = 0;
     virtual void visit_call(call*)             = 0;
+    virtual void visit_cast(cast*)             = 0;
     virtual void visit_core_type(core_type*)   = 0;
     virtual void visit_grouping(grouping*)     = 0;
     virtual void visit_identifier(identifier*) = 0;

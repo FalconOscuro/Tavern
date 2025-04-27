@@ -3,12 +3,13 @@
 #include <flib/exception/unimplemented.hpp>
 
 #include "cantrip/ast/expression/binary.h"
-#include "cantrip/ast/expression/unary.h"
-#include "cantrip/ast/expression/grouping.h"
-#include "cantrip/ast/expression/literal.hpp"
-#include "cantrip/ast/expression/identifier.h"
 #include "cantrip/ast/expression/call.h"
+#include "cantrip/ast/expression/cast.h"
 #include "cantrip/ast/expression/core_type.h"
+#include "cantrip/ast/expression/grouping.h"
+#include "cantrip/ast/expression/identifier.h"
+#include "cantrip/ast/expression/literal.hpp"
+#include "cantrip/ast/expression/unary.h"
 
 namespace cantrip {
 
@@ -32,7 +33,41 @@ parser::expr_ptr parser::expression() {
     return expr
 
 parser::expr_ptr parser::cast() {
-    PARSE_BINARY_EXPR(KEYWORD_AS, CAST, logical_or());
+    //PARSE_BINARY_EXPR(KEYWORD_AS, CAST, logical_or());
+
+    auto expr = logical_or();
+
+    if (match(KEYWORD_AS))
+    {
+        auto cast = std::make_unique<ast::cast>(previous().pos);
+
+        cast->expr.reset(expr.release());
+
+        // verbose could be done through constructor?
+        if (safe_peek_compare(TYPE_INTEGER))
+            cast->as_type = ast::type(ast::CORE_INT);
+
+        else if (safe_peek_compare(TYPE_FLOAT))
+            cast->as_type = ast::type(ast::CORE_FLOAT);
+
+        else if (safe_peek_compare(TYPE_BOOLEAN))
+            cast->as_type = ast::type(ast::CORE_BOOL);
+
+        else if (safe_peek_compare(TYPE_STRING))
+            cast->as_type = ast::type(ast::CORE_STRING);
+
+        else if (safe_peek_compare(IDENTIFIER))
+            cast->as_type = ast::type(peek().data.string);
+
+        else
+            throw error::syntax(peek(), "is not a valid core type or identifier for type casting");
+
+        ++m_index;
+
+        expr.reset(cast.release());
+    }
+
+    return expr;
 }
 
 parser::expr_ptr parser::logical_or() {
@@ -83,6 +118,7 @@ parser::expr_ptr parser::divide() {
     PARSE_BINARY_EXPR(DIVIDE, DIVIDE, sign());
 }
 
+// TODO: requires same treatement as cast
 parser::expr_ptr parser::is() {
     PARSE_BINARY_EXPR(KEYWORD_IS, IS, assign());
 }
@@ -145,7 +181,7 @@ parser::expr_ptr parser::call()
 
     // branch here to allow for constructor/public function calls
     // NOTE: Prevents builtin types from having constructors
-    if (peek() == IDENTIFIER && next() == BRACKET_L)
+    if (safe_peek_compare({IDENTIFIER, BRACKET_L}))
     {
         u_ptr<ast::call> call = std::make_unique<ast::call>(
             previous().pos,
@@ -162,11 +198,11 @@ parser::expr_ptr parser::call()
         expr = subscription();
 
     // handling of object member function calls
-    while (peek() == DOT && next() == IDENTIFIER && m_tokens[m_index + 2] == BRACKET_L)
+    while (safe_peek_compare({DOT, IDENTIFIER, BRACKET_L}))
     {
         u_ptr<ast::call> call = std::make_unique<ast::call>(
             previous().pos,
-            next().data.string,
+            peek(1).data.string,
             expr.release()
         );
 
@@ -183,7 +219,7 @@ std::vector<parser::expr_ptr> parser::call_param_list()
     std::vector<expr_ptr> params;
     const token& t = previous();
 
-    if (peek() != BRACKET_R) {
+    if (safe_peek_compare(BRACKET_R)) {
         do {
             params.push_back(expression());
         } while (match(COMMA));
@@ -216,6 +252,8 @@ parser::expr_ptr parser::subscription()
 
 parser::expr_ptr parser::primary()
 {
+    // NOTE: Need to check for unexpected file end?
+
     const token& t = peek();
 
     // grouping

@@ -28,7 +28,6 @@ enum binary_operator {
     DIVIDE,
 
     IS,
-    CAST,
 
     ASSIGN,
     ASSIGN_ADD,

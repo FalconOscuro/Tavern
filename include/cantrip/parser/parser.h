@@ -73,16 +73,16 @@ private:
 
     // peek for type token which could either be IDENTIFER or CORE_TYPE_*
     inline bool peek_is_type() {
-        return peek() == IDENTIFIER || (
+        return !at_end() && (peek() == IDENTIFIER || (
                 peek() >= CORE_TYPE_START 
                     && peek() <= CORE_TYPE_END
-        );
+        ));
     }
 
     // peek for var declare production which is type token followed by IDENTIFIER
     inline bool peek_is_var_declare() {
         // var declare is either coretype or user type (token::IDENTIFIER) followed by IDENTIFIER
-        return (peek_is_type() && next() == IDENTIFIER);
+        return (peek_is_type() && (!at_end(1) && peek(1) == IDENTIFIER));
     }
 
     inline void match_stmt_end() {
@@ -147,9 +147,9 @@ private:
         }
     }
 
-    inline bool at_end() const {
-        return m_index >= m_tokens.size()
-            || peek() == FILE_END;
+    inline bool at_end(size_t offset = 0) const {
+        return m_index + offset >= m_tokens.size()
+            || m_tokens[m_index + offset] == FILE_END;
     }
 
     inline bool match(token_type t) {
@@ -162,10 +162,26 @@ private:
         return false;
     }
 
-    inline const token& peek() const {
+    inline bool safe_peek_compare(token_type t, size_t offset = 0) const {
+        return !at_end(offset) && peek(offset) == t;
+    }
+
+    inline bool safe_peek_compare(std::initializer_list<token_type> t_list) const
+    {
+        assert(t_list.size() != 0 && "Must compare against at least one token_type");
+
+        for (size_t i = 0; i < t_list.size(); ++i)
+            if (!safe_peek_compare(t_list.begin()[i], i))
+                return false;
+
+        return true;
+    }
+
+    inline const token& peek(size_t offset = 0) const {
         // WARNING: error if token stream empty
         assert(!m_tokens.empty() && "Tried to peek token but token stream was empty.");
-        return m_tokens[m_index];
+        assert(m_index + offset < m_tokens.size() && "Tried to peek token beyond token stream end.");
+        return m_tokens[m_index + offset];
     }
 
     inline const token& previous() const {
@@ -175,12 +191,12 @@ private:
         return m_tokens[m_index - 1];
     }
 
-    inline const token& next() const {
-        // WARNING: leads to errors if index at end
-        // rare to occur, stream should always end with file end token
-        assert(m_index < m_tokens.size() - 1 && "Tried to peek next token whilst at token stream end.");
-        return m_tokens[m_index + 1];
-    }
+    //inline const token& next() const {
+    //    // WARNING: leads to errors if index at end
+    //    // rare to occur, stream should always end with file end token
+    //    assert(m_index < m_tokens.size() - 1 && "Tried to peek next token whilst at token stream end.");
+    //    return m_tokens[m_index + 1];
+    //}
 
     inline void match_or_throw(token_type t_match, const token& t_throw, const char* err_msg) {
         if (!match(t_match))

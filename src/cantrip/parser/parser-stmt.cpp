@@ -75,7 +75,7 @@ parser::u_ptr<ast::var_declare> parser::var_declare()
         type = get_token_type_name(t);
 
     u_ptr<ast::var_declare> stmt =
-        std::make_unique<ast::var_declare>(type, next().data.string);
+        std::make_unique<ast::var_declare>(type, peek(1).data.string);
 
     m_index += 2;
 
@@ -158,6 +158,7 @@ parser::stmt_ptr parser::return_stmt()
 {
     u_ptr<ast::return_stmt> stmt = std::make_unique<ast::return_stmt>();
 
+    // NOTE: Should be doing safe peek here
     if (!(peek() == STATEMENT_END || peek() == NEW_LINE))
         stmt->returned = expect_expression();
 
@@ -186,7 +187,7 @@ parser::u_ptr<ast::function> parser::function()
 
     std::vector<u_ptr<ast::var_declare>> params;
 
-    if (peek() != BRACKET_R) {
+    if (!safe_peek_compare(BRACKET_R)) {
         do {
             if (!peek_is_var_declare())
                 throw error::syntax(peek(), "Expected function paramater declaration.");
@@ -204,6 +205,7 @@ parser::u_ptr<ast::function> parser::function()
 
     // function return type defined with '>'
     // func IDENTIFIER() [> [CORE_TYPE_* | IDENTIFIER | KEYWORD_NULL]
+    // TODO: Safe compare
     if (match(GREATER_THAN))
     {
         const token& t_type = peek();
@@ -282,7 +284,7 @@ parser::u_ptr<ast::component> parser::component()
                 throw error::redefinition(func.get());
         }
 
-    } while (peek() != FILE_END
+    } while (!at_end()
                 && ((!block_implicit && !match(BLOCK_END))
              || (block_implicit && peek().pos.indent >= inner_indent)));
 
