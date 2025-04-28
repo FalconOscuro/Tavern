@@ -7,7 +7,7 @@
 #include <string_view>
 #include <utility>
 
-#include "ecs/config/config.h"
+#include "../config/config.h"
 
 namespace ecs::internal {
 
@@ -96,6 +96,22 @@ template<typename type>
     return std::hash<std::string_view>{}(get_type_name<type>());
 }
 
+typedef void (*construct_type)(void*);
+typedef void (*destroy_type)(void*);
+
+template<typename T>
+struct templated_type_funcs
+{
+    static void constructor(void* ptr) {
+        new(ptr) T;
+    }
+
+    static void destructor(void* ptr) {
+        delete reinterpret_cast<T*>(ptr);
+    }
+
+}; /* end of struct templated_type_funcs */
+
 /*! \brief Information for singular type
  *
  *  Contains unmanged type name and unique id
@@ -104,18 +120,40 @@ struct type_info final
 {
     // Compile time definition using templating
     template<typename type>
-    type_info(std::in_place_type_t<type>): id(get_type_id<type>()), name(get_type_name<type>()), size(sizeof(type)), align(alignof(type))
+    type_info(std::in_place_type_t<type>):
+        id(get_type_id<type>()),
+        name(get_type_name<type>()),
+        size(sizeof(type)),
+        align(alignof(type)),
+        constructor(templated_type_funcs<type>::constructor),
+        destructor(templated_type_funcs<type>::destructor)
     {}
 
     // runtime definition using unmangled type name
     // default alignment is max alignment
-    type_info(std::string_view type_name, const uint64_t size, const uint32_t align = alignof(max_align_t)): id(std::hash<std::string_view>{}(type_name)), name(type_name), size(size), align(align)
+    type_info(
+        std::string_view type_name,
+        construct_type constructor,
+        destroy_type destructor,
+        const uint64_t size,
+        const uint32_t align = alignof(max_align_t)
+    ):
+        id(std::hash<std::string_view>{}(type_name)),
+        name(type_name),
+        size(size),
+        align(align),
+        constructor(constructor),
+        destructor(destructor)
     {}
 
     const uint64_t id;
     const std::string_view name;
+
     const uint64_t size;
     const uint32_t align;
+
+    const construct_type constructor;
+    const destroy_type destructor;
 
     bool operator==(const type_info& ti) const {
         return ti.id == id;

@@ -6,6 +6,8 @@
 #include <cassert>
 #include <algorithm>
 
+#include "amorphic_vector.hpp"
+
 namespace ecs::container {
 
 class sparse_map_base
