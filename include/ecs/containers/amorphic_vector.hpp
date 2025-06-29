@@ -55,9 +55,19 @@ class amorphic_vec
 public:
 
     template <typename T>
-    amorphic_vec(std::in_place_type_t<T>);
+    amorphic_vec(std::in_place_type_t<T> type): amorphic_vec(internal::type_info(type))
+    {}
 
-    amorphic_vec(const internal::type_info& type_info);
+    amorphic_vec(const internal::type_info& type_info): m_type_info(type_info)
+    {
+        m_data = malloc(type_info.size * m_capacity);
+    }
+
+    ~amorphic_vec()
+    {
+        clear();
+        free(m_data);
+    }
 
     inline const internal::type_info& get_type_info() const {
         return m_type_info;
@@ -81,8 +91,22 @@ public:
         change_size(capacity);
     }
 
-    void shrink_to_fit();
-    void clear();
+    void shrink_to_fit()
+    {
+        const size_t capacity_used = m_size + 1;
+
+        // greater than should be irellavant here, but just in case
+        if (capacity_used < m_capacity)
+            change_size(capacity_used);
+    }
+
+    void clear()
+    {
+        for (size_t i = 0; i < m_size; ++i)
+            m_type_info.destructor(reinterpret_cast<byte*>(m_data) + (m_type_info.size * i));
+
+        m_size = 0;
+    }
 
     size_t size() const {
         return m_size;
