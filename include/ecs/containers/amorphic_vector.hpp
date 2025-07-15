@@ -224,21 +224,25 @@ public:
         if (m_size == 0)
             return;
 
-        m_type_info.destructor(get_index_ptr(m_size--));
+        // causes free on invalid ptr, not sure why
+        m_type_info.destructor(get_index_ptr(--m_size));
     }
 
     // WARNING POTENTIALLY UNSAFE, USE WITH CAUTION!!
     // could make private and only allow access via wrapper?
-    void push_back(const void* value_ptr)
+    void* push_back(const void* value_ptr)
     {
         const size_t new_idx = m_size;
         change_size(new_idx + 1);
 
-        // quit here, potential use later for wrappers to allocate without immediate copy?
-        if (value_ptr == nullptr)
-            return;
+        void* array_ptr = get_index_ptr(new_idx);
 
-        memcpy(get_index_ptr(new_idx), value_ptr, m_type_info.size);
+        // quit here, potential use later for wrappers to allocate without immediate copy?
+        // make this fake emplace separate function?
+        if (value_ptr != nullptr)
+            memcpy(array_ptr, value_ptr, m_type_info.size);
+
+        return array_ptr;
     }
 
     inline const internal::type_info& get_type_info() const {

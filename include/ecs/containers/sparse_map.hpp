@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "amorphic_vector.hpp"
+#include "amorphic_vector_wrapper.hpp"
 
 namespace ecs::container {
 
@@ -21,7 +22,9 @@ public:
 template<typename mapped_type>
 struct sparse_map_node
 {
-    sparse_map_node();
+    // WARNING: should set id to null
+    sparse_map_node() = default;
+
     sparse_map_node(uint32_t id, const mapped_type& component):
         id(id), component(component)
     {}
@@ -40,12 +43,16 @@ public:
     // need pair with id for iterating
     typedef sparse_map_node<mapped_type> node_type;
 
-    typedef typename std::vector<node_type>::const_iterator const_iterator;
-    typedef typename std::vector<node_type>::iterator iterator;
+    using dense_array_type = wrapped_amorphic_vec<node_type>;
+
+    typedef typename dense_array_type::const_iterator const_iterator;
+    typedef typename dense_array_type::iterator iterator;
 
     static_assert(max_size < UINT32_MAX && max_size > 0, "max size must be greater than 0 and less than UINT32_MAX");
 
-    sparse_map() {
+    sparse_map():
+        m_dense_actual(std::in_place_type<node_type>), m_dense(&m_dense_actual)
+    {
         m_sparse = new uint32_t*[page_count()]{nullptr};
     }
 
@@ -212,7 +219,10 @@ private:
     }
 
     uint32_t** m_sparse;
-    std::vector<node_type> m_dense;
+
+    // temporary whilst changing over
+    amorphic_vec m_dense_actual;
+    wrapped_amorphic_vec<node_type> m_dense;
 }; /* class sparse_map */
 
 } /* namespace ecs::container */

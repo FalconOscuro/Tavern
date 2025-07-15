@@ -113,7 +113,7 @@ struct templated_type_funcs
     }
 
     static void destructor(void* ptr) {
-        delete reinterpret_cast<T*>(ptr);
+        reinterpret_cast<T*>(ptr)->~T();
     }
 
 }; /* end of struct templated_type_funcs */

@@ -47,6 +47,14 @@ public:
         return *reinterpret_cast<const T*>(m_base_it.data());
     }
 
+    T* operator->() {
+        return reinterpret_cast<T*>(m_base_it.data());
+    }
+
+    const T* operator->() const {
+        return reinterpret_cast<const T*>(m_base_it.data());
+    }
+
     wrapped_amorphic_vec_iterator& operator++()
     {
         ++m_base_it;
@@ -60,15 +68,15 @@ public:
     }
 
     wrapped_amorphic_vec_iterator operator++(int) {
-        return wrapped_amorphic_vec_iterator_t(m_base_it++);
+        return wrapped_amorphic_vec_iterator(m_base_it++);
     }
 
     wrapped_amorphic_vec_iterator operator+(int n) const {
-        return wrapped_amorphic_vec_iterator_t(m_base_it + n);
+        return wrapped_amorphic_vec_iterator(m_base_it + n);
     }
 
     wrapped_amorphic_vec_iterator operator-(int n) const {
-        return wrapped_amorphic_vec_iterator_t(m_base_it - n);
+        return wrapped_amorphic_vec_iterator(m_base_it - n);
     }
 
     wrapped_amorphic_vec_iterator& operator+=(int n) {
@@ -131,11 +139,21 @@ private:
 };
 
 template<typename T>
+inline std::enable_if_t<!std::is_const_v<T>, void> wrapped_amorphic_iter_swap(const wrapped_amorphic_vec_iterator<T>& a, const wrapped_amorphic_vec_iterator<T>& b)
+{
+    unsigned char temp[sizeof(T)];
+
+    memcpy(temp, &*a, sizeof(T));
+    memcpy(&*a, &*b, sizeof(T));
+    memcpy(&*b, temp, sizeof(T));
+}
+
+template<typename T>
 class wrapped_amorphic_vec final
 {
 public:
-    using iterator = wrapped_amorphic_vec_iterator<T>;
-    using const_iterator = wrapped_amorphic_vec_iterator<const T>;
+    typedef wrapped_amorphic_vec_iterator<T> iterator;
+    typedef wrapped_amorphic_vec_iterator<const T> const_iterator ;
 
     wrapped_amorphic_vec(amorphic_vec* wrapped_vec):
         m_wrapped_vec(wrapped_vec)
@@ -160,7 +178,11 @@ public:
         m_wrapped_vec->push_back(value);
     }
 
-    // emplace back
+    template<typename... Args>
+    T& emplace_back(Args&&... args) {
+        return *new(m_wrapped_vec->push_back(nullptr)) T(std::forward<Args>(args)...);
+    }
+
 
     T& operator[](size_t i) {
         return *reinterpret_cast<T*>((*m_wrapped_vec)[i]);
@@ -183,7 +205,7 @@ public:
     }
 
     size_t size() const {
-        m_wrapped_vec->size();
+        return m_wrapped_vec->size();
     }
 
     T* front() {
