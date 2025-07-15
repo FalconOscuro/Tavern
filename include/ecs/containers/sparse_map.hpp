@@ -32,6 +32,7 @@ struct sparse_map_node
     mapped_type component;
 }; /* end of struct sparse_map_node */
 
+// need amorphic sparse map, this can be turned into a wrapper
 template<typename mapped_type, uint32_t max_size = UINT32_MAX - 1, uint32_t page_size = 2048>
 class sparse_map : public sparse_map_base
 {

@@ -61,9 +61,15 @@ private:
     char m_data[SIZE] = {};
 }; /* end of class string_literal */
 
+// unsupported pointer and reference!
+template<typename type>
+[[nodiscard]] constexpr std::enable_if_t<std::is_const_v<type> || std::is_volatile_v<type>, const std::string_view> get_type_name() noexcept {
+    return get_type_name<std::remove_cv_t<type>>();
+}
+
 // Get unmangled type name from pretty function macro at compile time
 template<typename type>
-[[nodiscard]] constexpr const std::string_view get_type_name() noexcept
+[[nodiscard]] constexpr std::enable_if_t<!std::is_const_v<type> && !std::is_volatile_v<type>, const std::string_view> get_type_name() noexcept
 {
     //constexpr auto func_sig = string_literal(__FUNC_PRETTY__);
 
@@ -93,7 +99,7 @@ template<typename type>
 // Get type id from hash of type name at compile time
 template<typename type>
 [[nodiscard]] constexpr size_t get_type_id() noexcept {
-    return std::hash<std::string_view>{}(get_type_name<type>());
+    return std::hash<std::string_view>{}(get_type_name<std::remove_cv_t<type>>());
 }
 
 typedef void (*construct_type)(void*);
