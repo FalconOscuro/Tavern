@@ -2,58 +2,43 @@
 #define SPARSE_MAP_HPP
 
 #include <cstdint>
-#include <vector>
 #include <cassert>
 #include <algorithm>
 
 #include "amorphic_vector.hpp"
-#include "amorphic_vector_wrapper.hpp"
+#include "component_container.hpp"
+#include "sparse_set.hpp"
+#include "../entity/entity.h"
+
+#ifndef SPARSE_MAP_PAGE_SIZE
+#define SPARSE_MAP_PAGE_SIZE SPARSE_SET_PAGE_SIZE
+#endif
 
 namespace ecs::container {
 
-class sparse_map_base
-{
-public:
-    virtual ~sparse_map_base() {};
-
-    virtual void remove(const uint32_t entity) = 0;
-};
-
-template<typename mapped_type>
-struct sparse_map_node
-{
-    // WARNING: should set id to null
-    sparse_map_node() = default;
-
-    sparse_map_node(uint32_t id, const mapped_type& component):
-        id(id), component(component)
-    {}
-
-    ~sparse_map_node() = default;
-
-    uint32_t id;
-    mapped_type component;
-}; /* end of struct sparse_map_node */
-
-// need amorphic sparse map, this can be turned into a wrapper
-template<typename mapped_type, uint32_t max_size = UINT32_MAX - 1, uint32_t page_size = 2048>
-class sparse_map : public sparse_map_base
+// remove templating dependency into wrapper
+class sparse_map final
 {
 public:
     // need pair with id for iterating
-    typedef sparse_map_node<mapped_type> node_type;
+    typedef typename amorphic_vec::const_iterator const_iterator;
+    typedef typename amorphic_vec::iterator iterator;
 
-    using dense_array_type = wrapped_amorphic_vec<node_type>;
-
-    typedef typename dense_array_type::const_iterator const_iterator;
-    typedef typename dense_array_type::iterator iterator;
-
-    static_assert(max_size < UINT32_MAX && max_size > 0, "max size must be greater than 0 and less than UINT32_MAX");
-
-    sparse_map():
-        m_dense_actual(std::in_place_type<node_type>), m_dense(&m_dense_actual)
+    template<typename T>
+    sparse_map(std::in_place_type_t<T> type):
+        m_component_type_info(type), m_dense(std::in_place_type<component_container<T>>)
     {
-        m_sparse = new uint32_t*[page_count()]{nullptr};
+        static_assert(offsetof(component_container<T>, entity_id) == 0, "entity ID must be at pointed type address!");
+
+        init_sparse();
+    }
+
+    // USE WITH CAUTION, has no checking to enforce pointed address is ID!
+    // Could add flag to type info?
+    sparse_map(const internal::type_info& type_info):
+        m_component_type_info(type_info), m_dense(type_info)
+    {
+        init_sparse();
     }
 
     ~sparse_map() {
@@ -65,75 +50,98 @@ public:
     sparse_map(const sparse_map&) = delete;
     void operator=(const sparse_map&) = delete;
 
-    [[nodiscard]] constexpr uint32_t tombstone() const {
-        return max_size + 1;
+    const internal::type_info& get_type_info() const {
+        return m_component_type_info;
     }
 
-    uint32_t size() const {
+    const internal::type_info& get_container_type_info() const {
+        return m_dense.get_type_info();
+    }
+
+    // USE WITH CAUTION
+    amorphic_vec& get_dense() {
+        return m_dense;
+    }
+
+    const amorphic_vec& get_dense() const {
+        return m_dense;
+    }
+
+    [[nodiscard]] static constexpr entity_type tombstone() {
+        return ENTITY_TOMBSTONE;
+    }
+
+    [[nodiscard]] uint32_t size() const {
         return m_dense.size();
     }
 
-    bool exists(const uint32_t x) const {
-        return sparse_peek(x) != tombstone();
+    [[nodiscard]] bool exists(const entity_type eid) const {
+        return sparse_peek(eid) != tombstone();
     }
 
-    template<typename... Args>
-    mapped_type& emplace(const uint32_t x, Args&&... args)
+    void remove(const entity_type eid)
     {
-        uint32_t& dense_index = sparse_get(x);
-
-        if (dense_index == tombstone()) {
-            dense_index = size();
-            m_dense.emplace_back(node_type(x, mapped_type(std::forward<Args>(args)...)));
-        }
-
-        else
-            m_dense[dense_index].component = mapped_type(std::forward<Args>(args)...);
-
-        return m_dense[dense_index].component;
-    }
-
-    void remove(const uint32_t x) override
-    {
-        uint32_t dense_index = sparse_peek(x);
+        uint32_t dense_index = sparse_peek(eid);
 
         if (dense_index == tombstone())
             return;
 
         if (dense_index < size() - 1)
         {
-            std::iter_swap(m_dense.begin() + sparse_peek(x), m_dense.end() - 1);
-            sparse_get(m_dense[dense_index].id) = dense_index;
+            amorphic_iter_swap(m_dense.begin() + sparse_peek(eid), m_dense.end() - 1);
+
+            // Potentially unsafe, need to add garuantee that member at pointed address is always the eid
+            sparse_get(*reinterpret_cast<entity_type*>(m_dense[dense_index])) = dense_index;
         }
 
         m_dense.pop_back();
-        sparse_get(x) = tombstone();
+        sparse_get(eid) = tombstone();
     }
 
     void clear() {
         delete_pages();
         m_dense.clear();
     }
-
-    // allocate if not found
-    mapped_type& get(const uint32_t x)
+    
+    // NOTE: Return only does default init of component data,
+    // only explicitly sets eid
+    // for create, do check exists first?
+    void* get(const entity_type eid)
     {
-        uint32_t dense_index = sparse_peek(x);
+        uint32_t& dense_index = sparse_get(eid);
 
         if (dense_index != tombstone())
-            return m_dense[dense_index].component;
+            return m_dense[dense_index];
 
-        return emplace<>(x);
+        dense_index = m_dense.size();
+        void* array_ptr = m_dense.push_back();
+
+        // init
+        m_dense.get_type_info().constructor(array_ptr);
+        
+        // assign eid
+        *reinterpret_cast<entity_type*>(array_ptr) = eid;
+        return array_ptr;
     }
 
-    const mapped_type* try_get(const uint32_t entity) const
+    void* try_get(const entity_type eid)
     {
-        uint32_t dense_index = sparse_peek(entity);
+        uint32_t dense_index = sparse_peek(eid);
 
         if (dense_index == tombstone())
             return nullptr;
 
-        return &(m_dense[dense_index].component);
+        return m_dense[dense_index];
+    }
+
+    const void* try_get(const entity_type eid) const
+    {
+        uint32_t dense_index = sparse_peek(eid);
+
+        if (dense_index == tombstone())
+            return nullptr;
+
+        return m_dense[dense_index];
     }
 
     const_iterator cbegin() const {
@@ -141,7 +149,7 @@ public:
     }
 
     const_iterator begin() const {
-        return cbegin();
+        return m_dense.cbegin();
     }
 
     iterator begin() {
@@ -153,46 +161,53 @@ public:
     }
 
     const_iterator end() const {
-        return cend();
+        return m_dense.cend();
     }
 
     iterator end() {
         return m_dense.end();
     }
 
+    // operator[]?
+
     // sorting?
 
 private:
 
-    uint32_t sparse_peek(const uint32_t x) const
+    inline void init_sparse()
     {
-        assert(x < max_size && "Index cannot exceed max size!");
-        const uint32_t page_index = x / page_size;
+        m_sparse = new entity_type*[page_count()]{nullptr};
+        assert(m_dense.get_type_info().is_valid_component_container && "Type is not flagged as a valid component container, check component_container<T> if using native type");
+    }
+
+    uint32_t sparse_peek(const entity_type eid) const
+    {
+        assert(eid < ENTITY_TOMBSTONE && "Index cannot exceed max size!");
+        const uint32_t page_index = eid / SPARSE_MAP_PAGE_SIZE;
 
         if (!page_exists(page_index))
             return tombstone();
 
-        return m_sparse[page_index][x % page_size];
+        return m_sparse[page_index][eid % SPARSE_MAP_PAGE_SIZE];
     }
 
-    uint32_t& sparse_get(const uint32_t x)
+    uint32_t& sparse_get(const entity_type eid)
     {
-        assert(x < max_size && "Index cannot exceed max size!");
-        const uint32_t page_index = x / page_size;
+        assert(eid < ENTITY_TOMBSTONE && "Index cannot exceed max size!");
+        const uint32_t page_index = eid / SPARSE_MAP_PAGE_SIZE;
 
         if (!page_exists(page_index)) {
             // NOTE: Ends up with un-used memory on last page if max size is not multiple of page size, up to page_size - 1 wasted space
-            m_sparse[page_index] = new uint32_t[page_size];
+            m_sparse[page_index] = new entity_type[SPARSE_MAP_PAGE_SIZE];
 
-            for (size_t i = 0; i < page_size; ++i)
-                m_sparse[page_index][i] = tombstone();
+            std::fill_n(m_sparse[page_index], SPARSE_MAP_PAGE_SIZE, tombstone());
         }
 
-        return m_sparse[page_index][x % page_size];
+        return m_sparse[page_index][eid % SPARSE_MAP_PAGE_SIZE];
     }
 
     [[nodiscard]] constexpr uint32_t page_count() const {
-        return (max_size / page_size) + 1;
+        return (ENTITY_TOMBSTONE / SPARSE_MAP_PAGE_SIZE) + 1;
     }
 
     void dense_swap(const uint32_t a, const uint32_t b)
@@ -200,11 +215,11 @@ private:
         if (a == b)
             return;
 
-        std::iter_swap(m_dense.begin() + a, m_dense.begin() + b);
+        amorphic_iter_swap(m_dense.begin() + a, m_dense.begin() + b);
 
         // post swap dense still points to same position in swap
-        sparse_get(m_dense[a].id) = a;
-        sparse_get(m_dense[b].id) = b;
+        sparse_get(*reinterpret_cast<const entity_type*>(m_dense[a])) = a;
+        sparse_get(*reinterpret_cast<const entity_type*>(m_dense[b])) = b;
     }
 
     bool page_exists(const uint32_t page_num) const {
@@ -218,11 +233,13 @@ private:
         }
     }
 
-    uint32_t** m_sparse;
+    entity_type** m_sparse;
+
+    internal::type_info m_component_type_info;
 
     // temporary whilst changing over
-    amorphic_vec m_dense_actual;
-    wrapped_amorphic_vec<node_type> m_dense;
+    amorphic_vec m_dense;
+    //wrapped_amorphic_vec<node_type> m_dense;
 }; /* class sparse_map */
 
 } /* namespace ecs::container */

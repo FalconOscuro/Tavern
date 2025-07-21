@@ -1,3 +1,4 @@
+#include "ecs/entity/type.hpp"
 #include "tavern/core/scene.h"
 
 #include <boost/log/trivial.hpp>
@@ -26,15 +27,16 @@ inline void post_write_component<component::transform>(ryml::NodeRef& n, const e
 template <typename T>
 inline void write_all_components(ryml::NodeRef& root, const ecs::registry& reg, const std::unordered_map<ecs::entity_type, size_t>& eid_map)
 {
-    const auto* pool = reg.try_get_pool<T>();
-
     // nothing to serialize
-    if (!pool)
+    if (!reg.pool_exists<T>())
         return;
 
-    for (auto it = pool->begin(); it != pool->end(); ++it)
+    const ecs::container::sparse_map* pool = reg.try_get_pool(ecs::internal::type_info(std::in_place_type<T>));
+    using iterator = typename ecs::container::wrapped_sparse_map<T>::const_iterator;
+
+    for (auto it = iterator(pool->begin()); it != iterator(pool->end()); ++it)
     {
-        auto found = eid_map.find(it->id);
+        auto found = eid_map.find(it->id());
         if (found == eid_map.end()) {
             BOOST_LOG_TRIVIAL(error) << "Serialization failure, could not find attached entity to component!!";
             continue;
@@ -57,7 +59,7 @@ inline void write_all_components(ryml::NodeRef& root, const ecs::registry& reg, 
         comp_entry.set_key(component::component_type_info<T>::c4_name());
         comp_entry.set_val(id_str);
 
-        post_write_component(doc, reg, eid_map, it->component, it->id);
+        post_write_component(doc, reg, eid_map, it->component, it->id());
     }
 }
 
@@ -116,7 +118,7 @@ void scene::save(const std::string& file_name) const
         // name component special case
         const auto* name = m_registry.try_get<component::entity_name>(*it);
         if (name)
-            entity.append_child() << ryml::key("name") << name->get();
+            entity.append_child() << ryml::key("name") << name->component.get();
 
         ryml::NodeRef components = entity.append_child();
         components.set_key("components");

@@ -4,11 +4,12 @@
 #include <tuple>
 #include <type_traits>
 
-#include "ecs/containers/sparse_map.hpp"
-#include "ecs/core/typeinfo.hpp"
+#include "../containers/sparse_map.hpp"
+#include "../core/typeinfo.hpp"
 
 namespace ecs {
 
+// Needs full re-do for variadic...
 template <typename... Component>
 class view_iterator
 {

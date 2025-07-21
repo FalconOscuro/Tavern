@@ -203,6 +203,9 @@ class amorphic_vec final
 
 public:
 
+    typedef amorphic_vec_iterator iterator;
+    typedef const_amorphic_vec_iterator const_iterator;
+
     // Un-needed?
     template <typename T>
     amorphic_vec(std::in_place_type_t<T> type): amorphic_vec(internal::type_info(type))
@@ -230,7 +233,8 @@ public:
 
     // WARNING POTENTIALLY UNSAFE, USE WITH CAUTION!!
     // could make private and only allow access via wrapper?
-    void* push_back(const void* value_ptr)
+    // doesn't work for copy, as does not do new()!!
+    void* push_back(const void* value_ptr = nullptr)
     {
         const size_t new_idx = m_size;
         change_size(new_idx + 1);

@@ -1,15 +1,17 @@
 #ifndef REGISTRY_HPP
 #define REGISTRY_HPP
 
-#include <unordered_map>
 #include <deque>
+#include <memory>
+#include <unordered_map>
 #include <utility>
 
-#include "ecs/containers/sparse_set.hpp"
-#include "ecs/containers/sparse_map.hpp"
+#include "../containers/sparse_set.hpp"
+#include "../containers/sparse_map.hpp"
+#include "../containers/sparse_map_wrapper.hpp"
 #include "entity.h"
 #include "type.hpp"
-#include "view.hpp"
+//#include "view.hpp"
 
 namespace ecs {
 
@@ -22,8 +24,7 @@ public:
     registry() = default;
 
     ~registry() {
-        for (auto comp_pool : m_components)
-            delete comp_pool.second;
+        m_components.clear();
     }
 
     // disable copy
@@ -121,7 +122,7 @@ public:
         if (!exists(entity))
             return;
 
-        for (auto comp_pool : m_components)
+        for (auto& comp_pool : m_components)
             comp_pool.second->remove(entity);
     }
 
@@ -140,14 +141,14 @@ public:
     /*! \brief Get reserved entity ID for null,
      * garuanteed to return false from exists, has and other similar functions
      */
-    constexpr entity_type tombstone() const {
-        return m_entities.tombstone();
+    static constexpr entity_type tombstone() {
+        return container::sparse_set::tombstone();
     }
 
     /* Entity iterators */
 
-    typedef container::sparse_set<>::const_iterator const_entity_iterator;
-    typedef container::sparse_set<>::iterator entity_iterator;
+    typedef container::sparse_set::const_iterator const_entity_iterator;
+    typedef container::sparse_set::iterator entity_iterator;
 
     const_entity_iterator entities_cbegin() const {
         return m_entities.cbegin();
@@ -177,50 +178,42 @@ public:
 
     /*! \brief Create new instance of Type for given entity, passing args to constructor
      */
-    template<typename Type, typename... Args>
-    Type& emplace(const entity_type entity, Args&&... args)
+    template<typename T, typename... Args>
+    auto& emplace(const entity_type entity, Args&&... args)
     {
         create(entity);
 
-        container::sparse_map<Type>* pool = get_component_pool<Type>();
+        auto pool = get_component_pool<T>();
 
-        return pool->emplace(entity, std::forward<Args>(args)...);
+        return pool.emplace(entity, std::forward<Args>(args)...);
     }
 
-    // necessary?
-    template<typename Type>
-    Type& set_emplace(const entity_type entity, const Type& component)
+    template<typename T>
+    T& set(const entity_type entity, const T& component)
     {
         create(entity);
 
-        container::sparse_map<Type>* pool = get_component_pool<Type>();
-
-        return pool->emplace(entity, component);
-    }
-
-    template<typename Type>
-    Type& set(const entity_type entity, const Type& component)
-    {
-        create(entity);
-
-        container::sparse_map<Type>* pool = get_component_pool<Type>();
+        auto pool = get_component_pool<T>();
 
         // runs default allocator if non-existant, slowdown?
-        return pool->get(entity) = component;
+        return (pool.get(entity).component = component);
     }
 
     /*! \brief Destroy attached component from entity
      */
-    template<typename Type>
+    template<typename T>
     void remove(const entity_type entity)
+    {
+        const internal::type_info type_info = internal::type_info(std::in_place_type<T>);
+        remove(entity, type_info);
+    }
+
+    void remove(const entity_type entity, const internal::type_info& type_info)
     {
         if (!exists(entity))
             return;
 
-        // only need to peek
-        // as if pool non-existant there is nothing needed to do
-        container::sparse_map<Type>* pool = peek_component_pool<Type>();
-
+        auto pool = peek_component_pool(type_info);
         if (pool != nullptr)
             pool->remove(entity);
     }
@@ -228,54 +221,91 @@ public:
     /*! \brief Fetch reference to component attached to entity
      *  \note Runs default constructor for component if non-existant
      */
-    template<typename Type>
-    Type& get(const entity_type entity)
+    template<typename T>
+    auto& get(const entity_type entity)
     {
         create(entity);
-
-        container::sparse_map<Type>* pool = get_component_pool<Type>();
-
-        return pool->get(entity);
+        return get_component_pool<T>().get(entity);
     }
 
-    /*! \brief Get copy of component from entity if exists
-     *
-     *  \note Only gets copy, functions different to other functions which return reference
-     *
-     *  \returns false if component non-existant
-     */
-    template<typename Type>
-    const Type* try_get(const entity_type entity) const
+    void* get(const entity_type entity, const internal::type_info& type_info)
+    {
+        create(entity);
+        return get_component_pool(type_info)->get(entity);
+    }
+
+    template<typename T>
+    auto* try_get(const entity_type entity)
+    {
+        const internal::type_info type_info = internal::type_info(std::in_place_type<T>);
+
+        return reinterpret_cast<container::wrapped_sparse_map<T>*>(try_get(entity, type_info));
+    }
+
+    template<typename T>
+    const auto* try_get(const entity_type entity) const
+    {
+        const internal::type_info type_info = internal::type_info(std::in_place_type<T>);
+
+        return reinterpret_cast<const typename container::wrapped_sparse_map<T>::container_type*>(try_get(entity, type_info));
+    }
+
+    void* try_get(const entity_type entity, const internal::type_info& type_info)
     {
         if (!exists(entity))
             return nullptr;
 
-        const container::sparse_map<Type>* pool = peek_component_pool<Type>();
+        container::sparse_map* pool = peek_component_pool(type_info);
 
-        if (pool == nullptr)
-            return nullptr;
-
-        return pool->try_get(entity);
+        return pool == nullptr ? nullptr : pool->try_get(entity);
     }
 
-    /*! \brief Check if entity has given component types
+    const void* try_get(const entity_type entity, const internal::type_info& type_info) const
+    {
+        if (!exists(entity))
+            return nullptr;
+
+        const container::sparse_map* pool = peek_component_pool(type_info);
+
+        return pool == nullptr ? nullptr : pool->try_get(entity);
+    }
+
+
+    // re-add multi check?
+
+    /*! \brief Check if entity has given component type
      *
      *  \returns true if entity exists and satisfies all given component types
      */
-    template<typename Type, typename... TN>
-    bool has(const entity_type entity) const {
+    template<typename T>
+    bool has(const entity_type entity) const
+    {
+        const internal::type_info type_info = internal::type_info(std::in_place_type<T>);
+        return has(entity, type_info);
+    }
+
+    bool has(const entity_type entity, const internal::type_info& type_info) const
+    {
         if (!exists(entity))
             return false;
 
-        return has_a<Type, TN...>(entity);
+        auto pool = peek_component_pool(type_info);
+        return pool != nullptr && pool->exists(entity);
     }
 
     /*! \brief Get number of components of given type
      */
-    template<typename Type>
-    uint32_t size() const {
+    template<typename T>
+    uint32_t size() const
+    {
+        const internal::type_info type_info = internal::type_info(std::in_place_type<T>);
 
-        const container::sparse_map<Type>* pool = peek_component_pool<Type>();
+        return size(type_info);
+    }
+
+    uint32_t size(const internal::type_info& type_info) const
+    {
+        const container::sparse_map* pool = peek_component_pool(type_info);
 
         return pool == nullptr ? 0 : pool->size();
     }
@@ -285,99 +315,81 @@ public:
      *  \note Used for systems
      *  \note Views should not be stored, recreate for each singular use
      */
-    template<typename... Type>
-    view<Type...> create_view() {
-        return view(get_component_pool<Type>()...);
-    }
+    //template<typename... Type>
+    //view<Type...> create_view() {
+    //    return view(get_component_pool<Type>()...);
+    //}
 
     /*! \brief Get the pool storing a specific component
      */
-    template<typename Type>
-    container::sparse_map<Type>* get_pool() {
-        return get_component_pool<Type>();
+    template<typename T>
+    container::wrapped_sparse_map<T> get_pool() {
+        return get_component_pool<T>();
     }
 
-    template<typename Type>
-    const container::sparse_map<Type>* try_get_pool() const {
-        return peek_component_pool<Type>();
+    container::sparse_map* get_pool(const internal::type_info& type_info) {
+        return get_component_pool(type_info);
+    }
+
+    const container::sparse_map* try_get_pool(const internal::type_info& type_info) const {
+        return peek_component_pool(type_info);
+    }
+
+    template<typename T>
+    inline bool pool_exists() const {
+        const internal::type_info type_info = internal::type_info(std::in_place_type<T>);
+        return m_components.count(type_info);
+    }
+
+    inline bool pool_exists(const internal::type_info& type_info) const {
+        return m_components.count(type_info);
     }
 
 private:
 
-    /*! \brief Variadic component checking implementation
-     */
-    template<typename Type, typename... TN>
-    inline std::enable_if_t<(sizeof...(TN) > 0), bool> has_a(const entity_type entity) const {
-        return has_a<Type>(entity) && has_a<TN...>(entity);
-    }
-
-    /*! \brief End point for has_a function
-     *
-     *  Checks singular type and stops further recursion, without would not compile
-     */
-    template<typename Type, typename... TN>
-    inline std::enable_if_t<(sizeof...(TN) == 0), bool> has_a(const entity_type entity) const {
-        const container::sparse_map<Type>* pool = peek_component_pool<Type>();
-
-        return pool != nullptr && pool->exists(entity);
-    }
-
-    typedef container::sparse_map_base* base_pool_type;
-
     /*! \brief Get component pool for given type, creating if non-existant
      */
-    template<typename Type>
-    container::sparse_map<Type>* get_component_pool()
+    template<typename T>
+    container::wrapped_sparse_map<T> get_component_pool()
     {
-        using pool_type = container::sparse_map<Type>;
+        const internal::type_info type_info = 
+            internal::type_info(std::in_place_type<T>);
 
-        const internal::type_info info = 
-            internal::type_info(std::in_place_type_t<Type>());
-
-        if (!m_components.count(info))
-            m_components.emplace(std::make_pair(info, static_cast<base_pool_type>(new pool_type())));
-
-        return dynamic_cast<pool_type*>(m_components[info]);
+        return container::wrapped_sparse_map<T>(get_component_pool(type_info));
     }
 
-    /*! \brief Get component pool for specific type if exists
-     */
-    template<typename Type>
-    container::sparse_map<Type>* peek_component_pool()
+    container::sparse_map* get_component_pool(const internal::type_info& type_info)
     {
-        using pool_type = container::sparse_map<Type>;
+        if (!m_components.count(type_info))
+            m_components.emplace(std::make_pair(type_info, std::make_unique<container::sparse_map>(type_info)));
 
-        const internal::type_info info = 
-            internal::type_info(std::in_place_type_t<Type>());
-
-        if (!m_components.count(info))
-            return nullptr;
-
-        return dynamic_cast<pool_type*>(m_components.at(info));
+        return m_components.at(type_info).get();
     }
 
-    /*! \brief Get component pool for specific type if exists (const version)
-     */
-    template<typename Type>
-    const container::sparse_map<Type>* peek_component_pool() const
+    // NOT THREAD SAFE
+    container::sparse_map* peek_component_pool(const internal::type_info& type_info)
     {
-        using pool_type = container::sparse_map<Type>;
-
-        const internal::type_info info = 
-            internal::type_info(std::in_place_type_t<Type>());
-
-        if (!m_components.count(info))
+        if (!m_components.count(type_info))
             return nullptr;
 
-        return static_cast<pool_type*>(m_components.at(info));
+        return m_components.at(type_info).get();
+    }
+
+    const container::sparse_map* peek_component_pool(const internal::type_info& type_info) const
+    {
+        if (!m_components.count(type_info))
+            return nullptr;
+
+        return m_components.at(type_info).get();
     }
 
     entity_type m_next = 0;
     std::deque<entity_type> m_unused_entities;
 
-    container::sparse_set<> m_entities;
+    container::sparse_set m_entities;
 
-    std::unordered_map<internal::type_info, base_pool_type> m_components;
+    // could do away with ptr, holdover from when fully templated
+    std::unordered_map<internal::type_info, std::unique_ptr<container::sparse_map>> m_components;
 };
 
 } /* namespace ecs */

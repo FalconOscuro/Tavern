@@ -7,24 +7,24 @@
 #include <vector>
 #include <algorithm>
 
-// slighlty hacky, better way?
-#define SPARSE_SET_MAX_SIZE_DEFAULT UINT32_MAX - 1
-#define SPARSE_SET_PAGE_SIZE_DEFAULT 2048
+#include "../entity/entity.h"
+
+#ifndef SPARSE_SET_PAGE_SIZE
+#define SPARSE_SET_PAGE_SIZE 2048
+#endif
 
 namespace ecs::container {
 
-template<uint32_t max_size = SPARSE_SET_MAX_SIZE_DEFAULT, uint32_t page_size = SPARSE_SET_PAGE_SIZE_DEFAULT>
 class sparse_set
 {
 public:
-    static_assert(max_size < UINT32_MAX && max_size > 0, "max size must be greater than 0 and less than UINT32_MAX");
 
-    typedef std::vector<uint32_t>::const_iterator const_iterator;
-    typedef std::vector<uint32_t>::iterator iterator;
+    typedef std::vector<entity_type>::const_iterator const_iterator;
+    typedef std::vector<entity_type>::iterator iterator;
 
     sparse_set() {
         // init sparse array for all pages, accounting for integer division rounding down
-        m_sparse = new uint32_t*[page_count()]{nullptr};
+        m_sparse = new entity_type*[page_count()]{nullptr};
     }
 
     ~sparse_set() {
@@ -37,24 +37,24 @@ public:
     sparse_set(const sparse_set&) = delete;
     void operator=(const sparse_set&) = delete;
 
-    [[nodiscard]] constexpr uint32_t tombstone() const {
-        return max_size + 1;
+    [[nodiscard]] static constexpr entity_type tombstone() {
+        return ENTITY_TOMBSTONE;
     }
 
-    uint32_t size() const {
+    [[nodiscard]] uint32_t size() const {
         return m_dense.size();
     }
 
     // returns dense index of x or tombstone if not found
-    uint32_t find(const uint32_t x) const {
+    [[nodiscard]] uint32_t find(const entity_type x) const {
         return sparse_peek(x);
     }
 
-    bool exists(const uint32_t x) const {
+    [[nodiscard]] bool exists(const entity_type x) const {
         return sparse_peek(x) != tombstone();
     }
 
-    void emplace(const uint32_t x)
+    void emplace(const entity_type x)
     {
         uint32_t& dense_index = sparse_get(x);
 
@@ -65,7 +65,7 @@ public:
         m_dense.push_back(x);
     }
 
-    void remove(const uint32_t x)
+    void remove(const entity_type x)
     {
         uint32_t dense_index = sparse_peek(x);
 
@@ -126,7 +126,8 @@ public:
         delete_pages();
     }
 
-    const uint32_t& operator[](const uint32_t index) const {
+    // indexing dense array
+    entity_type operator[](const uint32_t index) const {
         return m_dense[index];
     }
 
@@ -154,7 +155,9 @@ public:
         return m_dense.end();
     }
 
-    void swap(const uint32_t a, const uint32_t b) {
+    // swap positions of two entities in dense array
+    void swap(const entity_type a, const entity_type b)
+    {
         uint32_t a_dense = sparse_peek(a);
         uint32_t b_dense = sparse_peek(b);
 
@@ -166,37 +169,36 @@ public:
 
 private:
 
-    uint32_t sparse_peek(const uint32_t x) const
+    uint32_t sparse_peek(const entity_type x) const
     {
         //assert(x < max_size && "Index cannot exceed max size!");
-        const uint32_t page_index = x / page_size;
+        const uint32_t page_index = x / SPARSE_SET_PAGE_SIZE;
 
-        if (x >= max_size || !page_exists(page_index))
+        if (x >= ENTITY_TOMBSTONE || !page_exists(page_index))
             return tombstone();
 
-        return m_sparse[page_index][x % page_size];
+        return m_sparse[page_index][x % SPARSE_SET_PAGE_SIZE];
     }
 
-    uint32_t& sparse_get(const uint32_t x)
+    uint32_t& sparse_get(const entity_type x)
     {
-        assert(x < max_size && "Index cannot exceed max size!");
-        const uint32_t page_index = x / page_size;
+        assert(x < ENTITY_TOMBSTONE && "Index cannot exceed max size!");
+        const uint32_t page_index = x / SPARSE_SET_PAGE_SIZE;
 
         if (!page_exists(page_index)) {
             // NOTE: Ends up with un-used memory on last page if max size is not multiple of page size, up to page_size - 1 wasted space
-            m_sparse[page_index] = new uint32_t[page_size];
+            m_sparse[page_index] = new uint32_t[SPARSE_SET_PAGE_SIZE];
 
             // set all values to tombstone
             // cant use memset as cannot garuantee entity_type is sizeof(byte) as in default case
-            for (size_t i = 0; i < page_size; ++i)
-                m_sparse[page_index][i] = tombstone();
+            std::fill_n(m_sparse[page_index], SPARSE_SET_PAGE_SIZE, tombstone());
         }
 
-        return m_sparse[page_index][x % page_size];
+        return m_sparse[page_index][x % SPARSE_SET_PAGE_SIZE];
     }
 
     [[nodiscard]] constexpr uint32_t page_count() const {
-        return (max_size / page_size) + 1;
+        return (ENTITY_TOMBSTONE / SPARSE_SET_PAGE_SIZE) + 1;
     }
 
     void dense_swap(const uint32_t a, const uint32_t b)
@@ -222,8 +224,8 @@ private:
         }
     }
 
-    uint32_t** m_sparse;
-    std::vector<uint32_t> m_dense;
+    entity_type** m_sparse;
+    std::vector<entity_type> m_dense;
 }; /* class sparse_set */
 
 } /* namespace ecs::container */

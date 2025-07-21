@@ -125,7 +125,7 @@ bool scene::load(const std::string& file_name)
         // transform
         if (components.has_child(component_type_info<transform>::c4_name()))
         {
-            auto& transf = m_registry.emplace<transform>(entity);
+            auto& transf = *m_registry.emplace<transform>(entity);
 
             size_t transf_doc_id;
             components[component_type_info<transform>::c4_name()] >> transf_doc_id;
@@ -153,7 +153,7 @@ bool scene::load(const std::string& file_name)
         // camera
         if (components.has_child(component_type_info<camera>::c4_name()))
         {
-            auto& cam = m_registry.emplace<camera>(entity);
+            auto& cam = *m_registry.emplace<camera>(entity);
             size_t doc_id;
             components[component_type_info<camera>::c4_name()] >> doc_id;
 
@@ -162,7 +162,7 @@ bool scene::load(const std::string& file_name)
 
         if (components.has_child(component_type_info<render_mesh>::c4_name()))
         {
-            auto& mesh = m_registry.emplace<render_mesh>(entity);
+            auto& mesh = *m_registry.emplace<render_mesh>(entity);
             size_t doc_id;
             components[component_type_info<render_mesh>::c4_name()] >> doc_id;
 

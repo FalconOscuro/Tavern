@@ -40,7 +40,7 @@ private:
     // NOTE: Could do faster implementation by sorting sparse map itself
     // would require rework of sparse map adding indirection and pooling
     // to prevent entire structure being copied during swap operations
-    ecs::container::sparse_set<> m_entities;
+    ecs::container::sparse_set m_entities;
 
     ecs::registry m_registry;
 }; /* end of class scene */

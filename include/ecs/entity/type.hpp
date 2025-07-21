@@ -1,13 +1,16 @@
 #ifndef COMPONENT_TYPE_H
 #define COMPONENT_TYPE_H
+// should be in core
 
 #include <cstddef>
 #include <cstring>
 #include <cstdint>
+#include <limits>
 #include <string_view>
 #include <utility>
 
 #include "../config/config.h"
+#include "../containers/component_container.hpp"
 
 namespace ecs::internal {
 
@@ -61,12 +64,6 @@ private:
     char m_data[SIZE] = {};
 }; /* end of class string_literal */
 
-// unsupported pointer and reference!
-template<typename type>
-[[nodiscard]] constexpr std::enable_if_t<std::is_const_v<type> || std::is_volatile_v<type>, const std::string_view> get_type_name() noexcept {
-    return get_type_name<std::remove_cv_t<type>>();
-}
-
 // Get unmangled type name from pretty function macro at compile time
 template<typename type>
 [[nodiscard]] constexpr std::enable_if_t<!std::is_const_v<type> && !std::is_volatile_v<type>, const std::string_view> get_type_name() noexcept
@@ -96,7 +93,12 @@ template<typename type>
     //return c_str;
 }
 
-// Get type id from hash of type name at compile time
+// unsupported pointer and reference!
+template<typename type>
+[[nodiscard]] constexpr std::enable_if_t<std::is_const_v<type> || std::is_volatile_v<type>, const std::string_view> get_type_name() noexcept {
+    return get_type_name<std::remove_cv_t<type>>();
+}
+
 template<typename type>
 [[nodiscard]] constexpr size_t get_type_id() noexcept {
     return std::hash<std::string_view>{}(get_type_name<std::remove_cv_t<type>>());
@@ -109,7 +111,7 @@ template<typename T>
 struct templated_type_funcs
 {
     static void constructor(void* ptr) {
-        new(ptr) T;
+        new(ptr) std::remove_cv_t<T>;
     }
 
     static void destructor(void* ptr) {
@@ -118,21 +120,34 @@ struct templated_type_funcs
 
 }; /* end of struct templated_type_funcs */
 
+// should no longer be internal, used externally now
 /*! \brief Information for singular type
  *
  *  Contains unmanged type name and unique id
  */
 struct type_info final
 {
+    template<typename component_type>
+    constexpr type_info(std::in_place_type_t<container::component_container<component_type>>):
+        id(get_type_id<container::component_container<component_type>>()),
+        name(get_type_name<container::component_container<component_type>>()),
+        size(sizeof(container::component_container<component_type>)),
+        constructor(templated_type_funcs<container::component_container<component_type>>::constructor),
+        destructor(templated_type_funcs<container::component_container<component_type>>::destructor),
+        align(alignof(container::component_container<component_type>)),
+        is_valid_component_container(true)
+    {}
+
     // Compile time definition using templating
     template<typename type>
-    type_info(std::in_place_type_t<type>):
+    constexpr type_info(std::in_place_type_t<type>):
         id(get_type_id<type>()),
         name(get_type_name<type>()),
         size(sizeof(type)),
-        align(alignof(type)),
         constructor(templated_type_funcs<type>::constructor),
-        destructor(templated_type_funcs<type>::destructor)
+        destructor(templated_type_funcs<type>::destructor),
+        align(alignof(type)),
+        is_valid_component_container(false)
     {}
 
     // runtime definition using unmangled type name
@@ -142,31 +157,54 @@ struct type_info final
         construct_type constructor,
         destroy_type destructor,
         const uint64_t size,
-        const uint32_t align = alignof(max_align_t)
+        bool is_valid_component_container = false,
+        const uint8_t align = alignof(std::max_align_t)
     ):
         id(std::hash<std::string_view>{}(type_name)),
         name(type_name),
         size(size),
-        align(align),
         constructor(constructor),
-        destructor(destructor)
+        destructor(destructor),
+        align(align),
+        is_valid_component_container(is_valid_component_container)
     {}
 
     const uint64_t id;
     const std::string_view name;
 
     const uint64_t size;
-    const uint32_t align;
 
     const construct_type constructor;
     const destroy_type destructor;
 
-    bool operator==(const type_info& ti) const {
-        return ti.id == id;
+    // align unlikely to be more than 16 bytes as max align_t
+    const uint8_t align;
+    static_assert(alignof(std::max_align_t) <= std::numeric_limits<decltype(align)>::max(), "Max align greater than storable value!");
+
+    const bool is_valid_component_container;
+
+    // un-used module_id info, to prevent cross module collisions
+    //const uint32_t module_id;
+    //const std::string_view module_name;
+
+    // comparison assumes correct construction
+    bool operator==(const type_info& rhs) const
+    {
+        // Fast check of ID, then need to check for hash collisions
+        // additional fast check of name memory address, can assume if pointing to same string, is of same type
+        return id == rhs.id && (
+            name.data() == rhs.name.data()
+            || name == rhs.name
+        );
     }
 
-    bool operator!=(const type_info& ti) const {
-        return ti.id != id;
+    bool operator!=(const type_info& rhs) const
+    {
+        // Account for hashing collisions,
+        return id != rhs.id || (
+            name.data() != rhs.name.data()
+            && name != rhs.name
+        );
     }
 }; /* struct type_info */
 

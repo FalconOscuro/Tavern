@@ -125,15 +125,16 @@ public:
         return m_base_it >= rhs.m_base_it;
     }
 
-private:
-
-    // should work?
     template<bool IsConst>
     wrapped_amorphic_vec_iterator(const amorphic_vec_iterator_t<IsConst>& it):
         m_base_it(it)
     {
-        assert(internal::get_type_id<T>() == it.get_type_info().id);
+        assert(internal::type_info(std::in_place_type<T>) == it.get_type_info());
     }
+
+private:
+
+    // should work?
 
     base_it m_base_it;
 };
@@ -159,7 +160,7 @@ public:
         m_wrapped_vec(wrapped_vec)
     {
         assert(m_wrapped_vec != nullptr);
-        assert(m_wrapped_vec->get_type_info().id == internal::get_type_id<T>());
+        assert(m_wrapped_vec->get_type_info() == internal::type_info(std::in_place_type<T>));
     }
 
     amorphic_vec* get_wrapped_vec() const {
