@@ -37,6 +37,7 @@ public:
     }
 
 private:
+    // SHOULD ALWAYS BE at pointer address for container!
     entity_type entity_id;
 
 public:

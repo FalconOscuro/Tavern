@@ -28,7 +28,7 @@ bool renderer::camera_exists() const {
     const ecs::registry& registry = scene::singleton().get_registry();
     
     // NOTE has should check for exitance first, causes error
-    return registry.exists(m_camera) && registry.has<component::camera>(m_camera) && registry.has<component::transform>(m_camera);
+    return registry.exists(m_camera) && registry.has<component::camera, component::transform>(m_camera);
 }
 
 void renderer::update_camera()
@@ -44,9 +44,10 @@ void renderer::update_camera()
         return;
     }
 
-    for (auto it = cam_view.begin(); it != cam_view.end(); ++it) {
+    for (auto it = cam_view.begin(); it != cam_view.end(); ++it)
+    {
         ecs::entity_type cam_id = *it;
-        auto& camera = it.get<component::camera>();
+        auto& camera = registry.get<component::camera>(cam_id).component;
 
         // active camera becomes inactive
         if (cam_id == m_camera && !camera.active)
@@ -58,7 +59,7 @@ void renderer::update_camera()
             // prioritize new cameras over current
             // avoid setting multiple cameras as active during a single frame, as outcome can be non-deterministic from user perspective
             if (registry.has<component::camera>(m_camera))
-                registry.get<component::camera>(m_camera).active = false;
+                registry.get<component::camera>(m_camera).component.active = false;
 
             m_camera = cam_id;
         }

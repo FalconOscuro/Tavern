@@ -169,6 +169,11 @@ struct type_info final
         is_valid_component_container(is_valid_component_container)
     {}
 
+    ~type_info() = default;
+
+    type_info(const type_info&) = default;
+    type_info(type_info&&) = default;
+
     const uint64_t id;
     const std::string_view name;
 

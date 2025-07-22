@@ -11,7 +11,7 @@
 #include "../containers/sparse_map_wrapper.hpp"
 #include "entity.h"
 #include "type.hpp"
-//#include "view.hpp"
+#include "view.hpp"
 
 namespace ecs {
 
@@ -239,7 +239,7 @@ public:
     {
         const internal::type_info type_info = internal::type_info(std::in_place_type<T>);
 
-        return reinterpret_cast<container::wrapped_sparse_map<T>*>(try_get(entity, type_info));
+        return reinterpret_cast<typename container::wrapped_sparse_map<T>::container_type*>(try_get(entity, type_info));
     }
 
     template<typename T>
@@ -284,6 +284,18 @@ public:
         return has(entity, type_info);
     }
 
+    template<typename T0, typename T1, typename... TN>
+    bool has(const entity_type entity) const
+    {
+        std::vector<internal::type_info> criteria {
+            internal::type_info(std::in_place_type<T0>),
+            internal::type_info(std::in_place_type<T1>),
+            internal::type_info(std::in_place_type<TN>)...
+        };
+
+        return has(entity, criteria);
+    }
+
     bool has(const entity_type entity, const internal::type_info& type_info) const
     {
         if (!exists(entity))
@@ -291,6 +303,22 @@ public:
 
         auto pool = peek_component_pool(type_info);
         return pool != nullptr && pool->exists(entity);
+    }
+
+    bool has(const entity_type entity, const std::vector<internal::type_info>& criteria) const
+    {
+        if (!exists(entity))
+            return false;
+
+        for (auto& type_info : criteria)
+        {
+            const container::sparse_map* pool = peek_component_pool(type_info);
+
+            if (pool == nullptr || !pool->exists(entity))
+                return false;
+        }
+
+        return true;
     }
 
     /*! \brief Get number of components of given type
@@ -310,15 +338,31 @@ public:
         return pool == nullptr ? 0 : pool->size();
     }
 
+    template<typename... TN>
+    view create_view() const
+    {
+        static_assert(sizeof...(TN) > 0, "Attempting to create view with 0 criteria!");
+
+        std::vector<internal::type_info> criteria {internal::type_info(std::in_place_type<TN>)...};
+
+        return create_view(criteria);
+    }
+
     /*! \brief Create a view for iteration of all entities satisfying given types
      *
      *  \note Used for systems
      *  \note Views should not be stored, recreate for each singular use
      */
-    //template<typename... Type>
-    //view<Type...> create_view() {
-    //    return view(get_component_pool<Type>()...);
-    //}
+    view create_view(const std::vector<internal::type_info>& criteria) const
+    {
+        std::vector<std::pair<internal::type_info, const container::sparse_map*>> criteria_pools;
+        criteria_pools.reserve(criteria.size());
+
+        for (auto& type_info : criteria)
+            criteria_pools.push_back(std::make_pair(type_info, peek_component_pool(type_info)));
+
+        return view(criteria_pools);
+    }
 
     /*! \brief Get the pool storing a specific component
      */
@@ -347,15 +391,18 @@ public:
 
 private:
 
-    /*! \brief Get component pool for given type, creating if non-existant
-     */
     template<typename T>
     container::wrapped_sparse_map<T> get_component_pool()
     {
         const internal::type_info type_info = 
             internal::type_info(std::in_place_type<T>);
 
-        return container::wrapped_sparse_map<T>(get_component_pool(type_info));
+        if (!m_components.count(type_info))
+        {
+            m_components.emplace(std::make_pair(type_info, std::make_unique<container::sparse_map>(std::in_place_type<T>)));
+        }
+
+        return container::wrapped_sparse_map<T>(m_components.at(type_info).get());
     }
 
     container::sparse_map* get_component_pool(const internal::type_info& type_info)

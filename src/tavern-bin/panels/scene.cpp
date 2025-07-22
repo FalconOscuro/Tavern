@@ -83,8 +83,8 @@ void scene_p::draw_entity_tree()
         char name_buf[ENTITY_NAME_MAX_LEN + 64]{'\0'};
 
         const auto* name_comp = g_registry.try_get<tavern::component::entity_name>(*it);
-        if (name_comp && strlen(name_comp->get()))
-            sprintf(name_buf, "%s (%i)", name_comp->get(), *it);
+        if (name_comp && strlen(name_comp->component.get()))
+            sprintf(name_buf, "%s (%i)", name_comp->component.get(), *it);
 
         else
             sprintf(name_buf, "%i", *it);
@@ -221,7 +221,7 @@ void scene_p::edit_name()
         return;
     }
 
-    auto& name = g_registry.get<tavern::component::entity_name>(m_selected);
+    auto& name = g_registry.get<tavern::component::entity_name>(m_selected).component;
 
     ImGui::InputText("##edit name", *name, ENTITY_NAME_MAX_LEN);
 }
@@ -263,7 +263,7 @@ void scene_p::edit_transform()
         return;
     }
 
-    auto& transform = g_registry.get<tavern::component::transform>(m_selected);
+    auto& transform = g_registry.get<tavern::component::transform>(m_selected).component;
 
     {
         bool changed = false;

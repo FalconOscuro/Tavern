@@ -185,8 +185,8 @@ void renderer::render_geometry()
 
     auto draw_view = registry.create_view<component::render_mesh, component::transform>();
 
-    auto& camera = registry.get<component::camera>(get_active_camera());
-    auto& camera_transf = registry.get<component::transform>(get_active_camera());
+    auto& camera = registry.get<component::camera>(get_active_camera()).component;
+    auto& camera_transf = registry.get<component::transform>(get_active_camera()).component;
 
     // update camera uniform buffer
     {
@@ -201,9 +201,10 @@ void renderer::render_geometry()
 
     m_default_shader->use();
 
-    for (auto it = draw_view.begin(); it != draw_view.end(); ++it) {
-        auto& drawable = it.get<component::render_mesh>();
-        auto& transform = it.get<component::transform>();
+    for (auto it = draw_view.begin(); it != draw_view.end(); ++it)
+    {
+        auto& drawable = registry.get<component::render_mesh>(*it).component;
+        auto& transform = registry.get<component::transform>(*it).component;
 
         m_default_shader->set_transform(transform.get_global());
 

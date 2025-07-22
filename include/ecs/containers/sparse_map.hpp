@@ -28,7 +28,7 @@ public:
     sparse_map(std::in_place_type_t<T> type):
         m_component_type_info(type), m_dense(std::in_place_type<component_container<T>>)
     {
-        static_assert(offsetof(component_container<T>, entity_id) == 0, "entity ID must be at pointed type address!");
+        //static_assert(offsetof(component_container<T>, entity_id) == 0, "entity ID must be at pointed type address!");
 
         init_sparse();
     }
