@@ -17,6 +17,8 @@
 
 namespace cantrip::error {
 
+// unexpected statement?
+
 class redefinition : public exception {
 public:
 
@@ -71,6 +73,15 @@ public:
     no_member(const ast::call* call, const ast::c_struct* struc);
 
     ~no_member() = default;
+};
+
+class type_not_convertible : public exception
+{
+public:
+
+    type_not_convertible(const file_pos& pos, const ast::type& from, const ast::type& to);
+
+    ~type_not_convertible() = default;
 };
 
 } /* namespace cantrip::error */

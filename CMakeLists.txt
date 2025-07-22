@@ -70,6 +70,7 @@ target_sources(Cantrip PRIVATE
     src/cantrip/error/semantic_error.cpp
 
     src/cantrip/runtime/object.cpp
+    src/cantrip/runtime/tree_walk_interpreter.cpp
 )
 
 target_link_libraries(Cantrip PUBLIC Tavern-File)

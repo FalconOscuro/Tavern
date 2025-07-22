@@ -28,4 +28,8 @@ unkown_typename::unkown_typename(const file_pos& pos, const ast::type& type):
     exception(pos, std::string("Undeclared identifier '").append(type.name()).append("'").c_str())
 {}
 
+type_not_convertible::type_not_convertible(const file_pos& pos, const ast::type& from, const ast::type& to):
+    exception(pos, std::string("Type '").append(from.name()).append(std::string("' is not convertible to '").append(to.name()).append("'")).c_str())
+{}
+
 } /* namespace cantrip::error */

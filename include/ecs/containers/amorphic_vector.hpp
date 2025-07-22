@@ -150,6 +150,8 @@ private:
     inline void assert_same_type(const amorphic_vec_iterator_t<IsConstOther>& other) const {
         assert(m_type_info == other.m_type_info && "Attempted conversion between amorphic iterators of differing base types!");
         // use as exception instead?
+
+        (void)other;
     }
 
     template<bool IsConstOther>

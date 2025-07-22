@@ -279,13 +279,15 @@ void semantic::visit_if_else(ast::if_else* if_else)
 void semantic::visit_return_stmt(ast::return_stmt* return_stmt)
 {
     // not in function throw error, should be impossible?
-    if (!m_function);
+    if (!m_function)
+    {}
 
     if (return_stmt->returned)
         return_stmt->returned->accept(this);
 
     // mismatched return type, throw error
-    if (m_type != m_function->return_type);
+    if (!is_type_convertible(m_type, m_function->return_type))
+        throw error::type_not_convertible(return_stmt->pos, m_type, m_function->return_type);
 
     m_type = ast::type();
 }
@@ -301,7 +303,8 @@ void semantic::visit_var_declare(ast::var_declare* var_declare)
         var_declare->expr->accept(this);
 
         // type mismatch throw err
-        if (m_type != var_declare->vtype);
+        if (!is_type_convertible(m_type, var_declare->vtype))
+            throw error::type_not_convertible(var_declare->pos, m_type, var_declare->vtype);
 
         m_type = ast::type();
     }
@@ -338,6 +341,13 @@ bool semantic::resolve_type(ast::type& type)
 
     type.resolve(found->second.get());
     return true;
+}
+
+// could make throw exception?
+bool semantic::is_type_convertible(const ast::type& from, const ast::type& to)
+{
+    // simple implementation only checks if same
+    return from == to;
 }
 
 } /* namespace cantrip::analyzer */

@@ -83,6 +83,9 @@ private:
     void resolve_func_return_type(ast::function* func);
     bool resolve_type(ast::type& type);
 
+    // todo: proper type conversion checking
+    bool is_type_convertible(const ast::type& from, const ast::type& to);
+
     environment_stack m_env_stack;
     ast::type m_type;
 
