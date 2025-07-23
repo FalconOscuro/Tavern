@@ -22,18 +22,18 @@ public:
         m_wrapped_map(wrapped_map), m_wrapped_vec(&wrapped_map->get_dense())
     {
         assert(m_wrapped_map != nullptr);
-        assert(internal::type_info(std::in_place_type<container_type>) == m_wrapped_map->get_container_type_info());
+        assert(core::type_info(std::in_place_type<container_type>) == m_wrapped_map->get_container_type_info());
     }
 
     ~wrapped_sparse_map() = default;
     wrapped_sparse_map(const wrapped_sparse_map&) = default;
     wrapped_sparse_map& operator=(const wrapped_sparse_map&) = default;
 
-    const internal::type_info& get_type_info() const {
+    const core::type_info& get_type_info() const {
         return m_wrapped_map->get_type_info();
     }
 
-    const internal::type_info& get_container_type_info() const {
+    const core::type_info& get_container_type_info() const {
         return m_wrapped_map->get_container_type_info();
     }
 

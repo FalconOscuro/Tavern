@@ -5,7 +5,7 @@
 
 #include <ryml.hpp>
 
-#include <ecs/entity/type.hpp>
+#include <ecs/core/type.hpp>
 
 #include "component.h"
 
@@ -48,7 +48,7 @@ namespace tavern::component {
 template <typename T>
 struct component_type_info
 {
-    static constexpr std::string_view name = ecs::internal::get_type_name<T>();
+    static constexpr std::string_view name = ecs::core::internal::get_type_name<T>();
     static const std::string tag;
 
     static inline c4::csubstr c4_name() {
@@ -69,7 +69,7 @@ private:
 template <typename T>
 [[nodiscard]] std::string get_type_tag() noexcept
 {
-    std::string_view name = ecs::internal::get_type_name<T>();
+    std::string_view name = ecs::core::internal::get_type_name<T>();
 
     std::string str;
     str.reserve(strlen(TAVERN_TAG_DIRECTIVE) + name.length());

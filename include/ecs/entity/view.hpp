@@ -23,7 +23,7 @@ public:
         return m_criteria.size();
     }
 
-    const internal::type_info& get_criteria(const size_t i) {
+    const core::type_info& get_criteria(const size_t i) {
         return m_criteria[i];
     }
 
@@ -43,7 +43,7 @@ private:
 
     // take criteria separately in-case of non-existant criteria_pools
     // assume both orderd same
-    view(const std::vector<std::pair<internal::type_info, const container::sparse_map*>>& criteria_pools):
+    view(const std::vector<std::pair<core::type_info, const container::sparse_map*>>& criteria_pools):
         m_criteria(), m_entities()
     {
         // throw error?
@@ -94,7 +94,7 @@ private:
         }
     }
 
-    std::vector<internal::type_info> m_criteria;
+    std::vector<core::type_info> m_criteria;
     std::vector<entity_type> m_entities;
 };
 

@@ -9,8 +9,8 @@
 #include "../containers/sparse_set.hpp"
 #include "../containers/sparse_map.hpp"
 #include "../containers/sparse_map_wrapper.hpp"
+#include "../core/type.hpp"
 #include "entity.h"
-#include "type.hpp"
 #include "view.hpp"
 
 namespace ecs {
@@ -204,11 +204,11 @@ public:
     template<typename T>
     void remove(const entity_type entity)
     {
-        const internal::type_info type_info = internal::type_info(std::in_place_type<T>);
+        const core::type_info type_info = core::type_info(std::in_place_type<T>);
         remove(entity, type_info);
     }
 
-    void remove(const entity_type entity, const internal::type_info& type_info)
+    void remove(const entity_type entity, const core::type_info& type_info)
     {
         if (!exists(entity))
             return;
@@ -228,7 +228,7 @@ public:
         return get_component_pool<T>().get(entity);
     }
 
-    void* get(const entity_type entity, const internal::type_info& type_info)
+    void* get(const entity_type entity, const core::type_info& type_info)
     {
         create(entity);
         return get_component_pool(type_info)->get(entity);
@@ -237,7 +237,7 @@ public:
     template<typename T>
     auto* try_get(const entity_type entity)
     {
-        const internal::type_info type_info = internal::type_info(std::in_place_type<T>);
+        const core::type_info type_info = core::type_info(std::in_place_type<T>);
 
         return reinterpret_cast<typename container::wrapped_sparse_map<T>::container_type*>(try_get(entity, type_info));
     }
@@ -245,12 +245,12 @@ public:
     template<typename T>
     const auto* try_get(const entity_type entity) const
     {
-        const internal::type_info type_info = internal::type_info(std::in_place_type<T>);
+        const core::type_info type_info = core::type_info(std::in_place_type<T>);
 
         return reinterpret_cast<const typename container::wrapped_sparse_map<T>::container_type*>(try_get(entity, type_info));
     }
 
-    void* try_get(const entity_type entity, const internal::type_info& type_info)
+    void* try_get(const entity_type entity, const core::type_info& type_info)
     {
         if (!exists(entity))
             return nullptr;
@@ -260,7 +260,7 @@ public:
         return pool == nullptr ? nullptr : pool->try_get(entity);
     }
 
-    const void* try_get(const entity_type entity, const internal::type_info& type_info) const
+    const void* try_get(const entity_type entity, const core::type_info& type_info) const
     {
         if (!exists(entity))
             return nullptr;
@@ -280,23 +280,23 @@ public:
     template<typename T>
     bool has(const entity_type entity) const
     {
-        const internal::type_info type_info = internal::type_info(std::in_place_type<T>);
+        const core::type_info type_info = core::type_info(std::in_place_type<T>);
         return has(entity, type_info);
     }
 
     template<typename T0, typename T1, typename... TN>
     bool has(const entity_type entity) const
     {
-        std::vector<internal::type_info> criteria {
-            internal::type_info(std::in_place_type<T0>),
-            internal::type_info(std::in_place_type<T1>),
-            internal::type_info(std::in_place_type<TN>)...
+        std::vector<core::type_info> criteria {
+            core::type_info(std::in_place_type<T0>),
+            core::type_info(std::in_place_type<T1>),
+            core::type_info(std::in_place_type<TN>)...
         };
 
         return has(entity, criteria);
     }
 
-    bool has(const entity_type entity, const internal::type_info& type_info) const
+    bool has(const entity_type entity, const core::type_info& type_info) const
     {
         if (!exists(entity))
             return false;
@@ -305,7 +305,7 @@ public:
         return pool != nullptr && pool->exists(entity);
     }
 
-    bool has(const entity_type entity, const std::vector<internal::type_info>& criteria) const
+    bool has(const entity_type entity, const std::vector<core::type_info>& criteria) const
     {
         if (!exists(entity))
             return false;
@@ -326,12 +326,12 @@ public:
     template<typename T>
     uint32_t size() const
     {
-        const internal::type_info type_info = internal::type_info(std::in_place_type<T>);
+        const core::type_info type_info = core::type_info(std::in_place_type<T>);
 
         return size(type_info);
     }
 
-    uint32_t size(const internal::type_info& type_info) const
+    uint32_t size(const core::type_info& type_info) const
     {
         const container::sparse_map* pool = peek_component_pool(type_info);
 
@@ -343,7 +343,7 @@ public:
     {
         static_assert(sizeof...(TN) > 0, "Attempting to create view with 0 criteria!");
 
-        std::vector<internal::type_info> criteria {internal::type_info(std::in_place_type<TN>)...};
+        std::vector<core::type_info> criteria {core::type_info(std::in_place_type<TN>)...};
 
         return create_view(criteria);
     }
@@ -353,9 +353,9 @@ public:
      *  \note Used for systems
      *  \note Views should not be stored, recreate for each singular use
      */
-    view create_view(const std::vector<internal::type_info>& criteria) const
+    view create_view(const std::vector<core::type_info>& criteria) const
     {
-        std::vector<std::pair<internal::type_info, const container::sparse_map*>> criteria_pools;
+        std::vector<std::pair<core::type_info, const container::sparse_map*>> criteria_pools;
         criteria_pools.reserve(criteria.size());
 
         for (auto& type_info : criteria)
@@ -371,21 +371,21 @@ public:
         return get_component_pool<T>();
     }
 
-    container::sparse_map* get_pool(const internal::type_info& type_info) {
+    container::sparse_map* get_pool(const core::type_info& type_info) {
         return get_component_pool(type_info);
     }
 
-    const container::sparse_map* try_get_pool(const internal::type_info& type_info) const {
+    const container::sparse_map* try_get_pool(const core::type_info& type_info) const {
         return peek_component_pool(type_info);
     }
 
     template<typename T>
     inline bool pool_exists() const {
-        const internal::type_info type_info = internal::type_info(std::in_place_type<T>);
+        const core::type_info type_info = core::type_info(std::in_place_type<T>);
         return m_components.count(type_info);
     }
 
-    inline bool pool_exists(const internal::type_info& type_info) const {
+    inline bool pool_exists(const core::type_info& type_info) const {
         return m_components.count(type_info);
     }
 
@@ -394,8 +394,8 @@ private:
     template<typename T>
     container::wrapped_sparse_map<T> get_component_pool()
     {
-        const internal::type_info type_info = 
-            internal::type_info(std::in_place_type<T>);
+        const core::type_info type_info = 
+            core::type_info(std::in_place_type<T>);
 
         if (!m_components.count(type_info))
         {
@@ -405,7 +405,7 @@ private:
         return container::wrapped_sparse_map<T>(m_components.at(type_info).get());
     }
 
-    container::sparse_map* get_component_pool(const internal::type_info& type_info)
+    container::sparse_map* get_component_pool(const core::type_info& type_info)
     {
         if (!m_components.count(type_info))
             m_components.emplace(std::make_pair(type_info, std::make_unique<container::sparse_map>(type_info)));
@@ -414,7 +414,7 @@ private:
     }
 
     // NOT THREAD SAFE
-    container::sparse_map* peek_component_pool(const internal::type_info& type_info)
+    container::sparse_map* peek_component_pool(const core::type_info& type_info)
     {
         if (!m_components.count(type_info))
             return nullptr;
@@ -422,7 +422,7 @@ private:
         return m_components.at(type_info).get();
     }
 
-    const container::sparse_map* peek_component_pool(const internal::type_info& type_info) const
+    const container::sparse_map* peek_component_pool(const core::type_info& type_info) const
     {
         if (!m_components.count(type_info))
             return nullptr;
@@ -436,7 +436,7 @@ private:
     container::sparse_set m_entities;
 
     // could do away with ptr, holdover from when fully templated
-    std::unordered_map<internal::type_info, std::unique_ptr<container::sparse_map>> m_components;
+    std::unordered_map<core::type_info, std::unique_ptr<container::sparse_map>> m_components;
 };
 
 } /* namespace ecs */

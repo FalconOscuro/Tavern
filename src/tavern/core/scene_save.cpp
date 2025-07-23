@@ -1,4 +1,4 @@
-#include "ecs/entity/type.hpp"
+#include "ecs/core/type.hpp"
 #include "tavern/core/scene.h"
 
 #include <boost/log/trivial.hpp>
@@ -31,7 +31,7 @@ inline void write_all_components(ryml::NodeRef& root, const ecs::registry& reg, 
     if (!reg.pool_exists<T>())
         return;
 
-    const ecs::container::sparse_map* pool = reg.try_get_pool(ecs::internal::type_info(std::in_place_type<T>));
+    const ecs::container::sparse_map* pool = reg.try_get_pool(ecs::core::type_info(std::in_place_type<T>));
     using iterator = typename ecs::container::wrapped_sparse_map<T>::const_iterator;
 
     for (auto it = iterator(pool->begin()); it != iterator(pool->end()); ++it)

@@ -35,7 +35,7 @@ public:
         m_base_it = other.m_base_it;
     }
 
-    inline const internal::type_info& get_type_info() const {
+    inline const core::type_info& get_type_info() const {
         return m_base_it.get_type_info;
     }
 
@@ -129,7 +129,7 @@ public:
     wrapped_amorphic_vec_iterator(const amorphic_vec_iterator_t<IsConst>& it):
         m_base_it(it)
     {
-        assert(internal::type_info(std::in_place_type<T>) == it.get_type_info());
+        assert(core::type_info(std::in_place_type<T>) == it.get_type_info());
     }
 
 private:
@@ -160,14 +160,14 @@ public:
         m_wrapped_vec(wrapped_vec)
     {
         assert(m_wrapped_vec != nullptr);
-        assert(m_wrapped_vec->get_type_info() == internal::type_info(std::in_place_type<T>));
+        assert(m_wrapped_vec->get_type_info() == core::type_info(std::in_place_type<T>));
     }
 
     amorphic_vec* get_wrapped_vec() const {
         return m_wrapped_vec;
     }
 
-    inline const internal::type_info& get_type_info() const {
+    inline const core::type_info& get_type_info() const {
         return m_wrapped_vec->get_type_info();
     }
 

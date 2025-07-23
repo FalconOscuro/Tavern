@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <utility>
 
-#include "../entity/type.hpp"
+#include "../core/type.hpp"
 
 namespace ecs::container {
 
@@ -48,7 +48,7 @@ public:
         return m_data;
     }
 
-    inline const internal::type_info& get_type_info() const {
+    inline const core::type_info& get_type_info() const {
         return m_type_info;
     }
 
@@ -159,7 +159,7 @@ private:
         static_assert(!IsConst || IsConst, "Detected const regression!");
     }
 
-    amorphic_vec_iterator_t(const internal::type_info& type_info, ptr_type data):
+    amorphic_vec_iterator_t(const core::type_info& type_info, ptr_type data):
         m_type_info(type_info), m_data(data)
     {}
 
@@ -172,7 +172,7 @@ private:
         return reinterpret_cast<byte_ptr_type>(m_data) - (m_type_info.size * i);
     }
 
-    const internal::type_info m_type_info;
+    const core::type_info m_type_info;
     ptr_type m_data;
 
 }; /* end of class amorphic_vec_iterator_t */
@@ -182,7 +182,7 @@ typedef amorphic_vec_iterator_t<true> const_amorphic_vec_iterator;
 
 inline void amorphic_iter_swap(const amorphic_vec_iterator& a, const amorphic_vec_iterator& b)
 {
-    const internal::type_info& type_info = a.get_type_info();
+    const core::type_info& type_info = a.get_type_info();
 
     assert(a.get_type_info() == b.get_type_info());
 
@@ -210,10 +210,10 @@ public:
 
     // Un-needed?
     template <typename T>
-    amorphic_vec(std::in_place_type_t<T> type): amorphic_vec(internal::type_info(type))
+    amorphic_vec(std::in_place_type_t<T> type): amorphic_vec(core::type_info(type))
     {}
 
-    amorphic_vec(const internal::type_info& type_info): m_type_info(type_info)
+    amorphic_vec(const core::type_info& type_info): m_type_info(type_info)
     {
         m_data = malloc(type_info.size * m_capacity);
     }
@@ -251,7 +251,7 @@ public:
         return array_ptr;
     }
 
-    inline const internal::type_info& get_type_info() const {
+    inline const core::type_info& get_type_info() const {
         return m_type_info;
     }
 
@@ -398,7 +398,7 @@ private:
         m_data = new_vec;
     }
 
-    const internal::type_info m_type_info;
+    const core::type_info m_type_info;
 
      void* m_data;
 

@@ -35,7 +35,7 @@ public:
 
     // USE WITH CAUTION, has no checking to enforce pointed address is ID!
     // Could add flag to type info?
-    sparse_map(const internal::type_info& type_info):
+    sparse_map(const core::type_info& type_info):
         m_component_type_info(type_info), m_dense(type_info)
     {
         init_sparse();
@@ -50,11 +50,11 @@ public:
     sparse_map(const sparse_map&) = delete;
     void operator=(const sparse_map&) = delete;
 
-    const internal::type_info& get_type_info() const {
+    const core::type_info& get_type_info() const {
         return m_component_type_info;
     }
 
-    const internal::type_info& get_container_type_info() const {
+    const core::type_info& get_container_type_info() const {
         return m_dense.get_type_info();
     }
 
@@ -235,7 +235,7 @@ private:
 
     entity_type** m_sparse;
 
-    internal::type_info m_component_type_info;
+    core::type_info m_component_type_info;
 
     // temporary whilst changing over
     amorphic_vec m_dense;

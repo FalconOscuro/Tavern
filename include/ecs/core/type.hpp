@@ -12,7 +12,9 @@
 #include "../config/config.h"
 #include "../containers/component_container.hpp"
 
-namespace ecs::internal {
+namespace ecs::core {
+
+namespace internal {
 
 template <size_t SIZE>
 class string_literal
@@ -120,7 +122,8 @@ struct templated_type_funcs
 
 }; /* end of struct templated_type_funcs */
 
-// should no longer be internal, used externally now
+} /* end of namespace internal */
+
 /*! \brief Information for singular type
  *
  *  Contains unmanged type name and unique id
@@ -129,11 +132,11 @@ struct type_info final
 {
     template<typename component_type>
     constexpr type_info(std::in_place_type_t<container::component_container<component_type>>):
-        id(get_type_id<container::component_container<component_type>>()),
-        name(get_type_name<container::component_container<component_type>>()),
+        id(internal::get_type_id<container::component_container<component_type>>()),
+        name(internal::get_type_name<container::component_container<component_type>>()),
         size(sizeof(container::component_container<component_type>)),
-        constructor(templated_type_funcs<container::component_container<component_type>>::constructor),
-        destructor(templated_type_funcs<container::component_container<component_type>>::destructor),
+        constructor(internal::templated_type_funcs<container::component_container<component_type>>::constructor),
+        destructor(internal::templated_type_funcs<container::component_container<component_type>>::destructor),
         align(alignof(container::component_container<component_type>)),
         is_valid_component_container(true)
     {}
@@ -141,11 +144,11 @@ struct type_info final
     // Compile time definition using templating
     template<typename type>
     constexpr type_info(std::in_place_type_t<type>):
-        id(get_type_id<type>()),
-        name(get_type_name<type>()),
+        id(internal::get_type_id<type>()),
+        name(internal::get_type_name<type>()),
         size(sizeof(type)),
-        constructor(templated_type_funcs<type>::constructor),
-        destructor(templated_type_funcs<type>::destructor),
+        constructor(internal::templated_type_funcs<type>::constructor),
+        destructor(internal::templated_type_funcs<type>::destructor),
         align(alignof(type)),
         is_valid_component_container(false)
     {}
@@ -154,8 +157,8 @@ struct type_info final
     // default alignment is max alignment
     type_info(
         std::string_view type_name,
-        construct_type constructor,
-        destroy_type destructor,
+        internal::construct_type constructor,
+        internal::destroy_type destructor,
         const uint64_t size,
         bool is_valid_component_container = false,
         const uint8_t align = alignof(std::max_align_t)
@@ -179,8 +182,8 @@ struct type_info final
 
     const uint64_t size;
 
-    const construct_type constructor;
-    const destroy_type destructor;
+    const internal::construct_type constructor;
+    const internal::destroy_type destructor;
 
     // align unlikely to be more than 16 bytes as max align_t
     const uint8_t align;
@@ -213,20 +216,20 @@ struct type_info final
     }
 }; /* struct type_info */
 
-} /* namespace ecs::internal */
+} /* namespace ecs::core */
 
 namespace std {
 
 template<>
-class hash<ecs::internal::type_info>
+class hash<ecs::core::type_info>
 {
 public:
     // NOTE: not final, eventually hash function to use identity of combined id's for type and source
     // both 32bit will form single 64bit unique int
-    uint64_t operator()(const ecs::internal::type_info& type_info) const {
+    uint64_t operator()(const ecs::core::type_info& type_info) const {
         return hash<string_view>{}(type_info.name);
     }
-}; /* class hash<ecs::internal::type_info> */
+}; /* class hash<ecs::core::type_info> */
 
 } /* namespace std */
 
