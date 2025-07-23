@@ -5,6 +5,14 @@
 
 #include "cantrip/ast/statement/struct.h"
 
+// move to different file?
+#define NULL_TYPE_NAME "null"
+#define INT_TYPE_NAME "int"
+#define FLOAT_TYPE_NAME "float"
+#define STRING_TYPE_NAME "string"
+#define BOOL_TYPE_NAME "bool"
+#define ENTITY_TYPE_NAME "entity"
+
 namespace cantrip::ast {
 
 type::type():
@@ -13,23 +21,30 @@ type::type():
 
 type::type(const char* type_name)
 {
-    if (!type_name || "null")
+    if (!type_name || NULL_TYPE_NAME)
         m_type = NONE;
 
-    else if (strcmp(type_name, "int") == 0)
+    else if (strcmp(type_name, INT_TYPE_NAME) == 0)
         m_type = CORE_INT;
 
-    else if (strcmp(type_name, "float") == 0)
+    else if (strcmp(type_name, FLOAT_TYPE_NAME) == 0)
         m_type = CORE_FLOAT;
 
-    else if (strcmp(type_name, "string") == 0)
+    else if (strcmp(type_name, STRING_TYPE_NAME) == 0)
         m_type = CORE_STRING;
 
-    else if (strcmp(type_name, "bool") == 0)
+    else if (strcmp(type_name, BOOL_TYPE_NAME) == 0)
         m_type = CORE_BOOL;
 
     else
         set_unresolved_name(type_name);
+}
+
+type::type(type_info t_info):
+    m_type(t_info)
+{
+    // throw not assert?
+    assert(!is_custom_type_or_unresolved() && "Constructor is for core types only!");
 }
 
 type::type(const type& t)
@@ -39,7 +54,7 @@ type::type(const type& t)
     if (m_type == UNRESOLVED)
         set_unresolved_name(t.m_data.unresolved_name);
 
-    else if (m_type == CUSTOM)
+    else if (is_resolved_custom_type())
         m_data.custom = t.m_data.custom;
 }
 
@@ -52,21 +67,23 @@ const std::string_view type::name() const
     switch (m_type)
     {
     case NONE:
-        return "null";
+        return NULL_TYPE_NAME;
 
     case CORE_INT:
-        return "int";
+        return INT_TYPE_NAME;
 
     case CORE_FLOAT:
-        return "float";
+        return FLOAT_TYPE_NAME;
 
     case CORE_STRING:
-        return "string";
+        return STRING_TYPE_NAME;
 
     case CORE_BOOL:
-        return "bool";
+        return BOOL_TYPE_NAME;
 
-    case CUSTOM:
+    case CUSTOM_COMPONENT:
+    case CUSTOM_CLASS:
+    case CUSTOM_STRUCT:
         return m_data.custom->name;
 
     case UNRESOLVED:
@@ -74,11 +91,11 @@ const std::string_view type::name() const
     }
 
     assert(false && "Unexpected fall through!");
-    return "";
+    return NULL_TYPE_NAME;
 }
 
 c_struct* type::get_custom_type() const {
-    assert(m_type == CUSTOM && "This function is only valid for custom data-types");
+    assert(is_resolved_custom_type() && "This function is only valid for custom data-types");
     return m_data.custom;
 }
 
@@ -89,7 +106,21 @@ void type::resolve(c_struct* type)
 
     delete[] m_data.unresolved_name;
     m_data.custom = type;
-    m_type = CUSTOM;
+
+    switch (type->s_type)
+    {
+        case COMPONENT:
+            m_type = CUSTOM_COMPONENT;
+            break;
+
+        case CLASS:
+            m_type = CUSTOM_CLASS;
+            break;
+
+        case STRUCT:
+            m_type = CUSTOM_STRUCT;
+            break;
+    }
 }
 
 type& type::operator=(const type& t)
@@ -100,48 +131,49 @@ type& type::operator=(const type& t)
     if (m_type == UNRESOLVED)
         set_unresolved_name(t.m_data.unresolved_name);
 
-    else if (m_type == CUSTOM)
+    else if (is_resolved_custom_type())
         m_data.custom = t.m_data.custom;
 
     return *this;
 }
 
-bool type::operator==(const type& t) const
+bool type::operator==(const type& rhs) const
 {
     // both custom fully resolved types
     // allows for fast check against pointers
     // could do additional check against names, but currently deemed un-necessary
-    if (m_type == CUSTOM && t == CUSTOM)
-        return m_data.custom == t.m_data.custom;
+    if (m_type == rhs.m_type && is_resolved_custom_type())
+        return m_data.custom == rhs.m_data.custom;
 
     // both custom types with at least one being unresolved
-    // first case is simple both being unresolved
-    // second is fast hacky XOR check of one unresolved other resolved
-    else if ((m_type == UNRESOLVED && t == UNRESOLVED)
-        || ((m_type ^ t.m_type) == (UNRESOLVED ^ CUSTOM)))
-    {
+    // first if filters out pairs of resolved types
+    else if ((m_type == UNRESOLVED || rhs.m_type == UNRESOLVED)
+            && is_custom_type_or_unresolved()
+            && rhs.is_custom_type_or_unresolved()
+    ) {
         // compare names
-        return name() == t.name();
+        return name() == rhs.name();
     }
 
     else
-        return t == m_type;
+        return m_type == rhs.m_type;
 }
 
-bool type::operator!=(const type& t) const
+bool type::operator!=(const type& rhs) const
 {
     // see above
-    if (m_type == CUSTOM && t == CUSTOM)
-        return m_data.custom != t.m_data.custom;
+    if (m_type == rhs.m_type && is_resolved_custom_type())
+        return m_data.custom != rhs.m_data.custom;
 
-    else if ((m_type == UNRESOLVED && t == UNRESOLVED)
-        || ((m_type ^ t.m_type) == (UNRESOLVED ^ CUSTOM)))
-    {
-        return name() != t.name();
+    else if ((m_type == UNRESOLVED || rhs.m_type == UNRESOLVED)
+            && is_custom_type_or_unresolved()
+            && rhs.is_custom_type_or_unresolved()
+    ) {
+        return name() != rhs.name();
     }
 
     else
-        return t != m_type;
+        return m_type != rhs.m_type;
 }
 
 bool type::operator==(type_info t) const {
@@ -150,6 +182,17 @@ bool type::operator==(type_info t) const {
 
 bool type::operator!=(type_info t) const {
     return m_type != t;
+}
+
+bool type::is_resolved_custom_type() const {
+    return m_type == CUSTOM_COMPONENT
+        || m_type == CUSTOM_CLASS
+        || m_type == CUSTOM_STRUCT
+    ;
+}
+
+bool type::is_custom_type_or_unresolved() const {
+    return is_resolved_custom_type() || m_type == UNRESOLVED;
 }
 
 void type::set_unresolved_name(const char* type_name)

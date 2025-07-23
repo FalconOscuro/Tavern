@@ -15,6 +15,8 @@ class var_declare : public statement
 {
 public:
     var_declare(const char* p_type, const char* p_name);
+    var_declare(type_info t_info, const char* p_name);
+
     ~var_declare() = default;
 
     var_declare(const var_declare&) = delete;
@@ -23,7 +25,6 @@ public:
     void accept(visitor* v) override {
         v->visit_var_declare(this);
     }
-
 
     type vtype;
     std::string name;

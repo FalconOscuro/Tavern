@@ -19,33 +19,35 @@ object_info::object_info(const ast::type& type):
 {
     switch (type.get_type_info())
     {
-    case ast::UNRESOLVED:
-    case ast::NONE:
-        throw error::unkown_typename(file_pos(), type);
-        return;
+        case ast::UNRESOLVED:
+        case ast::NONE:
+            throw error::unkown_typename(file_pos(), type);
+            return;
 
-    case ast::CORE_INT:
-        m_size  = sizeof(cantrip_int);
-        m_align = alignof(cantrip_int);
-        return;
+        case ast::CORE_INT:
+            m_size  = sizeof(cantrip_int);
+            m_align = alignof(cantrip_int);
+            return;
 
-    case ast::CORE_FLOAT:
-        m_size  = sizeof(cantrip_float);
-        m_align = alignof(cantrip_float);
-        return;
+        case ast::CORE_FLOAT:
+            m_size  = sizeof(cantrip_float);
+            m_align = alignof(cantrip_float);
+            return;
 
-    case ast::CORE_BOOL:
-        m_size  = sizeof(cantrip_bool);
-        m_align = alignof(cantrip_bool);
-        return;
+        case ast::CORE_BOOL:
+            m_size  = sizeof(cantrip_bool);
+            m_align = alignof(cantrip_bool);
+            return;
 
-    case ast::CORE_STRING:
-        m_size  = sizeof(cantrip_string);
-        m_align = alignof(cantrip_string);
-        return;
+        case ast::CORE_STRING:
+            m_size  = sizeof(cantrip_string);
+            m_align = alignof(cantrip_string);
+            return;
 
-    case ast::CUSTOM:
-        break;
+        case ast::CUSTOM_CLASS:
+        case ast::CUSTOM_STRUCT:
+        case ast::CUSTOM_COMPONENT:
+            break;
     }
 
     // Custom type handling
@@ -110,27 +112,29 @@ object object_info::create(void* ptr) const
 
     switch (m_type.get_type_info())
     {
-    case ast::CORE_INT:
-        return object(this, new(ptr) cantrip_int);
+        case ast::CORE_INT:
+            return object(this, new(ptr) cantrip_int);
 
-    case ast::CORE_FLOAT:
-        return object(this, new(ptr) cantrip_float);
+        case ast::CORE_FLOAT:
+            return object(this, new(ptr) cantrip_float);
 
-    case ast::CORE_BOOL:
-        return object(this, new(ptr) cantrip_bool);
+        case ast::CORE_BOOL:
+            return object(this, new(ptr) cantrip_bool);
 
-    case ast::CORE_STRING:
-        return object(this, new(ptr) cantrip_string);
+        case ast::CORE_STRING:
+            return object(this, new(ptr) cantrip_string);
 
-    case ast::CUSTOM:
-        for (size_t i = 0; i < m_members.size(); ++i)
-            m_members[i].create(ptr);
+        case ast::CUSTOM_CLASS:
+        case ast::CUSTOM_STRUCT:
+        case ast::CUSTOM_COMPONENT:
+            for (size_t i = 0; i < m_members.size(); ++i)
+                m_members[i].create(ptr);
 
-        return object(this, ptr);
+            return object(this, ptr);
 
-    default:
-        throw error::unkown_typename(file_pos(), m_type);
-        return object();
+        default:
+            throw error::unkown_typename(file_pos(), m_type);
+            return object();
     }
 }
 
@@ -138,30 +142,32 @@ void object_info::destroy(void* ptr) const
 {
     switch (m_type.get_type_info())
     {
-    case ast::CORE_INT:
-        delete reinterpret_cast<cantrip_int*>(ptr);
-        break;
+        case ast::CORE_INT:
+            delete reinterpret_cast<cantrip_int*>(ptr);
+            break;
 
-    case ast::CORE_FLOAT:
-        delete reinterpret_cast<cantrip_float*>(ptr);
-        break;
+        case ast::CORE_FLOAT:
+            delete reinterpret_cast<cantrip_float*>(ptr);
+            break;
 
-    case ast::CORE_BOOL:
-        delete reinterpret_cast<cantrip_bool*>(ptr);
-        break;
+        case ast::CORE_BOOL:
+            delete reinterpret_cast<cantrip_bool*>(ptr);
+            break;
 
-    case ast::CORE_STRING:
-        delete reinterpret_cast<cantrip_string*>(ptr);
-        break;
+        case ast::CORE_STRING:
+            delete reinterpret_cast<cantrip_string*>(ptr);
+            break;
 
-    case ast::CUSTOM:
-        for (size_t i = 0; i < m_members.size(); ++i)
-            m_members[i].destroy(ptr);
-        break;
+        case ast::CUSTOM_CLASS:
+        case ast::CUSTOM_STRUCT:
+        case ast::CUSTOM_COMPONENT:
+            for (size_t i = 0; i < m_members.size(); ++i)
+                m_members[i].destroy(ptr);
+            break;
 
-    default:
-        throw error::unkown_typename(file_pos(), m_type);
-        break;
+        default:
+            throw error::unkown_typename(file_pos(), m_type);
+            break;
     }
 }
 

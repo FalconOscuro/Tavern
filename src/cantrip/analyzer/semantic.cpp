@@ -84,7 +84,7 @@ void semantic::visit_call(ast::call* call)
         if (m_type == ast::UNRESOLVED || m_type == ast::NONE)
             throw error::unkown_typename(call->caller->pos, m_type);
 
-        else if (m_type == ast::CUSTOM)
+        else if (m_type.is_resolved_custom_type())
         {
             ast::c_struct* struc = m_type.get_custom_type();
 

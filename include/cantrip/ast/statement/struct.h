@@ -14,6 +14,12 @@
 
 namespace cantrip::ast {
 
+enum struct_type {
+    CLASS,
+    STRUCT,
+    COMPONENT
+};
+
 class c_struct : public statement
 {
 public:
@@ -29,7 +35,8 @@ public:
     using func_iterator = function_containter::iterator;
     using const_func_iterator = function_containter::const_iterator;
 
-    c_struct(const char* p_name): name(p_name) {}
+    c_struct(const char* p_name, const struct_type s_type);
+
     virtual ~c_struct() = default;
 
     c_struct(const c_struct&) = delete;
@@ -39,7 +46,9 @@ public:
     virtual void accept(visitor* v) override
     {(void)v;}
 
+    // private?
     std::string name;
+    struct_type s_type;
 
     // overloads for unique_ptrs
     // will take ownership if add is successful

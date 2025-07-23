@@ -14,7 +14,9 @@ enum type_info {
     CORE_FLOAT,
     CORE_STRING,
     CORE_BOOL,
-    CUSTOM
+    CUSTOM_COMPONENT,
+    CUSTOM_CLASS,
+    CUSTOM_STRUCT
 };
 
 class type
@@ -43,6 +45,9 @@ public:
 
     bool operator==(type_info t) const;
     bool operator!=(type_info t) const;
+
+    bool is_resolved_custom_type() const;
+    bool is_custom_type_or_unresolved() const;
 
 private:
     void set_unresolved_name(const char* type_name);

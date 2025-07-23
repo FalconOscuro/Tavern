@@ -10,7 +10,7 @@ namespace cantrip::ast {
 class component : public c_struct
 {
 public:
-    component(const char* p_name): c_struct(p_name)
+    component(const char* p_name): c_struct(p_name, COMPONENT)
     {}
     ~component() = default;
 

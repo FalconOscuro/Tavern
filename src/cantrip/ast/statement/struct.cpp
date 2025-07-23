@@ -2,6 +2,19 @@
 
 namespace cantrip::ast {
 
+c_struct::c_struct(const char* p_name, const struct_type s_type):
+    name(p_name), s_type(s_type)
+{
+    // ensure first element of any component is the entity ID
+    if (s_type == COMPONENT)
+    {
+        // NOTE: Should change to entity core type
+        u_var_ptr eid_var = std::make_unique<var_declare>(CORE_INT, "eid");
+
+        try_add_var(eid_var);
+    }
+}
+
 bool c_struct::try_add_func(u_func_ptr& func)
 {
     const bool success = try_add_func(func.get());
