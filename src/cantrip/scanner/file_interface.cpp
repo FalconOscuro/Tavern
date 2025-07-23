@@ -5,17 +5,11 @@
 
 namespace cantrip {
 
-bool file_pos::operator==(const file_pos& rhs) const {
-    return col == rhs.col && row == rhs.row;
-}
-
-bool file_pos::operator!=(const file_pos& rhs) const {
-    return col != rhs.col || row != rhs.row;
-}
-
 file_interface::file_interface(tavern::file::file_handle& file):
     m_file(file.release())
-{}
+{
+    m_pos.file_name = file->get_path().get_full();
+}
 
 char file_interface::get_char() {
     char c = m_file->get_char();

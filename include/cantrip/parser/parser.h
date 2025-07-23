@@ -149,7 +149,7 @@ private:
 
     inline bool at_end(size_t offset = 0) const {
         return m_index + offset >= m_tokens.size()
-            || m_tokens[m_index + offset] == FILE_END;
+            || m_tokens[m_index + offset] == MODULE_END;
     }
 
     inline bool match(token_type t) {

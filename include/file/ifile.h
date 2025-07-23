@@ -50,6 +50,18 @@ public:
         return m_path;
     }
 
+    const std::string_view get_file_name() const
+    {
+        const std::string_view path = m_path.get_path();
+        size_t file_name_start_pos = path.find_last_of('/');
+
+        // account for root dir with no separator
+        // or offset by 1 to first char of filename
+        file_name_start_pos = file_name_start_pos == path.npos ? 0 : file_name_start_pos + 1;
+
+        return std::string_view(path.data() + file_name_start_pos, path.size() - file_name_start_pos);
+    }
+
     // string_view faster than creating fresh string
     const std::string_view get_directory() const
     {

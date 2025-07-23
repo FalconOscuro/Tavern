@@ -51,6 +51,7 @@ target_sources(Cantrip PRIVATE
     src/cantrip/scanner/file_interface.cpp
     src/cantrip/scanner/scanner.cpp
     src/cantrip/scanner/token.cpp
+    src/cantrip/scanner/file_pos.cpp
 
     src/cantrip/parser/parser-expr.cpp
     src/cantrip/parser/parser-stmt.cpp

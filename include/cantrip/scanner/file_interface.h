@@ -18,8 +18,7 @@ public:
 
     ~file_interface() = default;
 
-    file_interface(const file_interface&) = delete;
-    void operator=(const file_interface&) = delete;
+    file_interface(file_interface&& interface) = default;
 
     inline bool open() {
         return m_file->open();

@@ -7,7 +7,7 @@
 #define SIMPLE_TOKEN(tchar, p_type)     \
     case tchar:                         \
         t.type = token_type::p_type;    \
-        m_file.pop();                   \
+        current_file().pop();           \
         break;
 
 #define IS_NUMBER(c)        \
@@ -18,17 +18,31 @@
 
 namespace cantrip {
 
+scanner::scanner(std::vector<tavern::file::file_handle>& files)
+{
+    assert(files.size() > 0 && "Must pass at least 1 file");
+    m_files.reserve(files.size());
+
+    for (auto& file : files)
+    {
+        assert(file.get() != nullptr && "Recieved null file handle!");
+         m_files.push_back(file_interface(file));
+    }
+}
+
 void scanner::read_tokens() const
 {
-    if (!m_tokens.empty())
+    if (!m_tokens.empty() || all_files_read())
         return;
+
+    // force file open?
 
     eat_whitespace();
 
     token t;
-    //const flib::file::pos fpos = m_file->get_pos();
+    t.pos = current_file().pos();
 
-    switch (m_file.peek_char())
+    switch (current_file().peek_char())
     {
         SIMPLE_TOKEN('{' , BLOCK_START       )
         SIMPLE_TOKEN('}' , BLOCK_END         )
@@ -45,12 +59,12 @@ void scanner::read_tokens() const
             break;
 
         case '.':
-            if (IS_NUMBER(m_file.peek_char(1)))
+            if (IS_NUMBER(current_file().peek_char(1)))
                 t = read_number();
 
             else {
                 t.type = token_type::DOT;
-                m_file.pop();
+                current_file().pop();
             }
             break;
 
@@ -68,142 +82,144 @@ void scanner::read_tokens() const
             break;
 
         case '=':
-            if (m_file.peek_char(1) == '=') {
+            if (current_file().peek_char(1) == '=') {
                 t.type = IS_EQUAL;
-                m_file.pop(2);
+                current_file().pop(2);
             }
 
             else {
                 t.type = ASSIGN;
-                m_file.pop();
+                current_file().pop();
             }
 
             break;
 
         case '-': {
-            const char peek = m_file.peek_char(1);
+            const char peek = current_file().peek_char(1);
 
             if (IS_NUMBER(peek))
                 t = read_number();
 
             else if (peek == '=') {
                 t.type = ASSIGN_SUBTRACT;
-                m_file.pop(2);
+                current_file().pop(2);
             }
 
             else {
                 t.type = SUBTRACT;
-                m_file.pop();
+                current_file().pop();
             }
         }
             break;
 
 
         case '+': {
-            const char peek = m_file.peek_char(1);
+            const char peek = current_file().peek_char(1);
 
             if (IS_NUMBER(peek))
                 t = read_number();
 
             else if (peek == '=') {
                 t.type = ASSIGN_ADD;
-                m_file.pop(2);
+                current_file().pop(2);
             }
 
             else {
                 t.type = ADD;
-                m_file.pop();
+                current_file().pop();
             }
         }
             break;
 
         case '*':
-            if (m_file.peek_char(1) == '=') {
+            if (current_file().peek_char(1) == '=') {
                 t.type = ASSIGN_MULTIPLY;
-                m_file.pop(2);
+                current_file().pop(2);
             }
 
             else {
                 t.type = MULTIPLY;
-                m_file.pop();
+                current_file().pop();
             }
             break;
 
         case '/':
-            if (m_file.peek_char(1) == '=') {
+            if (current_file().peek_char(1) == '=') {
                 t.type = ASSIGN_DIVIDE;
-                m_file.pop(2);
+                current_file().pop(2);
             }
 
             else {
                 t.type = DIVIDE;
-                m_file.pop();
+                current_file().pop();
             }
             break;
 
         case '!':
-            if (m_file.peek_char(1) == '=') {
+            if (current_file().peek_char(1) == '=') {
                 t.type = NOT_EQUAL;
-                m_file.pop(2);
+                current_file().pop(2);
             }
 
             else {
                 t.type = BOOL_NOT;
-                m_file.pop();
+                current_file().pop();
             }
             break;
 
         case '<':
-            if (m_file.peek_char(1) == '=') {
+            if (current_file().peek_char(1) == '=') {
                 t.type = LESS_THAN_EQUAL;
-                m_file.pop(2);
+                current_file().pop(2);
             }
 
             else {
                 t.type = LESS_THAN;
-                m_file.pop();
+                current_file().pop();
             }
             break;
 
         case '>':
-            if (m_file.peek_char(1) == '=') {
+            if (current_file().peek_char(1) == '=') {
                 t.type = GREATER_THAN_EQUAL;
-                m_file.pop(2);
+                current_file().pop(2);
             }
 
             else {
                 t.type = GREATER_THAN;
-                m_file.pop();
+                current_file().pop();
             }
             break;
 
         case '&':
-            if (m_file.peek_char(1) == '&') {
+            if (current_file().peek_char(1) == '&') {
                 t.type = BOOL_AND;
-                m_file.pop(2);
+                current_file().pop(2);
             }
 
             else {
                 t.type = BITWISE_AND;
-                m_file.pop();
+                current_file().pop();
             }
             break;
 
         case '|':
-            if (m_file.peek_char(1) == '|') {
+            if (current_file().peek_char(1) == '|') {
                 t.type = BOOL_OR;
-                m_file.pop(2);
+                current_file().pop(2);
             }
 
             else {
                 t.type = BITWISE_OR;
-                m_file.pop();
+                current_file().pop();
             }
             break;
 
         case EOF:
-            if (m_file.eof())
+            if (current_file().eof())
+            {
                 t.type = FILE_END;
+            }
 
             else {
                 t.type = ERROR;
@@ -218,56 +234,73 @@ void scanner::read_tokens() const
             break;
     }
 
-    //t.pos = fpos;
     m_tokens.push(t);
+
+    if (t.type == FILE_END)
+    {
+        close_file_internal();
+
+        // try to open next file
+        // assume false means at end, but could silent fail
+        if (!open_file_internal())
+        {
+            assert(all_files_read() && "Failure to move to next file!");
+
+            // add module end token
+            token module_end_token;
+            module_end_token.type = MODULE_END;
+
+            m_tokens.push(module_end_token);
+        }
+    }
 }
 
 void scanner::eat_whitespace() const
 {
     // Note: For simplicity syntax is c-like, will later adapt to use python syntax
     while (true) {
-        switch (m_file.peek_char())
+        switch (current_file().peek_char())
         {
-        case ' ':
-        case '\t':
-            m_file.pop();
-            break;
+            case ' ':
+            case '\t':
+                current_file().pop();
+                break;
 
-        case '\n':
-            // avoid producing multiple new_line tokens
-            // by checking the token queue/last popped token
-            if (!((
-                    m_last_token_type == NEW_LINE
-                    || m_last_token_type == STATEMENT_END
-                ) || (!m_tokens.empty() && (
-                    m_tokens.back() == NEW_LINE
-                    || m_tokens.back() == STATEMENT_END
-                ))))
-            {
-                token t;
-                t.type = NEW_LINE;
-                t.pos = m_file.pos();
-                m_tokens.push(t);
-            }
-            m_file.pop();
-            break;
+            case '\n':
+                // avoid producing multiple new_line tokens
+                // by checking the token queue/last popped token
+                if (!((
+                        m_last_token_type == NEW_LINE
+                        || m_last_token_type == STATEMENT_END
+                    ) || (!m_tokens.empty() && (
+                        m_tokens.back() == NEW_LINE
+                        || m_tokens.back() == STATEMENT_END
+                    ))))
+                {
+                    token t;
+                    t.type = NEW_LINE;
+                    t.pos = current_file().pos();
+                    m_tokens.push(t);
+                }
+                current_file().pop();
+                break;
 
-        case '#':
-            eat_comment();
-            break;
+            case '#':
+                eat_comment();
+                break;
 
-        default:
-            return;
+            default:
+                return;
         }
     }
 }
 
 void scanner::eat_comment() const {
     // Comment ended by line end OR end of file
-    while (m_file.peek_char() != '\n' && !m_file.eof()) {
-        m_file.pop();
+    while (current_file().peek_char() != '\n' && !current_file().eof()) {
+        current_file().pop();
     }
-    m_file.pop();
+    current_file().pop();
 };
 
 token scanner::read_string() const {
@@ -277,7 +310,7 @@ token scanner::read_string() const {
     std::string str;
     uint i = 1;
 
-    for (char c = m_file.peek_char(i++); c != '"'; c = m_file.peek_char(i++))
+    for (char c = current_file().peek_char(i++); c != '"'; c = current_file().peek_char(i++))
     {
         if (c == EOF) {
             //m_file->get_char(i);
@@ -299,7 +332,7 @@ token scanner::read_string() const {
 
     t.type = STRING_LITERAL;
     t.data.string = new char[str.size() + 1];
-    m_file.pop(i);
+    current_file().pop(i);
 
     strcpy(t.data.string, str.c_str());
     return t;
@@ -310,9 +343,9 @@ token scanner::read_number() const
     token t;
     t.type = INTEGER_LITERAL;
 
-    while (IS_NUMBER(m_file.peek_char())) {
-        t.data.literal_int = (t.data.literal_int * 10) + (int)(m_file.peek_char() - '0');
-        m_file.pop();
+    while (IS_NUMBER(current_file().peek_char())) {
+        t.data.literal_int = (t.data.literal_int * 10) + (int)(current_file().peek_char() - '0');
+        current_file().pop();
     }
 
     return read_float(t);
@@ -321,34 +354,34 @@ token scanner::read_number() const
 token scanner::read_float(token token_num) const
 {
     // floating point number inferred from decimal point
-    if (m_file.peek_char() == '.')
+    if (current_file().peek_char() == '.')
     {
-        m_file.pop();
+        current_file().pop();
         token_num.type = FLOAT_LITERAL;
         token_num.data.literal_float = token_num.data.literal_int;
 
         uint n = 10;
 
-        while (IS_NUMBER(m_file.peek_char())) {
-            token_num.data.literal_float += (int)(m_file.peek_char() - '0') / (float)n;
+        while (IS_NUMBER(current_file().peek_char())) {
+            token_num.data.literal_float += (int)(current_file().peek_char() - '0') / (float)n;
             n *= 10;
-            m_file.pop();
+            current_file().pop();
         }
 
-        if (m_file.peek_char() == 'f')
-            m_file.pop();
+        if (current_file().peek_char() == 'f')
+            current_file().pop();
     }
 
     // floating point literal specifier
-    else if (m_file.peek_char() == 'f') {
+    else if (current_file().peek_char() == 'f') {
         token_num.type = FLOAT_LITERAL;
         token_num.data.literal_float = token_num.data.literal_int;
-        m_file.pop();
+        current_file().pop();
     }
 
     // integer literal specifer
-    else if (m_file.peek_char() == 'i')
-        m_file.pop();
+    else if (current_file().peek_char() == 'i')
+        current_file().pop();
 
     return token_num;
 }
@@ -397,10 +430,10 @@ token scanner::read_complex_token() const
 
     std::string token_str;
 
-    while (IS_ALPHANUMERIC(m_file.peek_char()) || m_file.peek_char() == '_')
+    while (IS_ALPHANUMERIC(current_file().peek_char()) || current_file().peek_char() == '_')
     {
-        token_str.push_back(m_file.peek_char());
-        m_file.pop();
+        token_str.push_back(current_file().peek_char());
+        current_file().pop();
     }
 
     if (KEYWORD_MAP.find(token_str) != KEYWORD_MAP.end())

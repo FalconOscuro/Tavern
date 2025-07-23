@@ -11,22 +11,20 @@ namespace cantrip {
 class scanner {
 public:
 
-    scanner(tavern::file::file_handle& file): m_file(file) {
-        assert(file != nullptr);
-    }
+    scanner(std::vector<tavern::file::file_handle>& files);
 
     ~scanner() = default;
 
     bool open() {
-        return m_file.open();
+        return open_file_internal();
     }
 
     bool is_open() const {
-        return m_file.is_open();
+        return !all_files_read() && current_file().is_open();
     }
 
     void close() {
-        m_file.close();
+        close_file_internal();
     }
 
     const token& peek() const {
@@ -54,7 +52,27 @@ private:
     token read_float(token token_num) const;
     token read_complex_token() const;
 
-    mutable file_interface m_file;
+    // hack to get around constness specifier for internal behaviour when handling multiple files
+    inline bool open_file_internal() const {
+        return !all_files_read() && current_file().open();
+    }
+
+    // as above
+    inline void close_file_internal() const {
+        if (!all_files_read())
+            current_file().close();
+    }
+
+    file_interface& current_file() const {
+        return m_files[m_current_file_index];
+    }
+
+    inline bool all_files_read() const {
+        return m_current_file_index >= m_files.size();
+    }
+
+    mutable std::vector<file_interface> m_files;
+    mutable size_t m_current_file_index = 0;
 
     mutable std::queue<token> m_tokens;
     token_type m_last_token_type;

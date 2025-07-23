@@ -35,6 +35,10 @@ void parser::parse_module(ast::module& module)
             module.functions.emplace(std::make_pair(stmt->name, u_function_ptr(stmt.release())));
         }
 
+        // File end to maintain separation
+        else if (match(FILE_END))
+        {}
+
         else 
             throw error::syntax(t, "Invalid top-level statement!");
     }

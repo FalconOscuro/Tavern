@@ -263,6 +263,9 @@ std::string token::to_string() const
 
         TOKEN_STRING_SW_CASE(FILE_END)
             break;
+
+        TOKEN_STRING_SW_CASE(MODULE_END)
+            break;
     }
 
     return str;

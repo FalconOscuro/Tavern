@@ -9,7 +9,9 @@
 namespace cantrip {
 
 enum token_type {
+    // file start token?
     FILE_END,
+    MODULE_END,
     IDENTIFIER,
 
     INTEGER_LITERAL,
@@ -103,7 +105,8 @@ struct token {
     ~token();
 
     token_type type = FILE_END;
-    // Need file pos tracking
+
+    // track token end pos / length?
     file_pos pos;
 
     token& operator=(const token& t);

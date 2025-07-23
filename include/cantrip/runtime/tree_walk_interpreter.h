@@ -40,7 +40,11 @@ protected:
     void visit_while_stmt(ast::while_stmt*) override;
 
 private:
-    // need heap/stack tracking variables
+
+    // stack for maintaining local variables
+    // heap un-needed as persistant storage done via ecs components
+    // may need some heap for systems?
+    // need to track variable stack pos, allocate space on enter func
 };
 
 } /* namespace cantrip::runtime */
