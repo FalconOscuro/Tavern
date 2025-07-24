@@ -32,6 +32,9 @@ public:
     bool file_exists(const file::mount_path& file_path) const;
     file::file_handle load_file(const file::mount_path& file_path) const;
 
+    bool dir_exists(const file::mount_path& dir_path) const;
+    file::dir_handle load_dir(const file::mount_path& dir_path) const;
+
     bool is_mounted(const std::string& identifier) const;
 
     void unmount_all();

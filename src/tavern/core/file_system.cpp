@@ -165,6 +165,35 @@ file::file_handle file_system::load_file(const file::mount_path& file_path) cons
     return file;
 }
 
+bool file_system::dir_exists(const file::mount_path& dir_path) const
+{
+    auto mount = find(std::string(dir_path.get_identifier()));
+
+    return mount != end() && mount->second->has_dir(dir_path.get_path());
+}
+
+file::dir_handle file_system::load_dir(const file::mount_path& dir_path) const
+{
+    auto mount = find(std::string(dir_path.get_identifier()));
+
+    if (mount == end())
+    {
+        BOOST_LOG_TRIVIAL(error) << "Failed to load Directory '" << dir_path << "', unknown identifier";
+
+        return nullptr;
+    }
+
+    auto dir = mount->second->load_dir(dir_path.get_path());
+
+    if (!dir)
+        BOOST_LOG_TRIVIAL(error) << "Failed to load Directory '" << dir_path << "', could not resolve path";
+
+    else
+        BOOST_LOG_TRIVIAL(trace) << "Successfully loaded Directory '" << dir_path << '\'';
+
+    return dir;
+}
+
 bool file_system::is_mounted(const std::string& identifier) const {
     return m_mounts.count(identifier);
 }
