@@ -15,6 +15,8 @@ class idir
 {
 public:
 
+    virtual ~idir() = default;
+
     virtual size_t num_dirs() const = 0;
     virtual size_t num_files() const = 0;
 
