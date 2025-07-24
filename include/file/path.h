@@ -26,6 +26,8 @@ public:
         return m_full_path;
     }
 
+    // get parent dir/endpoint name?
+
     bool operator==(const mount_path& mp) const;
     bool operator!=(const mount_path& mp) const;
 

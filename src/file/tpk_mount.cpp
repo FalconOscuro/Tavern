@@ -4,6 +4,7 @@
 
 #include <boost/log/trivial.hpp>
 
+#include "file/tpk_dir.h"
 #include "file/tpk_file.h"
 #include "file/physical_file.h"
 
@@ -45,8 +46,8 @@ file_tree_node::~file_tree_node()
 
 const file_tree_node* file_tree_node::find_node(const std::string_view path) const
 {
-    // if file node, check if path fully traversed
-    if (type == tpk::FILE)
+    // at endpoint or fully traversed path
+    if (type == tpk::FILE || path.empty())
         return path.empty() ? this : nullptr;
 
     const size_t split = path.find_first_of('/');
@@ -104,8 +105,11 @@ tpk_mount::~tpk_mount() {
     delete[] m_file_nodes;
 }
 
-bool tpk_mount::has_file(const std::string_view path) const {
-    return m_root.find_node(path);
+bool tpk_mount::has_file(const std::string_view path) const
+{
+    const file_tree_node* node = m_root.find_node(path);
+
+    return node != nullptr && node->type == tpk::file_type::FILE;
 }
 
 file_handle tpk_mount::load_file(const std::string_view path) const
@@ -115,10 +119,30 @@ file_handle tpk_mount::load_file(const std::string_view path) const
 
     const file_tree_node* node = m_root.find_node(path);
 
-    if (!node || node->type != tpk::FILE)
+    if (node == nullptr || node->type != tpk::FILE)
         return nullptr;
 
     return file_handle(new tpk_file(get_path(), mount_path(get_identifier(), path), node->data.file, get_data_start_pos()));
+}
+
+bool tpk_mount::has_dir(const std::string_view path) const
+{
+    const file_tree_node* node = m_root.find_node(path);
+
+    return node != nullptr && node->type == tpk::file_type::DIRECTORY;
+}
+
+dir_handle tpk_mount::load_dir(const std::string_view path) const
+{
+    if (!valid())
+        return nullptr;
+
+    const file_tree_node* node = m_root.find_node(path);
+
+    if (node == nullptr || node->type != tpk::DIRECTORY)
+        return nullptr;
+
+    return dir_handle(new tpk_dir(mount_path(get_identifier(), path), this, node->data.directory.entry_map));
 }
 
 bool tpk_mount::valid() const {

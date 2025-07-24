@@ -30,13 +30,21 @@ target_include_directories(Tavern-File
 )
 
 target_sources(Tavern-File PRIVATE
+    src/file/idir.cpp
     src/file/path.cpp
+
+    src/file/physical_dir.cpp
     src/file/physical_file.cpp
     src/file/physical_mount.cpp
+
+    src/file/tpk_dir.cpp
     src/file/tpk_file.cpp
     src/file/tpk_mount.cpp
+
+    src/file/virtual_dir.cpp
     src/file/virtual_file.cpp
     src/file/virtual_mount.cpp
+
     src/file/tpk/tpk_package.cpp
 )
 

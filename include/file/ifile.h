@@ -18,10 +18,6 @@ class ifile
 {
 public:
 
-    explicit ifile(const mount_path& path):
-        m_path(path)
-    {}
-
     virtual ~ifile() = default;
 
     virtual bool open() = 0;
@@ -70,6 +66,12 @@ public:
 
         return std::string_view(path.data(), last != path.npos ? last : 0);
     }
+
+protected:
+
+    explicit ifile(const mount_path& path):
+        m_path(path)
+    {}
 
 private:
 

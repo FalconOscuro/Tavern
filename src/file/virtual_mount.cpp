@@ -18,6 +18,20 @@ file_handle virtual_mount::load_file(const std::string_view path) const
     return file_handle(new virtual_file(f->second, path));
 }
 
+bool virtual_mount::has_dir(const std::string_view path) const
+{
+    // unsupported
+    (void)path;
+    return false;
+}
+
+dir_handle virtual_mount::load_dir(const std::string_view path) const
+{
+    // unsupported
+    (void)path;
+    return nullptr;
+}
+
 bool virtual_mount::valid() const {
     return true;
 }

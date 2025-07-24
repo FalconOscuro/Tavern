@@ -4,6 +4,7 @@
 #include <string>
 
 #include "ifile.h"
+#include "idir.h"
 #include "path.h"
 
 namespace tavern::file {
@@ -19,6 +20,9 @@ public:
 
     virtual bool has_file(const std::string_view path) const = 0;
     [[nodiscard]] virtual file_handle load_file(const std::string_view path) const = 0;
+
+    virtual bool has_dir(const std::string_view path) const = 0;
+    [[nodiscard]] virtual dir_handle load_dir(const std::string_view path) const = 0;
 
     virtual bool valid() const = 0;
 

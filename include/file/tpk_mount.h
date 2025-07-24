@@ -11,7 +11,7 @@ namespace tavern::file {
 
 struct file_tree_node
 {
-    using dir_map = std::unordered_map<std::string_view, std::unique_ptr<file_tree_node>>;
+    typedef std::unordered_map<std::string_view, std::unique_ptr<file_tree_node>> dir_map;
 
     file_tree_node(const tpk::file_type type = tpk::DIRECTORY);
     ~file_tree_node();
@@ -41,6 +41,9 @@ public:
 
     bool has_file(const std::string_view path) const override;
     [[nodiscard]] file_handle load_file(const std::string_view path) const override;
+
+    bool has_dir(const std::string_view path) const override;
+    [[nodiscard]] dir_handle load_dir(const std::string_view path) const override;
 
     bool valid() const override;
 

@@ -8,12 +8,16 @@ namespace tavern::file {
 class physical_mount final : public imount
 {
 public:
+    // WARNING: Does not prevent escaping!
     explicit physical_mount(const mount_path& mount_info);
 
     ~physical_mount() = default;
 
     bool has_file(const std::string_view path) const override;
     [[nodiscard]] file_handle load_file(const std::string_view path) const override;
+
+    bool has_dir(const std::string_view path) const override;
+    [[nodiscard]] dir_handle load_dir(const std::string_view path) const override;
 
     bool valid() const override;
 
