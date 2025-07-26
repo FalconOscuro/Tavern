@@ -25,6 +25,7 @@ struct std::hash<c4::csubstr>
 
 namespace tavern {
 
+// support file_handle...
 bool scene::load(const std::string& file_name)
 {
     const auto start = std::chrono::high_resolution_clock::now();

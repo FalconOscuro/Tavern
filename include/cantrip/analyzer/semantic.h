@@ -3,7 +3,7 @@
 
 #include "cantrip/ast/visitor.h"
 
-#include "cantrip/ast/module.h"
+#include "cantrip/module/module.h"
 #include "cantrip/ast/statement/var_declare.h"
 
 #include <deque>
@@ -52,7 +52,7 @@ public:
     semantic();
     virtual ~semantic();
 
-    void analyze_module(ast::module* module);
+    void analyze_module(module* module);
 
 protected:
 
@@ -94,7 +94,7 @@ private:
     ast::component* m_self_env;
 
     // scope for current module being explored, for member function resolution
-    ast::module* m_module = nullptr;
+    module* m_module = nullptr;
 
     // scope for current function being explored
     ast::function* m_function = nullptr;

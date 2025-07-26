@@ -26,6 +26,8 @@ public:
         return m_full_path;
     }
 
+    const std::string_view get_extension() const;
+
     // get parent dir/endpoint name?
 
     bool operator==(const mount_path& mp) const;

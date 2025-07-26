@@ -49,7 +49,7 @@ bool environment_stack::in_loop() const
     return false;
 }
 
-void semantic::analyze_module(ast::module* module)
+void semantic::analyze_module(module* module)
 {
     m_module = module;
 

@@ -5,6 +5,7 @@ target_include_directories(Tavern
 )
 
 target_sources(Tavern PRIVATE
+    src/tavern/core/cantrip.cpp
     src/tavern/core/engine.cpp
     src/tavern/core/file_system.cpp
     src/tavern/core/input.cpp

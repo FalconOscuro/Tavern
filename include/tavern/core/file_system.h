@@ -29,6 +29,7 @@ public:
     const file::imount* mount_dir(file::mount_path mount_info);
     const file::imount* mount(file::mount_path mount_info);
 
+    // WARNING: Handles can out-live mount!
     bool file_exists(const file::mount_path& file_path) const;
     file::file_handle load_file(const file::mount_path& file_path) const;
 

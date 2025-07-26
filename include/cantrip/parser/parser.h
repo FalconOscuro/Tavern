@@ -8,7 +8,7 @@
 
 #include "cantrip/error/syntax.h"
 
-#include "cantrip/ast/module.h"
+#include "cantrip/module/module.h"
 
 #include "cantrip/ast/expression/expression.h"
 
@@ -34,7 +34,7 @@ public:
     parser(std::vector<token>& tokens): m_tokens(tokens)
     {}
 
-    void parse_module(ast::module& module);
+    void parse_module(module& module);
 
     std::vector<stmt_ptr> parse();
 

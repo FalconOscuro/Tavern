@@ -58,6 +58,16 @@ public:
         return std::string_view(path.data() + file_name_start_pos, path.size() - file_name_start_pos);
     }
 
+    const std::string_view get_extension() const
+    {
+        const std::string_view path = m_path.get_path();
+        size_t extension_start_pos = path.find_last_of('.');
+
+        extension_start_pos = extension_start_pos == path.npos ? path.size() : extension_start_pos + 1;
+
+        return std::string_view(path.data() + extension_start_pos, path.size() - extension_start_pos);
+    }
+
     // string_view faster than creating fresh string
     const std::string_view get_directory() const
     {

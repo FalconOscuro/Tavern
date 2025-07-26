@@ -6,7 +6,7 @@
 
 namespace cantrip {
 
-void parser::parse_module(ast::module& module)
+void parser::parse_module(module& module)
 {
     while (!at_end())
     {
@@ -15,7 +15,7 @@ void parser::parse_module(ast::module& module)
 
         if (match(COMPONENT))
         {
-            using u_component_ptr = ast::module::u_component_ptr;
+            using u_component_ptr = module::u_component_ptr;
             u_component_ptr stmt = component();
 
             if (module.components.count(stmt->name))
@@ -26,7 +26,7 @@ void parser::parse_module(ast::module& module)
 
         else if (match(FUNCTION))
         {
-            using u_function_ptr = ast::module::u_function_ptr;
+            using u_function_ptr = module::u_function_ptr;
             u_function_ptr stmt = function();
 
             if (module.functions.count(stmt->name))
@@ -34,6 +34,11 @@ void parser::parse_module(ast::module& module)
 
             module.functions.emplace(std::make_pair(stmt->name, u_function_ptr(stmt.release())));
         }
+
+        else if (match(CLASS))
+            throw error::syntax(t, "Classes currently unsupported!");
+
+        // struct
 
         // File end to maintain separation
         else if (match(FILE_END))

@@ -5,11 +5,19 @@
 #include <string_view>
 #include <unordered_map>
 
-namespace cantrip::ast
+#include "info.h"
+
+// move this
+namespace cantrip
 {
+
+namespace ast {
 
 class function;
 class component;
+
+
+} /* namespace ast */
 
 struct module
 {
@@ -19,14 +27,17 @@ struct module
     module(const module&) = delete;
     void operator=(const module&) = delete;
 
-    using u_function_ptr  = std::unique_ptr<function>;
-    using u_component_ptr = std::unique_ptr<component>;
+    using u_function_ptr  = std::unique_ptr<ast::function>;
+    using u_component_ptr = std::unique_ptr<ast::component>;
+    // struct and class
 
     std::unordered_map<std::string_view, u_function_ptr> functions;
 
     std::unordered_map<std::string_view, u_component_ptr> components;
+
+    module_info info;
 };
 
-} /* namespace cantrip::ast */
+} /* namespace cantrip */
 
 #endif /* end of include guard: AST_MODULE_H */
