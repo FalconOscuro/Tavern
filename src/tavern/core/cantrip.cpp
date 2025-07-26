@@ -1,5 +1,7 @@
 #include "tavern/core/cantrip.h"
 
+#include <boost/log/trivial.hpp>
+
 #include <ryml.hpp>
 #include <ryml_std.hpp>
 
@@ -56,7 +58,7 @@ void recurse_get_cantrip_files(const file::idir* dir, std::vector<file::file_han
 
         file::file_handle src_file = dir->get_file(i);
         if (src_file != nullptr)
-            src_files.emplace_back(src_file);
+            src_files.emplace_back(std::move(src_file));
     }
 
     // recurse subdirs, circular tpk trees break this
@@ -64,7 +66,7 @@ void recurse_get_cantrip_files(const file::idir* dir, std::vector<file::file_han
         recurse_get_cantrip_files(dir->get_dir(i).get(), src_files);
 }
 
-bool cantrip_modules::load_module(const file::mount_path& module_path)
+std::shared_ptr<cantrip::module> cantrip_modules::load_module(const file::mount_path& module_path)
 {
     file::dir_handle module_root_dir = file_system::singleton().load_dir(module_path);
 
@@ -72,10 +74,10 @@ bool cantrip_modules::load_module(const file::mount_path& module_path)
 
     // failed to load dir
     if (module_root_dir == nullptr || module_config_file == nullptr)
-        return false;
+        return nullptr;
 
     else if (!module_config_file->open())
-        return false;
+        return nullptr;
 
     const size_t file_size = module_config_file->size();
 
@@ -83,7 +85,7 @@ bool cantrip_modules::load_module(const file::mount_path& module_path)
 
     // fail to read file
     if (!module_config_file->get_str(config_contents.get(), file_size))
-        return false;
+        return nullptr;
 
     config_contents[file_size] = '\0';
 
@@ -97,7 +99,17 @@ bool cantrip_modules::load_module(const file::mount_path& module_path)
         root >> module.info;
     }
 
-    // CHECK IF ALREADY LOADED
+    auto found = m_loaded_modules.find(module.info.name);
+
+    if (found != m_loaded_modules.end())
+    {
+        if (module.info.module_version != found->second->info.module_version)
+            BOOST_LOG_TRIVIAL(warning) << "Tried to load cantrip module '"
+                << module.info.name << "' from '"
+                << module_config_file->get_path() << "' but was already loaded, with version mismatch!";
+
+        return found->second;
+    }
 
     std::vector<file::file_handle> module_src_files;
     recurse_get_cantrip_files(module_root_dir.get(), module_src_files);
@@ -134,7 +146,7 @@ bool cantrip_modules::load_module(const file::mount_path& module_path)
         semantic_analyzer.analyze_module(&module);
     }
 
-    return true;
+    return m_loaded_modules.emplace(module.info.name, std::make_shared<cantrip::module>(std::move(module))).first->second;
 }
 
 } /* namespace tavern::core */

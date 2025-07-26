@@ -10,6 +10,14 @@ struct version
     unsigned int major;
     unsigned int minor;
     unsigned int patch;
+
+    bool operator==(const version& rhs) const;
+    bool operator!=(const version& rhs) const;
+
+    bool operator<(const version& rhs) const;
+    bool operator>(const version& rhs) const;
+    bool operator<=(const version& rhs) const;
+    bool operator>=(const version& rhs) const;
 };
 
 struct module_info

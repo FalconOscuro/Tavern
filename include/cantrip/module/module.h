@@ -24,6 +24,8 @@ struct module
     module() = default;
     ~module() = default;
 
+    module(module&&) = default;
+
     module(const module&) = delete;
     void operator=(const module&) = delete;
 

@@ -18,7 +18,7 @@ public:
     module_ptr load_module(const file::mount_path& module_path);
     void unload_module(const std::string_view);
 
-    void get_module();
+    module_ptr get_module();
 
     bool is_module_loaded() const;
 
