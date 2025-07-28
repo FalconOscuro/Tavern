@@ -43,7 +43,19 @@ bool read(const ryml::ConstNodeRef& n, module_info* val)
 
 }
 
-namespace tavern::core {
+namespace tavern {
+
+cantrip_modules::~cantrip_modules() {
+    shutdown();
+}
+
+bool cantrip_modules::init() {
+    return true;
+}
+
+void cantrip_modules::shutdown() {
+    unload_all_modules();
+}
 
 void recurse_get_cantrip_files(const file::idir* dir, std::vector<file::file_handle>& src_files)
 {
@@ -148,5 +160,22 @@ std::shared_ptr<cantrip::module> cantrip_modules::load_module(const file::mount_
 
     return m_loaded_modules.emplace(module.info.name, std::make_shared<cantrip::module>(std::move(module))).first->second;
 }
+
+void cantrip_modules::unload_module(const std::string_view module_name)
+{
+    // UNIMPLEMENTED
+    (void)module_name;
+}
+
+std::shared_ptr<cantrip::module> cantrip_modules::get_module(const std::string_view module_name)
+{
+    auto found = m_loaded_modules.find(module_name);
+
+    return found != m_loaded_modules.end() ? found->second : nullptr;
+}
+
+// UNIMPLEMENTED
+void cantrip_modules::unload_all_modules()
+{}
 
 } /* namespace tavern::core */

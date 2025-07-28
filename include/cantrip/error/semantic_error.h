@@ -3,6 +3,8 @@
 
 #include "exception.h"
 
+#include "cantrip/ast/expression/call.h"
+#include "cantrip/ast/expression/cast.h"
 #include "cantrip/ast/expression/identifier.h"
 
 #include "cantrip/ast/statement/struct.h"
@@ -19,7 +21,7 @@ namespace cantrip::error {
 
 // unexpected statement?
 
-class redefinition : public exception {
+class redefinition final : public exception {
 public:
 
     redefinition(const ast::c_struct* struc);
@@ -29,7 +31,7 @@ public:
     ~redefinition() = default;
 };
 
-class undeclared_identifier : public exception
+class undeclared_identifier final : public exception
 {
 public:
     undeclared_identifier(const ast::identifier* ident);
@@ -37,7 +39,7 @@ public:
     ~undeclared_identifier() = default;
 };
 
-class unkown_typename : public exception
+class unkown_typename final : public exception
 {
 public:
     unkown_typename(const ast::function* func);
@@ -50,7 +52,7 @@ public:
     ~unkown_typename() = default;
 };
 
-class not_in_loop : public exception
+class not_in_loop final : public exception
 {
 public:
     not_in_loop(const ast::flow* flow);
@@ -58,7 +60,7 @@ public:
     ~not_in_loop() = default;
 };
 
-class not_structure : public exception
+class not_structure final : public exception
 {
 public:
 
@@ -66,7 +68,7 @@ public:
     ~not_structure() = default;
 };
 
-class no_member : public exception
+class no_member final : public exception
 {
 public:
 
@@ -75,7 +77,7 @@ public:
     ~no_member() = default;
 };
 
-class type_not_convertible : public exception
+class type_not_convertible final : public exception
 {
 public:
 

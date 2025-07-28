@@ -34,6 +34,16 @@ const std::string_view mount_path::get_path() const {
     return std::string_view(m_full_path.c_str() + path_start_pos, m_full_path.length() - path_start_pos);
 }
 
+const std::string_view mount_path::get_extension() const
+{
+    // could be in mount!!
+    size_t extension_start_pos = m_full_path.find_last_of('.');
+
+    extension_start_pos = extension_start_pos == m_full_path.npos ? m_full_path.length() : extension_start_pos + 1;
+
+    return std::string_view(m_full_path.data() + extension_start_pos, m_full_path.length() - extension_start_pos);
+}
+
 bool mount_path::operator==(const mount_path& mp) const {
     return m_full_path == mp.m_full_path;
 }

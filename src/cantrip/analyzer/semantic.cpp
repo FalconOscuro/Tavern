@@ -135,6 +135,13 @@ void semantic::visit_cast(ast::cast* cast)
     m_type = cast->as_type;
 }
 
+void semantic::visit_core_type(ast::core_type* core_type)
+{
+    // UNIMPLEMENTED
+    (void)core_type;
+    // set m_type?
+}
+
 void semantic::visit_grouping(ast::grouping* grouping) {
     grouping->expr->accept(this);
 }

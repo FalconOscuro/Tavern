@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 
+#include "tavern/core/cantrip.h"
 #include "tavern/core/file_system.h"
 #include "tavern/core/input.h"
 #include "tavern/core/scene.h"
@@ -28,6 +29,7 @@ bool engine::init(const uint16_t width, const uint16_t height, const std::string
 
     m_ready =
            file_system::singleton().init()
+        && cantrip_modules::singleton().init()
         && r.pre_window_init()
         && w.init(glm::ivec2(width, height))
         && r.init(w.get_wnd(), w.get_size());
@@ -79,6 +81,7 @@ void engine::shutdown() {
         return;
 
     m_ready = false;
+    cantrip_modules::singleton().shutdown();
     file_system::singleton().unmount_all();
     scene::singleton().shutdown();
     graphics::renderer::singleton().shutdown();

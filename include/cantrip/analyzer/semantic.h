@@ -49,8 +49,8 @@ struct environment_stack
 class semantic : public ast::visitor
 {
 public:
-    semantic();
-    virtual ~semantic();
+    semantic() = default;
+    virtual ~semantic() = default;
 
     void analyze_module(module* module);
 

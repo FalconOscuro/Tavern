@@ -42,6 +42,7 @@ private:
     size_t get_split_pos() const;
 
     std::string m_full_path;
+    // cache split pos?
 }; /* end of class mount_path */
 
 std::ostream& operator<<(std::ostream& stream, const mount_path& mount);
