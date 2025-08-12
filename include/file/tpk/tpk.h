@@ -15,12 +15,14 @@ struct header
     // signature for file verification should always be "TPK"
     char sig[SIG_SIZE] = TPK_SIG;
 
+    // could be 2 bytes as w/ fmt_version
     // version number for tpk contents
     uint32_t dat_version = 0;
 
     // number of file nodes stored in tpk
     uint32_t num_nodes = 0;
 
+    // swap w/ dat_version?
     // tpk format version
     uint16_t fmt_version = TPK_VERSION;
 

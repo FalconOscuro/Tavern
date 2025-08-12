@@ -136,19 +136,22 @@ std::string token::to_string() const
         TOKEN_STRING_SW_CASE(KEYWORD_SELF)
             break;
 
+        TOKEN_STRING_SW_CASE(KEYWORD_BASE)
+            break;
+
         TOKEN_STRING_SW_CASE(KEYWORD_IS)
             break;
 
         TOKEN_STRING_SW_CASE(KEYWORD_AS)
             break;
 
+        TOKEN_STRING_SW_CASE(KEYWORD_IN)
+            break;
+
         TOKEN_STRING_SW_CASE(KEYWORD_VIRTUAL)
             break;
 
-        TOKEN_STRING_SW_CASE(KEYWORD_STATIC)
-            break;
-
-        TOKEN_STRING_SW_CASE(KEYWORD_CONST)
+        TOKEN_STRING_SW_CASE(KEYWORD_OVERRIDE)
             break;
 
         TOKEN_STRING_SW_CASE(TYPE_INTEGER)
@@ -161,6 +164,9 @@ std::string token::to_string() const
             break;
 
         TOKEN_STRING_SW_CASE(TYPE_STRING)
+            break;
+
+        TOKEN_STRING_SW_CASE(TYPE_ENTITY)
             break;
 
         TOKEN_STRING_SW_CASE(BRACKET_L)
@@ -205,7 +211,13 @@ std::string token::to_string() const
         TOKEN_STRING_SW_CASE(COMPONENT)
             break;
 
+        TOKEN_STRING_SW_CASE(STRUCT)
+            break;
+
         TOKEN_STRING_SW_CASE(FUNCTION)
+            break;
+
+        TOKEN_STRING_SW_CASE(SYSTEM)
             break;
 
         TOKEN_STRING_SW_CASE(ADD)
@@ -251,6 +263,9 @@ std::string token::to_string() const
             break;
 
         TOKEN_STRING_SW_CASE(COMMA)
+            break;
+
+        TOKEN_STRING_SW_CASE(ARROW)
             break;
 
         TOKEN_STRING_SW_CASE(NEW_LINE)

@@ -36,16 +36,19 @@ enum token_type {
 
     KEYWORD_NULL,
     KEYWORD_SELF,
+    KEYWORD_BASE,
     KEYWORD_IS,
     KEYWORD_AS,
+    KEYWORD_IN,
     KEYWORD_VIRTUAL,
-    KEYWORD_STATIC,
-    KEYWORD_CONST,
+    KEYWORD_OVERRIDE,
 
     TYPE_INTEGER,
     TYPE_FLOAT,
     TYPE_BOOLEAN,
     TYPE_STRING,
+    TYPE_ENTITY,
+    // char?
 
     BRACKET_L,
     BRACKET_R,
@@ -65,7 +68,9 @@ enum token_type {
 
     CLASS,
     COMPONENT,
+    STRUCT,
     FUNCTION,
+    SYSTEM,
 
     ADD,
     SUBTRACT,
@@ -85,12 +90,13 @@ enum token_type {
     DOT,
     COLON,
     COMMA,
+    ARROW,
     NEW_LINE,
 
     ERROR,
 
     CORE_TYPE_START = TYPE_INTEGER,
-    CORE_TYPE_END   = TYPE_STRING,
+    CORE_TYPE_END   = TYPE_ENTITY,
     ASSIGN_START    = ASSIGN,
     ASSIGN_END      = ASSIGN_DIVIDE,
 };

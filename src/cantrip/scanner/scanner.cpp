@@ -105,6 +105,11 @@ void scanner::read_tokens() const
                 current_file().pop(2);
             }
 
+            else if (peek == '>') {
+                t.type = ARROW;
+                current_file().pop(2);
+            }
+
             else {
                 t.type = SUBTRACT;
                 current_file().pop();
@@ -410,22 +415,26 @@ token scanner::read_complex_token() const
         { "false",      BOOL_FALSE       },
         { "null",       KEYWORD_NULL     },
         { "self",       KEYWORD_SELF     },
+        { "base",       KEYWORD_BASE     },
+        { "in",         KEYWORD_IN       },
 
         { "is",         KEYWORD_IS       },
         { "as",         KEYWORD_AS       },
 
         { "class",      CLASS            },
         { "comp",       COMPONENT        },
+        { "struct",     STRUCT           },
         { "func",       FUNCTION         },
+        { "sys",        SYSTEM           },
 
         { "virtual",    KEYWORD_VIRTUAL  },
-        { "static",     KEYWORD_STATIC   },
-        { "const",      KEYWORD_CONST    },
+        { "override",   KEYWORD_OVERRIDE }, 
 
         { "int",        TYPE_INTEGER     },
         { "bool",       TYPE_BOOLEAN     },
         { "float",      TYPE_FLOAT       },
-        { "string",     TYPE_STRING      }
+        { "string",     TYPE_STRING      },
+        { "entity",     TYPE_ENTITY      }
     };
 
     std::string token_str;

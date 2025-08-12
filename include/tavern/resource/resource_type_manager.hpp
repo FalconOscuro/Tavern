@@ -35,6 +35,7 @@ public:
 private:
 
     container* m_container;
+    // COLLISIONS!
     const std::size_t m_hash;
 
 }; /* end of class resource_deleter */

@@ -11,6 +11,9 @@
 #include "tavern-bin/panels/scene.h"
 #include "tavern-bin/panels/file_system.h"
 
+#include <tavern/components/camera.h>
+#include <tavern/components/transform.h>
+
 int make_tpk()
 {
     std::string in, out, name, author;
@@ -37,6 +40,7 @@ int main(int argc, char** argv)
     opts.add_options()
         ("help,h", "display help message")
         ("tpk", "write directory as tpk")
+        ("pcomp", "print component types")
         ("scene", po::value<std::string>(), "load scene from file")
         ("title", po::value<std::string>()->default_value("Tavern"), "set window title")
         ("width", po::value<uint16_t>()->default_value(1920), "window width")
@@ -63,6 +67,13 @@ int main(int argc, char** argv)
 
     else if (args.count("tpk"))
         return make_tpk();
+
+    else if (args.count("pcomp"))
+    {
+        BOOST_LOG_TRIVIAL(trace) << ecs::core::internal::get_type_name<tavern::component::camera>();
+        BOOST_LOG_TRIVIAL(trace) << ecs::core::internal::get_type_name<tavern::component::transform>();
+        return 0;
+    }
 
     tavern::engine& engine = tavern::engine::singleton();
 
