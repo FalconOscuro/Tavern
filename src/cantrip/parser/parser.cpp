@@ -35,10 +35,22 @@ void parser::parse_module(module& module)
             module.functions.emplace(std::make_pair(stmt->name, u_function_ptr(stmt.release())));
         }
 
+        else if (match(SYSTEM))
+        {
+            using u_system_ptr = module::u_system_ptr;
+            u_system_ptr stmt = system();
+
+            if (module.systems.count(stmt->name))
+                throw error::redefinition(stmt.get());
+
+            module.systems.emplace(std::make_pair(stmt->name, u_system_ptr(stmt.release())));
+        }
+
         else if (match(CLASS))
             throw error::syntax(t, "Classes currently unsupported!");
 
-        // struct
+        else if (match(STRUCT))
+            throw error::syntax(t, "Structs currently unsupported!");
 
         // File end to maintain separation
         else if (match(FILE_END))

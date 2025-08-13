@@ -13,8 +13,9 @@ namespace cantrip
 
 namespace ast {
 
-class function;
 class component;
+class function;
+class system;
 
 
 } /* namespace ast */
@@ -29,13 +30,14 @@ struct module
     module(const module&) = delete;
     void operator=(const module&) = delete;
 
-    using u_function_ptr  = std::unique_ptr<ast::function>;
     using u_component_ptr = std::unique_ptr<ast::component>;
+    using u_function_ptr  = std::unique_ptr<ast::function>;
+    using u_system_ptr    = std::unique_ptr<ast::system>;
     // struct and class
 
-    std::unordered_map<std::string_view, u_function_ptr> functions;
-
     std::unordered_map<std::string_view, u_component_ptr> components;
+    std::unordered_map<std::string_view, u_function_ptr>  functions;
+    std::unordered_map<std::string_view, u_system_ptr>    systems;
 
     module_info info;
 };

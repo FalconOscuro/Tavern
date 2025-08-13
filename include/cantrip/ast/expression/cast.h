@@ -12,8 +12,9 @@ class cast : public expression
 {
 public:
 
-    cast(const file_pos& pos):
-        expression(pos)
+    template <typename... Args>
+    cast(const file_pos& pos, Args&&... args):
+        expression(pos), as_type(std::forward<Args>(args)...)
     {}
 
     ~cast() = default;
@@ -29,7 +30,6 @@ public:
 
     type as_type;
 };
-
 
 } /* namespace cantrip::ast */
 

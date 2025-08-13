@@ -61,15 +61,94 @@ void semantic::analyze_module(module* module)
     for (auto it = module->functions.begin(); it != module->functions.end(); ++it)
         visit_function(it->second.get());
 
+    // iterate systems
+    for (auto it = module->systems.begin(); it != module->systems.end(); ++it)
+        visit_system(it->second.get());
+
     m_module = nullptr;
 }
 
 // expressions
 void semantic::visit_binary(ast::binary* binary)
 {
-    // TODO: need to resolve type of operands and check compatibility
     binary->left->accept(this);
+
+    ast::type type_l = m_type;
+
     binary->right->accept(this);
+
+    static const ast::type TYPE_BOOL = ast::type(TYPE_BOOLEAN);
+
+    switch (binary->type)
+    {
+    case ast::IS_EQUAL:
+    case ast::NOT_EQUAL:
+        if (type_l != m_type)
+            throw error::type_not_convertible(binary->pos, type_l, m_type);
+
+        else if (type_l.array_size > 0 || m_type.array_size > 0)
+            throw error::exception(binary->pos, std::string("Cannot compare arrays").c_str());
+
+        m_type = TYPE_BOOL;
+        break;
+
+    case ast::LOGICAL_AND:
+    case ast::LOGICAL_OR:
+
+        if (!is_type_convertible(type_l, TYPE_BOOL) || type_l.array_size > 0)
+            throw error::type_not_convertible(binary->pos, type_l, TYPE_BOOL);
+
+        if (!is_type_convertible(m_type, TYPE_BOOL) || m_type.array_size > 0)
+            throw error::type_not_convertible(binary->pos, m_type, TYPE_BOOL);
+
+        m_type = TYPE_BOOL;
+        break;
+
+    case ast::BITWISE_OR:
+    case ast::BITWISE_AND:
+        throw error::exception(binary->pos, "Bitwise operators are unsupported");
+        break;
+
+    // only support numericals currently
+    case ast::LESS_THAN:
+    case ast::GREATER_THAN:
+    case ast::LESS_THAN_EQUAL:
+    case ast::GREATER_THAN_EQUAL:
+    case ast::ADD:
+    case ast::SUBTRACT:
+    case ast::MULTIPLY:
+    case ast::DIVIDE:
+    case ast::ASSIGN_ADD:
+    case ast::ASSIGN_SUBTRACT:
+    case ast::ASSIGN_DIVIDE:
+    case ast::ASSIGN_MULTIPLY:
+
+        if (type_l != TYPE_INTEGER && type_l != TYPE_FLOAT)
+            throw error::exception(binary->pos, "Arithmetic operators currently only support numerical (int or float) types!");
+
+    // fallthrough
+    case ast::ASSIGN:
+        if (!is_type_convertible(m_type, type_l))
+            throw error::type_not_convertible(binary->pos, m_type, type_l);
+
+        m_type = type_l;
+        break;
+
+    case ast::SUBSCRIPTION:
+
+        if (type_l.array_size == 0)
+            throw error::exception(binary->left->pos, "Subscription can only be used on array types!");
+
+        if (m_type != TYPE_INTEGER)
+            throw error::type_not_convertible(binary->right->pos, m_type, ast::type(TYPE_INTEGER));
+
+        m_type = type_l;
+        m_type.array_size = 0;
+        break;
+
+    case ast::ATTRIBUTE:
+        break;
+    }
 }
 
 void semantic::visit_call(ast::call* call)
@@ -131,7 +210,9 @@ void semantic::visit_cast(ast::cast* cast)
     if (!resolve_type(cast->as_type) || cast->as_type == ast::NONE)
         throw error::unkown_typename(cast);
 
-    // check if type is convertable...
+    if (!is_type_convertible(m_type, cast->as_type))
+        throw error::type_not_convertible(cast->pos, m_type, cast->as_type);
+
     m_type = cast->as_type;
 }
 
@@ -183,10 +264,40 @@ void semantic::visit_literal(ast::literal* literal)
     }
 }
 
+void semantic::visit_type_check(ast::type_check* type_check)
+{
+    // could make this compile constant
+    // currently un-neccessary until upcasting exists, as this isn't a dynamic language...
+    // can use for checking if entities have components?
+    type_check->expr->accept(this);
+
+    if (!resolve_type(type_check->is_type) || type_check->is_type == ast::NONE)
+        throw error::unkown_typename(type_check);
+
+    // constant optimization with bool literal?
+    m_type = ast::type(ast::CORE_BOOL);
+}
+
 void semantic::visit_unary(ast::unary* unary)
 {
-    // TODO: check type is valid
     unary->expr->accept(this);
+
+    static const ast::type TYPE_BOOL = ast::type(TYPE_BOOLEAN);
+
+    switch (unary->type)
+    {
+    case ast::LOGICAL_NOT:
+        if (!is_type_convertible(m_type, TYPE_BOOL))
+            throw error::type_not_convertible(unary->pos, m_type, TYPE_BOOL);
+
+        m_type = TYPE_BOOL;
+        break;
+
+    case ast::MINUS:
+        if (m_type != TYPE_INTEGER && m_type != TYPE_FLOAT)
+            throw error::exception(unary->pos, "Unary minus only supports numerical types (int, float)");
+        break;
+    }
 }
 
 // statements
@@ -240,7 +351,7 @@ void semantic::visit_for_stmt(ast::for_stmt* for_stmt)
     for_stmt->loop_expr->accept(this);
     m_type = ast::type();
 
-    for_stmt->body->accept(this);
+    for_stmt->exec_stmt->accept(this);
 
     m_env_stack.pop();
 }
@@ -285,9 +396,11 @@ void semantic::visit_if_else(ast::if_else* if_else)
 
 void semantic::visit_return_stmt(ast::return_stmt* return_stmt)
 {
-    // not in function throw error, should be impossible?
+    // need way to check if in system func
     if (!m_function)
-    {}
+    {
+        return;
+    }
 
     if (return_stmt->returned)
         return_stmt->returned->accept(this);
@@ -297,6 +410,27 @@ void semantic::visit_return_stmt(ast::return_stmt* return_stmt)
         throw error::type_not_convertible(return_stmt->pos, m_type, m_function->return_type);
 
     m_type = ast::type();
+}
+
+void semantic::visit_system(ast::system* sys)
+{
+    m_env_stack.push();
+    // TODO: Add default eid param
+
+    if (sys->params.empty())
+        throw error::invalid_system(sys);
+
+    for (size_t i = 0; i < sys->params.size(); ++i)
+    {
+        visit_var_declare(sys->params[i].get());
+
+        if (sys->params[i]->vtype != ast::CUSTOM_COMPONENT)
+            throw error::invalid_system(sys, sys->params[i].get());
+    }
+
+    sys->body->accept(this);
+
+    m_env_stack.pop();
 }
 
 void semantic::visit_var_declare(ast::var_declare* var_declare)

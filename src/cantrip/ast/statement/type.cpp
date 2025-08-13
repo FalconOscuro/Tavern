@@ -36,6 +36,9 @@ type::type(const char* type_name)
     else if (strcmp(type_name, BOOL_TYPE_NAME) == 0)
         m_type = CORE_BOOL;
 
+    else if (strcmp(type_name, ENTITY_TYPE_NAME) == 0)
+        m_type = CORE_ENTITY;
+
     else
         set_unresolved_name(type_name);
 }
@@ -47,9 +50,41 @@ type::type(type_info t_info):
     assert(!is_custom_type_or_unresolved() && "Constructor is for core types only!");
 }
 
+type::type(token_type t_type)
+{
+    switch (t_type)
+    {
+    case TYPE_INTEGER:
+        m_type = CORE_INT;
+        break;
+
+    case TYPE_FLOAT:
+        m_type = CORE_FLOAT;
+        break;
+
+    case TYPE_STRING:
+        m_type = CORE_STRING;
+        break;
+
+    case TYPE_BOOLEAN:
+        m_type = CORE_BOOL;
+        break;
+
+    case TYPE_ENTITY:
+        m_type = CORE_ENTITY;
+        break;
+
+    default:
+        assert(false && "Invalid arg, when constructing from token type, must be a recognized 'TYPE_' token");
+        m_type = NONE;
+        break;
+    }
+}
+
 type::type(const type& t)
 {
     m_type = t.get_type_info();
+    array_size = t.array_size;
 
     if (m_type == UNRESOLVED)
         set_unresolved_name(t.m_data.unresolved_name);
@@ -80,6 +115,9 @@ const std::string_view type::name() const
 
     case CORE_BOOL:
         return BOOL_TYPE_NAME;
+
+    case CORE_ENTITY:
+        return ENTITY_TYPE_NAME;
 
     case CUSTOM_COMPONENT:
     case CUSTOM_CLASS:
@@ -127,6 +165,7 @@ type& type::operator=(const type& t)
 {
     clear_data();
     m_type = t.get_type_info();
+    array_size = t.array_size;
 
     if (m_type == UNRESOLVED)
         set_unresolved_name(t.m_data.unresolved_name);

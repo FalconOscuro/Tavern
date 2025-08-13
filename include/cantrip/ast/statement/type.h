@@ -3,6 +3,8 @@
 
 #include <string_view>
 
+#include "../../scanner/token.h"
+
 namespace cantrip::ast {
 
 class c_struct;
@@ -14,6 +16,7 @@ enum type_info {
     CORE_FLOAT,
     CORE_STRING,
     CORE_BOOL,
+    CORE_ENTITY,
     CUSTOM_COMPONENT,
     CUSTOM_CLASS,
     CUSTOM_STRUCT
@@ -25,6 +28,7 @@ public:
     type();
     type(const char* type_name);
     type(type_info t_info);
+    type(token_type t_type);
     type(const type& t);
 
     ~type();
@@ -48,6 +52,11 @@ public:
 
     bool is_resolved_custom_type() const;
     bool is_custom_type_or_unresolved() const;
+
+    // if array size is 0, then this is not an array
+    // a bit hacky but works
+    // NOTE: UNREPRESENTED W/ STRING NAME!!
+    uint32_t array_size = 0;
 
 private:
     void set_unresolved_name(const char* type_name);

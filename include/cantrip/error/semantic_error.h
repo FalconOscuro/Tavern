@@ -6,9 +6,11 @@
 #include "cantrip/ast/expression/call.h"
 #include "cantrip/ast/expression/cast.h"
 #include "cantrip/ast/expression/identifier.h"
+#include "cantrip/ast/expression/type_check.h"
 
 #include "cantrip/ast/statement/struct.h"
 #include "cantrip/ast/statement/function.h"
+#include "cantrip/ast/statement/system.h"
 #include "cantrip/ast/statement/var_declare.h"
 #include "cantrip/ast/statement/flow.h"
 
@@ -24,8 +26,9 @@ namespace cantrip::error {
 class redefinition final : public exception {
 public:
 
-    redefinition(const ast::c_struct* struc);
-    redefinition(const ast::function* func);
+    redefinition(const ast::c_struct*    struc);
+    redefinition(const ast::function*    func);
+    redefinition(const ast::system*      sys);
     redefinition(const ast::var_declare* var);
     
     ~redefinition() = default;
@@ -46,6 +49,7 @@ public:
     unkown_typename(const ast::var_declare* var);
     unkown_typename(const ast::call* call);
     unkown_typename(const ast::cast* cast);
+    unkown_typename(const ast::type_check* type_check);
     
     unkown_typename(const file_pos& pos, const ast::type& type);
 
@@ -84,6 +88,18 @@ public:
     type_not_convertible(const file_pos& pos, const ast::type& from, const ast::type& to);
 
     ~type_not_convertible() = default;
+};
+
+class invalid_system final : public exception
+{
+public:
+
+    // no args
+    invalid_system(const ast::system* sys);
+    // var not component type
+    invalid_system(const ast::system* sys, const ast::var_declare* var);
+
+    ~invalid_system() = default;
 };
 
 } /* namespace cantrip::error */

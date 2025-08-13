@@ -9,13 +9,15 @@
 #include <vector>
 
 #include "cantrip/ast/statement/type.h"
+#include "ecs/entity/entity.h"
 
 namespace cantrip::runtime {
 
-typedef int32_t     cantrip_int;
-typedef float_t     cantrip_float;
-typedef bool        cantrip_bool;
-typedef std::string cantrip_string;
+typedef int32_t          cantrip_int;
+typedef float_t          cantrip_float;
+typedef bool             cantrip_bool;
+typedef std::string      cantrip_string;
+typedef ecs::entity_type cantrip_entity;
 
 class object;
 struct member_info;
@@ -98,11 +100,13 @@ public:
     cantrip_float*  get_float();
     cantrip_bool*   get_bool();
     cantrip_string* get_string();
+    cantrip_entity* get_entity();
 
     const cantrip_int*    get_int() const;
     const cantrip_float*  get_float() const;
     const cantrip_bool*   get_bool() const;
     const cantrip_string* get_string() const;
+    const cantrip_entity* get_entity() const;
 
     object operator[](const object& obj);
     object operator[](size_t i);

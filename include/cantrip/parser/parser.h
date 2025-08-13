@@ -13,9 +13,11 @@
 #include "cantrip/ast/expression/expression.h"
 
 #include "cantrip/ast/statement/statement.h"
-#include "cantrip/ast/statement/var_declare.h"
 #include "cantrip/ast/statement/function.h"
 #include "cantrip/ast/statement/component.h"
+#include "cantrip/ast/statement/system.h"
+#include "cantrip/ast/statement/var_declare.h"
+
 
 #include "cantrip/scanner/token.h"
 
@@ -62,12 +64,14 @@ private:
 
     stmt_ptr if_else();
     stmt_ptr while_stmt();
+    stmt_ptr for_stmt();
 
     stmt_ptr return_stmt();
     stmt_ptr flow();
 
-    u_ptr<ast::function> function();
     u_ptr<ast::component> component();
+    u_ptr<ast::function> function();
+    u_ptr<ast::system> system();
 
     stmt_ptr expression_statement();
 

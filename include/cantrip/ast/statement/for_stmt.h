@@ -3,6 +3,7 @@
 
 #include "statement.h"
 
+#include "var_declare.h"
 #include "../expression/expression.h"
 #include "../visitor.h"
 
@@ -21,8 +22,9 @@ public:
         v->visit_for_stmt(this);
     }
 
+    std::unique_ptr<var_declare> iterator_var = nullptr;
     u_expression_ptr loop_expr = nullptr;
-    u_statement_ptr body = nullptr;
+    u_statement_ptr exec_stmt = nullptr;
 }; /* class for_stmt */
 
 } /* namespace cantrip::ast */

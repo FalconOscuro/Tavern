@@ -12,6 +12,7 @@ class core_type;
 class grouping;
 class identifier;
 class literal;
+class type_check;
 class unary;
 
 class block;
@@ -22,6 +23,7 @@ class for_stmt;
 class function;
 class if_else;
 class return_stmt;
+class system;
 class var_declare;
 class while_stmt;
 
@@ -34,6 +36,7 @@ class visitor
     friend class grouping;
     friend class identifier;
     friend class literal;
+    friend class type_check;
     friend class unary;
 
     friend class block;
@@ -44,6 +47,7 @@ class visitor
     friend class function;
     friend class if_else;
     friend class return_stmt;
+    friend class system;
     friend class var_declare;
     friend class while_stmt;
 
@@ -61,6 +65,7 @@ protected:
     virtual void visit_grouping(grouping*)     = 0;
     virtual void visit_identifier(identifier*) = 0;
     virtual void visit_literal(literal*)       = 0;
+    virtual void visit_type_check(type_check*) = 0;
     virtual void visit_unary(unary*)           = 0;
 
     // statements
@@ -72,6 +77,7 @@ protected:
     virtual void visit_function(function*)       = 0;
     virtual void visit_if_else(if_else*)         = 0;
     virtual void visit_return_stmt(return_stmt*) = 0;
+    virtual void visit_system(system*)           = 0;
     virtual void visit_var_declare(var_declare*) = 0;
     virtual void visit_while_stmt(while_stmt*)   = 0;
 }; /* class visitor */

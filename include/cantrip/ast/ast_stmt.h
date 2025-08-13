@@ -2,6 +2,7 @@
 #define AST_STMT_H
 
 #include "statement/block.h"
+#include "statement/class.h"
 #include "statement/component.h"
 #include "statement/expr_stmt.h"
 #include "statement/flow.h"
@@ -9,6 +10,7 @@
 #include "statement/function.h"
 #include "statement/if_else.h"
 #include "statement/return_stmt.h"
+#include "statement/system.h"
 #include "statement/var_declare.h"
 #include "statement/while_stmt.h"
 

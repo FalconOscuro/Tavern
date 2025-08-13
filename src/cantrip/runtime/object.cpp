@@ -44,9 +44,12 @@ object_info::object_info(const ast::type& type):
             m_align = alignof(cantrip_string);
             return;
 
-        case ast::CUSTOM_CLASS:
-        case ast::CUSTOM_STRUCT:
-        case ast::CUSTOM_COMPONENT:
+        case ast::CORE_ENTITY:
+            m_size  = sizeof(cantrip_entity);
+            m_align = alignof(cantrip_entity);
+            return;
+
+        default:
             break;
     }
 
@@ -90,6 +93,10 @@ object_info::object_info(const ast::type& type):
 
         m_size = last_end + last.padding;
     }
+
+    // array type with more than one value
+    if (m_type.array_size > 1)
+        m_size *= m_type.array_size;
 }
 
 uint32_t object_info::offset_of(const std::string_view member) const

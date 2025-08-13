@@ -9,6 +9,7 @@
 #include "cantrip/ast/expression/grouping.h"
 #include "cantrip/ast/expression/identifier.h"
 #include "cantrip/ast/expression/literal.hpp"
+#include "cantrip/ast/expression/type_check.h"
 #include "cantrip/ast/expression/unary.h"
 
 namespace cantrip {
@@ -33,35 +34,24 @@ parser::expr_ptr parser::expression() {
     return expr
 
 parser::expr_ptr parser::cast() {
-    //PARSE_BINARY_EXPR(KEYWORD_AS, CAST, logical_or());
 
     auto expr = logical_or();
 
     if (match(KEYWORD_AS))
     {
-        auto cast = std::make_unique<ast::cast>(previous().pos);
+        std::unique_ptr<ast::cast> cast;
 
-        cast->expr.reset(expr.release());
-
-        // verbose could be done through constructor?
-        if (safe_peek_compare(TYPE_INTEGER))
-            cast->as_type = ast::type(ast::CORE_INT);
-
-        else if (safe_peek_compare(TYPE_FLOAT))
-            cast->as_type = ast::type(ast::CORE_FLOAT);
-
-        else if (safe_peek_compare(TYPE_BOOLEAN))
-            cast->as_type = ast::type(ast::CORE_BOOL);
-
-        else if (safe_peek_compare(TYPE_STRING))
-            cast->as_type = ast::type(ast::CORE_STRING);
+        // core_type
+        if (safe_peek_compare({TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN, TYPE_STRING, TYPE_ENTITY}))
+            cast = std::make_unique<ast::cast>(previous().pos, peek().type);
 
         else if (safe_peek_compare(IDENTIFIER))
-            cast->as_type = ast::type(peek().data.string);
+            cast = std::make_unique<ast::cast>(previous().pos, peek().data.string);
 
         else
             throw error::syntax(peek(), "is not a valid core type or identifier for type casting");
 
+        cast->expr.reset(expr.release());
         ++m_index;
 
         expr.reset(cast.release());
@@ -119,8 +109,32 @@ parser::expr_ptr parser::divide() {
 }
 
 // TODO: requires same treatement as cast
-parser::expr_ptr parser::is() {
-    PARSE_BINARY_EXPR(KEYWORD_IS, IS, assign());
+parser::expr_ptr parser::is()
+{
+    expr_ptr expr = assign();
+
+
+    if (match(KEYWORD_IS))
+    {
+        std::unique_ptr<ast::type_check> type_check;
+
+        // core_type
+        if (safe_peek_compare({TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN, TYPE_STRING, TYPE_ENTITY}))
+            type_check = std::make_unique<ast::type_check>(previous().pos, peek().type);
+
+        else if (safe_peek_compare(IDENTIFIER))
+            type_check = std::make_unique<ast::type_check>(previous().pos, peek().data.string);
+
+        else
+            throw error::syntax(peek(), "is not a valid core type or identifier for type checking");
+
+        type_check->expr.reset(expr.release());
+        ++m_index;
+
+        expr.reset(type_check.release());
+    }
+
+    return expr;
 }
 
 parser::expr_ptr parser::assign() {
@@ -190,6 +204,7 @@ parser::expr_ptr parser::call()
 
         m_index += 2;
         call->params = call_param_list();
+        call->params.shrink_to_fit();
         expr = expr_ptr(call.release());
     }
 
@@ -208,6 +223,7 @@ parser::expr_ptr parser::call()
 
         m_index += 3;
         call->params = call_param_list();
+        call->params.shrink_to_fit();
         expr = expr_ptr(call.release());
     }
 
@@ -301,36 +317,15 @@ parser::expr_ptr parser::primary()
         );
     }
 
-    // core type int
-    else if (match(TYPE_INTEGER)) {
-        return std::make_unique<ast::core_type>(
+    // core types
+    else if (safe_peek_compare({ TYPE_INTEGER, TYPE_FLOAT, TYPE_STRING, TYPE_BOOLEAN, TYPE_ENTITY }))
+    {
+        auto expr = std::make_unique<ast::core_type>(
             t.pos,
             previous().type
         );
-    }
-
-    // core type bool
-    else if (match(TYPE_BOOLEAN)) {
-        return std::make_unique<ast::core_type>(
-            t.pos,
-            previous().type
-        );
-    }
-
-    // core type float
-    else if (match(TYPE_FLOAT)) {
-        return std::make_unique<ast::core_type>(
-            t.pos,
-            previous().type
-        );
-    }
-
-    // core type string
-    else if (match(TYPE_STRING)) {
-        return std::make_unique<ast::core_type>(
-            t.pos,
-            previous().type
-        );
+        m_index++;
+        return expr;
     }
 
     else if (match(IDENTIFIER)) {

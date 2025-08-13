@@ -27,8 +27,6 @@ enum binary_operator {
     MULTIPLY,
     DIVIDE,
 
-    IS,
-
     ASSIGN,
     ASSIGN_ADD,
     ASSIGN_SUBTRACT,

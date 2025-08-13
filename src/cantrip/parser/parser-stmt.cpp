@@ -2,14 +2,15 @@
 
 #include "cantrip/ast/expression/expression.h"
 
-#include "cantrip/ast/statement/expr_stmt.h"
 #include "cantrip/ast/statement/block.h"
-#include "cantrip/ast/statement/var_declare.h"
-#include "cantrip/ast/statement/if_else.h"
-#include "cantrip/ast/statement/while_stmt.h"
-#include "cantrip/ast/statement/return_stmt.h"
+#include "cantrip/ast/statement/expr_stmt.h"
 #include "cantrip/ast/statement/flow.h"
+#include "cantrip/ast/statement/for_stmt.h"
 #include "cantrip/ast/statement/function.h"
+#include "cantrip/ast/statement/if_else.h"
+#include "cantrip/ast/statement/return_stmt.h"
+#include "cantrip/ast/statement/var_declare.h"
+#include "cantrip/ast/statement/while_stmt.h"
 
 #include "cantrip/error/semantic_error.h"
 
@@ -55,6 +56,7 @@ parser::stmt_ptr parser::statement()
 
     else if (match(COMPONENT))
         throw error::syntax(previous(), "Component definitions only supported at global scope");
+    // repeat above for classes, structs & systems?
 
     else
         stmt = expression_statement();
@@ -79,8 +81,27 @@ parser::u_ptr<ast::var_declare> parser::var_declare()
 
     m_index += 2;
 
+    // array type
+    // no multi dimensional arrays, or dynamic lists yet
+    if (match(BRACKET_SQUARE_L))
+    {
+        const token& t_bracket_l = previous();
+        match_or_throw(INTEGER_LITERAL, t_bracket_l, "Expected integer literal for var declare array size");
+
+        // technically not a syntax error, but works fine for now
+        if ((stmt->vtype.array_size = previous().data.literal_int) == 0)
+            throw error::syntax(previous(), "Arrays of size 0 are not valid!");
+
+        match_or_throw(BRACKET_SQUARE_R, t_bracket_l, "Failed to find closing bracket!");
+    }
+
     if (match(ASSIGN))
+    {
+        if (stmt->vtype.array_size > 0)
+            throw error::syntax(previous(), "Declaration assignment for arrays is currently unsupported!");
+
         stmt->expr = expression();
+    }
 
     return stmt;
 }
@@ -106,6 +127,7 @@ parser::stmt_ptr parser::block_implicit()
         );
     }
 
+    block->stmts.shrink_to_fit();
     return block;
 }
 
@@ -126,6 +148,7 @@ parser::stmt_ptr parser::block_explicit()
     if (block->stmts.empty())
         throw error::syntax(previous(), "Empty blocks are unsupported!");
 
+    block->stmts.shrink_to_fit();
     return block;
 }
 
@@ -154,6 +177,23 @@ parser::stmt_ptr parser::while_stmt()
     return stmt;
 }
 
+parser::stmt_ptr parser::for_stmt()
+{
+    u_ptr<ast::for_stmt> stmt = std::make_unique<ast::for_stmt>();
+    const token& t_for = previous();
+
+    if (!peek_is_var_declare())
+        throw  error::syntax(t_for, "Expected for statement iterator var declaration");
+
+    stmt->iterator_var = var_declare();
+
+    match_or_throw(KEYWORD_IN, t_for, "Expected in keyword after for statement iterator var declaration");
+
+    stmt->loop_expr = expect_expression();
+    stmt->exec_stmt = statement();
+    return stmt;
+}
+
 parser::stmt_ptr parser::return_stmt()
 {
     u_ptr<ast::return_stmt> stmt = std::make_unique<ast::return_stmt>();
@@ -171,68 +211,6 @@ parser::stmt_ptr parser::flow()
     stmt_ptr stmt = std::make_unique<ast::flow>(previous() == CONTINUE);
 
     match_stmt_end();
-    return stmt;
-}
-
-parser::u_ptr<ast::function> parser::function()
-{
-    u_ptr<ast::function> stmt = nullptr;
-    const token& t_func = previous();
-    const token& t_name = peek();
-    const char* return_type = nullptr;
-
-    match_or_throw(IDENTIFIER, t_func, "Expected identifier after function keyword.");
-
-    match_or_throw(BRACKET_L, t_func, "Expected to find '(' character for function paramaters.");
-
-    std::vector<u_ptr<ast::var_declare>> params;
-
-    if (!safe_peek_compare(BRACKET_R)) {
-        do {
-            if (!peek_is_var_declare())
-                throw error::syntax(peek(), "Expected function paramater declaration.");
-
-            u_ptr<ast::var_declare> param = var_declare();
-            if (param->expr)
-                throw error::syntax(previous(), "Default parameter assignment is unsupported");
-
-
-            params.emplace_back(param.release());
-        } while(match(COMMA));
-    }
-
-    match_or_throw(BRACKET_R, peek(), "Could not find closing ')' for function paramater list.");
-
-    // function return type defined with '>'
-    // func IDENTIFIER() [> [CORE_TYPE_* | IDENTIFIER | KEYWORD_NULL]
-    // TODO: Safe compare
-    if (match(GREATER_THAN))
-    {
-        const token& t_type = peek();
-
-        if (peek_is_type()) {
-            return_type = get_token_type_name(t_type);
-            m_index++;
-        }
-
-        else if (t_type == KEYWORD_NULL) {
-            m_index++;
-        }
-
-        else
-            throw error::syntax(t_type, "Expected type or null for function return type.");
-    }
-
-    stmt = std::make_unique<ast::function>(t_name.data.string, return_type);
-
-    stmt->params.reserve(params.size());
-    for (size_t i = 0; i < params.size(); ++i)
-        stmt->params.emplace_back(params[i].release());
-
-    params.clear();
-
-    stmt->body = statement();
-
     return stmt;
 }
 
@@ -290,6 +268,100 @@ parser::u_ptr<ast::component> parser::component()
 
     if (!block_implicit && previous() != BLOCK_END)
         throw error::syntax(peek(), "Expected could not find enclosing '}' for block.");
+
+    return stmt;
+}
+
+parser::u_ptr<ast::function> parser::function()
+{
+    u_ptr<ast::function> stmt = nullptr;
+    const token& t_func = previous();
+    const token& t_name = peek();
+    const char* return_type = nullptr;
+
+    match_or_throw(IDENTIFIER, t_func, "Expected identifier after function keyword.");
+    match_or_throw(BRACKET_L, t_func, "Expected to find '(' character for function paramaters.");
+
+    using param_vec = std::vector<u_ptr<ast::var_declare>>;
+    param_vec params;
+
+    if (!safe_peek_compare(BRACKET_R)) {
+        do {
+            if (!peek_is_var_declare())
+                throw error::syntax(peek(), "Expected function paramater declaration.");
+
+            u_ptr<ast::var_declare> param = var_declare();
+            if (param->expr)
+                throw error::syntax(previous(), "Default parameter assignment for functions is currently unsupported.");
+
+            params.emplace_back(param.release());
+        } while(match(COMMA));
+    }
+
+    match_or_throw(BRACKET_R, peek(), "Could not find closing ')' for function paramater list.");
+
+    // function return type defined with '->'
+    // func IDENTIFIER() [> [CORE_TYPE_* | IDENTIFIER | KEYWORD_NULL]
+    // TODO: Safe compare
+    if (match(ARROW))
+    {
+        const token& t_type = peek();
+
+        if (peek_is_type()) {
+            return_type = get_token_type_name(t_type);
+            m_index++;
+        }
+
+        else if (t_type == KEYWORD_NULL) {
+            m_index++;
+        }
+
+        else
+            throw error::syntax(t_type, "Expected type or null for function return type.");
+    }
+
+    stmt = std::make_unique<ast::function>(t_name.data.string, return_type);
+
+    // move construct should work?
+    params.shrink_to_fit();
+    stmt->params = param_vec(std::move(params));
+
+    stmt->body = statement();
+
+    return stmt;
+}
+
+parser::u_ptr<ast::system> parser::system()
+{
+    const token& t_sys  = previous();
+    const token& t_name = peek();
+
+    match_or_throw(IDENTIFIER, t_sys, "Expected identifier after system keyword.");
+    match_or_throw(BRACKET_L, t_sys, "Expected to find '(' character for system parameters.");
+
+    auto stmt = std::make_unique<ast::system>(t_name.data.string);
+
+    if (safe_peek_compare(BRACKET_R))
+        throw error::syntax(peek(), "System parameter list cannot be empty!");
+
+    do {
+        if (!peek_is_var_declare())
+            throw error::syntax(peek(), "Expected system parameter declaration.");
+
+        u_ptr<ast::var_declare> param = var_declare();
+        if (param->expr)
+            throw error::syntax(previous(), "System parameters do not support default assignment!");
+
+        else if (param->vtype.array_size > 0)
+            throw error::syntax(previous(), "System parameters cannot be arrays!");
+
+        stmt->params.emplace_back(param.release());
+    } while(match(COMMA));
+
+    match_or_throw(BRACKET_R, peek(), "Could not find closing ')' for system parameter list.");
+
+    stmt->params.shrink_to_fit();
+    stmt->body = statement();
 
     return stmt;
 }

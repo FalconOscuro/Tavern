@@ -46,7 +46,7 @@ struct environment_stack
     // Store current type on top of stack for expression resolution
 };
 
-class semantic : public ast::visitor
+class semantic final : public ast::visitor
 {
 public:
     semantic() = default;
@@ -64,6 +64,7 @@ protected:
     void visit_grouping(ast::grouping*) override;
     void visit_identifier(ast::identifier*) override;
     void visit_literal(ast::literal*) override;
+    void visit_type_check(ast::type_check*) override;
     void visit_unary(ast::unary*) override;
 
     // statements
@@ -75,6 +76,7 @@ protected:
     void visit_function(ast::function*) override;
     void visit_if_else(ast::if_else*) override;
     void visit_return_stmt(ast::return_stmt*) override;
+    void visit_system(ast::system*) override;
     void visit_var_declare(ast::var_declare*) override;
     void visit_while_stmt(ast::while_stmt*) override;
 
@@ -97,6 +99,7 @@ private:
     module* m_module = nullptr;
 
     // scope for current function being explored
+    // need to change to support systems?
     ast::function* m_function = nullptr;
 }; /* end of class semantic_analyzer */
 
