@@ -68,18 +68,17 @@ parser::stmt_ptr parser::statement()
 parser::u_ptr<ast::var_declare> parser::var_declare()
 {
     const token& t = peek();
-    const char* type;
+    u_ptr<ast::var_declare> stmt = nullptr;
 
     if (t == IDENTIFIER)
-        type = t.data.string;
+        stmt = std::unique_ptr<ast::var_declare>(new ast::var_declare(t.data.string, peek(1).data.string));
 
     else
-        type = get_token_type_name(t);
-
-    u_ptr<ast::var_declare> stmt =
-        std::make_unique<ast::var_declare>(type, peek(1).data.string);
+        stmt = std::unique_ptr<ast::var_declare>(new ast::var_declare(t.type, peek(1).data.string));
 
     m_index += 2;
+    // can get overwritten, but easy hack to account for params
+    stmt->pos = t.pos;
 
     // array type
     // no multi dimensional arrays, or dynamic lists yet
@@ -216,6 +215,7 @@ parser::stmt_ptr parser::flow()
 
 parser::u_ptr<ast::component> parser::component()
 {
+    const token& t_comp = previous();
     const token& t_name = peek();
     match_or_throw(IDENTIFIER, t_name, "Expected component name.");
 
@@ -237,12 +237,15 @@ parser::u_ptr<ast::component> parser::component()
             throw error::syntax(peek(), "Body of implicit block should have greater indent than the outer body.");
     }
 
-    else if (!match(BLOCK_START))
-        throw error::syntax(peek(), "Expected block start after component declaration.");
+    else {
+        discard_tokens();
+        match_or_throw(BLOCK_START, t_comp, "Expected block start after component declaration.");
+    }
 
     do
     {
         discard_tokens();
+        const token& t_member = peek();
 
         if (peek_is_var_declare())
         {
@@ -254,9 +257,10 @@ parser::u_ptr<ast::component> parser::component()
             match_stmt_end();
         }
 
-        if (match(FUNCTION))
+        else if (match(FUNCTION))
         {
             u_ptr<ast::function> func = function();
+            func->pos = t_member.pos;
 
             if (!stmt->try_add_func(func))
                 throw error::redefinition(func.get());

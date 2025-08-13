@@ -2,6 +2,10 @@
 
 namespace cantrip {
 
+std::string file_pos::to_string() const {
+    return std::to_string(row).append(", ").append(std::to_string(col)).append(": ").append(std::to_string(indent));
+}
+
 bool file_pos::operator==(const file_pos& rhs) const
 {
     return col == rhs.col && row == rhs.row

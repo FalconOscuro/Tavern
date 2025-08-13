@@ -16,6 +16,7 @@ class var_declare : public statement
 public:
     var_declare(const char* p_type, const char* p_name);
     var_declare(type_info t_info, const char* p_name);
+    var_declare(token_type t_type, const char* p_name);
 
     ~var_declare() = default;
 
@@ -27,6 +28,7 @@ public:
     }
 
     type vtype;
+    // remove string dependency
     std::string name;
 
     u_expression_ptr expr = nullptr;

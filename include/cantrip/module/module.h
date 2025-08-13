@@ -35,9 +35,9 @@ struct module
     using u_system_ptr    = std::unique_ptr<ast::system>;
     // struct and class
 
-    std::unordered_map<std::string_view, u_component_ptr> components;
-    std::unordered_map<std::string_view, u_function_ptr>  functions;
-    std::unordered_map<std::string_view, u_system_ptr>    systems;
+    std::unordered_map<std::string, u_component_ptr> components;
+    std::unordered_map<std::string, u_function_ptr>  functions;
+    std::unordered_map<std::string, u_system_ptr>    systems;
 
     module_info info;
 };

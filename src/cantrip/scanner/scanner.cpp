@@ -18,7 +18,7 @@
 
 namespace cantrip {
 
-scanner::scanner(std::vector<tavern::file::file_handle>& files)
+scanner::scanner(std::vector<tavern::file::file_handle>&& files)
 {
     assert(files.size() > 0 && "Must pass at least 1 file");
     m_files.reserve(files.size());
@@ -26,7 +26,7 @@ scanner::scanner(std::vector<tavern::file::file_handle>& files)
     for (auto& file : files)
     {
         assert(file.get() != nullptr && "Recieved null file handle!");
-         m_files.push_back(file_interface(file));
+        m_files.emplace_back(file_interface(std::move(file)));
     }
 }
 
@@ -40,7 +40,7 @@ void scanner::read_tokens() const
     eat_whitespace();
 
     token t;
-    t.pos = current_file().pos();
+    const auto pos = current_file().pos();
 
     switch (current_file().peek_char())
     {
@@ -239,11 +239,13 @@ void scanner::read_tokens() const
             break;
     }
 
+    t.pos = pos;
     m_tokens.push(t);
 
     if (t.type == FILE_END)
     {
         close_file_internal();
+        ++m_current_file_index;
 
         // try to open next file
         // assume false means at end, but could silent fail

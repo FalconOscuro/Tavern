@@ -11,7 +11,7 @@ namespace cantrip {
 class scanner {
 public:
 
-    scanner(std::vector<tavern::file::file_handle>& files);
+    scanner(std::vector<tavern::file::file_handle>&& files);
 
     ~scanner() = default;
 

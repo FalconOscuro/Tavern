@@ -14,7 +14,7 @@ class file_interface
 {
 public:
 
-    file_interface(tavern::file::file_handle& file);
+    file_interface(tavern::file::file_handle&& file);
 
     ~file_interface() = default;
 

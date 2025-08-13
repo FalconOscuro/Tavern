@@ -129,7 +129,7 @@ std::shared_ptr<cantrip::module> cantrip_modules::load_module(const file::mount_
     // scan files
     std::vector<cantrip::token> tokens;
     {
-        cantrip::scanner scanner = cantrip::scanner(module_src_files);
+        cantrip::scanner scanner = cantrip::scanner(std::move(module_src_files));
 
         while (scanner.is_open())
         {
@@ -145,9 +145,7 @@ std::shared_ptr<cantrip::module> cantrip_modules::load_module(const file::mount_
     
     // parse
     {
-        cantrip::parser parser = cantrip::parser(tokens);
-        tokens.clear();
-
+        cantrip::parser parser = cantrip::parser(std::move(tokens));
         parser.parse_module(module);
     }
 

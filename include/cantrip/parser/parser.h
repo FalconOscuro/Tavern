@@ -33,16 +33,12 @@ class parser
 
 public:
 
-    parser(std::vector<token>& tokens): m_tokens(tokens)
+    parser(std::vector<token>&& tokens): m_tokens(std::move(tokens))
     {}
 
     void parse_module(module& module);
 
     std::vector<stmt_ptr> parse();
-
-    expr_ptr generate_ast() {
-        return expression();
-    }
 
 private:
 

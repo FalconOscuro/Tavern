@@ -18,7 +18,7 @@ bool environment_stack::push_var(const ast::var_declare* var)
     const std::string_view name = var->name;
 
     // redefinition
-    if (env.variables.find(name) != env.variables.end())
+    if (env.variables.find(name.data()) != env.variables.end())
         return false;
 
     else {
@@ -75,7 +75,29 @@ void semantic::visit_binary(ast::binary* binary)
 
     ast::type type_l = m_type;
 
-    binary->right->accept(this);
+    // hacky, but if attribute, right depends on scope of left
+    if (binary->type == ast::ATTRIBUTE)
+    {
+        m_env_stack.push();
+
+        if (type_l.is_resolved_custom_type())
+        {
+            const ast::c_struct* l_struct = type_l.get_custom_type();
+
+            for (auto it = l_struct->vars_begin(); it != l_struct->vars_end(); ++it)
+                m_env_stack.push_var(it->get());
+        }
+
+        else
+            throw error::exception(binary->left->pos, "Core types do not have attributes");
+
+        binary->right->accept(this);
+        
+        m_env_stack.pop();
+    }
+
+    else
+        binary->right->accept(this);
 
     static const ast::type TYPE_BOOL = ast::type(TYPE_BOOLEAN);
 
@@ -114,6 +136,15 @@ void semantic::visit_binary(ast::binary* binary)
     case ast::GREATER_THAN:
     case ast::LESS_THAN_EQUAL:
     case ast::GREATER_THAN_EQUAL:
+        if (type_l != TYPE_INTEGER && type_l != TYPE_FLOAT)
+            throw error::exception(binary->pos, "Arithmetic operators currently only support numerical (int or float) types!");
+
+        if (!is_type_convertible(m_type, type_l))
+            throw error::type_not_convertible(binary->pos, m_type, type_l);
+
+        m_type = TYPE_BOOL;
+        break;
+
     case ast::ADD:
     case ast::SUBTRACT:
     case ast::MULTIPLY:
@@ -321,11 +352,11 @@ void semantic::visit_component(ast::component* component)
     // visit vars
     for (auto it = component->vars_begin(); it != component->vars_end(); ++it)
         // Should not cause issues if following visitor pattern
-        visit_var_declare(*it);
+        visit_var_declare(it->get());
 
     // visit functions
     for (auto it = component->funcs_begin(); it != component->funcs_end(); ++it)
-        visit_function(*it);
+        visit_function(it->get());
 
     m_env_stack.pop();
     m_self_env = nullptr;
@@ -420,6 +451,7 @@ void semantic::visit_system(ast::system* sys)
     if (sys->params.empty())
         throw error::invalid_system(sys);
 
+    // check if component occurs multiple times?
     for (size_t i = 0; i < sys->params.size(); ++i)
     {
         visit_var_declare(sys->params[i].get());
@@ -475,7 +507,7 @@ bool semantic::resolve_type(ast::type& type)
     if (type != ast::UNRESOLVED)
         return true;
 
-    auto found = m_module->components.find(type.name());
+    auto found = m_module->components.find(type.name().data());
 
     if (found == m_module->components.end())
         return false;

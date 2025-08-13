@@ -2,6 +2,7 @@
 #define FILE_POS_H
 
 #include <cstdint>
+#include <string>
 #include <string_view>
 
 namespace cantrip {
@@ -16,6 +17,8 @@ struct file_pos
     uint32_t indent = 0;
 
     // 4 bytes padding un-used
+
+    std::string to_string() const;
 
     // NOTE: Equality operators do not account for indent, they only compare the absolute file position
     bool operator==(const file_pos& rhs) const;

@@ -10,6 +10,7 @@ void parser::parse_module(module& module)
 {
     while (!at_end())
     {
+        discard_tokens();
         // for error throwing
         const token& t = peek();
 
@@ -17,6 +18,7 @@ void parser::parse_module(module& module)
         {
             using u_component_ptr = module::u_component_ptr;
             u_component_ptr stmt = component();
+            stmt->pos = t.pos;
 
             if (module.components.count(stmt->name))
                 throw error::redefinition(stmt.get());
@@ -28,6 +30,7 @@ void parser::parse_module(module& module)
         {
             using u_function_ptr = module::u_function_ptr;
             u_function_ptr stmt = function();
+            stmt->pos = t.pos;
 
             if (module.functions.count(stmt->name))
                 throw error::redefinition(stmt.get());
@@ -39,6 +42,7 @@ void parser::parse_module(module& module)
         {
             using u_system_ptr = module::u_system_ptr;
             u_system_ptr stmt = system();
+            stmt->pos = t.pos;
 
             if (module.systems.count(stmt->name))
                 throw error::redefinition(stmt.get());

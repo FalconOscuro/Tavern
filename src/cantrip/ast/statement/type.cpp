@@ -21,7 +21,7 @@ type::type():
 
 type::type(const char* type_name)
 {
-    if (!type_name || NULL_TYPE_NAME)
+    if (type_name == nullptr || strcmp(type_name, NULL_TYPE_NAME) == 0)
         m_type = NONE;
 
     else if (strcmp(type_name, INT_TYPE_NAME) == 0)

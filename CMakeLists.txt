@@ -86,6 +86,13 @@ target_sources(Cantrip PRIVATE
 
 target_link_libraries(Cantrip PUBLIC Tavern-File)
 
+add_executable(cantrip-bin src/cantrip-bin/main.cpp)
+target_link_libraries(cantrip-bin PUBLIC
+    Cantrip
+    Boost::program_options
+    Boost::log
+)
+
 message(STATUS "Configuring Tavern Library")
 include(cmake/tavern.cmake)
 

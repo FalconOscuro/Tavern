@@ -5,10 +5,10 @@
 
 namespace cantrip {
 
-file_interface::file_interface(tavern::file::file_handle& file):
+file_interface::file_interface(tavern::file::file_handle&& file):
     m_file(file.release())
 {
-    m_pos.file_name = file->get_path().get_full();
+    m_pos.file_name = m_file->get_path().get_full();
 }
 
 char file_interface::get_char() {

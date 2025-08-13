@@ -16,7 +16,7 @@ namespace cantrip::analyzer {
 struct environment
 {
     // need better way for storing variable types?
-    std::unordered_map<std::string_view, const ast::var_declare*> variables;
+    std::unordered_map<std::string, const ast::var_declare*> variables;
 
     bool is_loop = false;
 };

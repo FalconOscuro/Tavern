@@ -9,7 +9,7 @@ class exception
 {
 public:
     exception(const file_pos& pos, const char* err_msg);
-    virtual ~exception();
+    virtual ~exception() = default;
 
     const char* what() const noexcept;
 
@@ -20,7 +20,7 @@ public:
 private:
 
     const file_pos m_pos;
-    char* m_err_str;
+    std::string m_err_str;
 };
 
 } /* namespace cantrip::error */

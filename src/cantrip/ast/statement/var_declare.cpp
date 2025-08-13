@@ -12,4 +12,8 @@ var_declare::var_declare(type_info t_info, const char* p_name):
     vtype(t_info), name(p_name)
 {}
 
+var_declare::var_declare(token_type t_type, const char* p_name):
+    vtype(t_type), name(p_name)
+{}
+
 } /* namespace cantrip::ast */

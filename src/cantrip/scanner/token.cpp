@@ -65,7 +65,7 @@ token& token::operator=(const token& t) {
 
 #define TOKEN_STRING_SW_CASE(t) \
     case t:                     \
-        str = #t;
+        str = std::string("[").append(pos.to_string().append("] - " #t));
 
 std::string token::to_string() const
 {
@@ -294,7 +294,7 @@ void token::clear_data() {
         case IDENTIFIER:
         case STRING_LITERAL:
         case ERROR:
-            delete data.string;
+            delete[] data.string;
             data.literal_int = 0;
             break;
 

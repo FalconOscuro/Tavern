@@ -26,14 +26,17 @@ public:
     using u_var_ptr = std::unique_ptr<var_declare>;
     using u_func_ptr = std::unique_ptr<function>;
 
-    using var_declare_container = std::vector<var_declare*>;
-    using function_containter = std::vector<function*>;
+    using var_declare_container = std::vector<u_var_ptr>;
+    using function_containter = std::vector<u_func_ptr>;
 
     using var_iterator = var_declare_container::iterator;
     using const_var_iterator = var_declare_container::const_iterator;
 
     using func_iterator = function_containter::iterator;
     using const_func_iterator = function_containter::const_iterator;
+
+    using var_declare_map = std::unordered_map<std::string, var_declare*>;
+    using function_map = std::unordered_map<std::string, function*>;
 
     c_struct(const char* p_name, const struct_type s_type);
 
@@ -54,9 +57,6 @@ public:
     // will take ownership if add is successful
     bool try_add_func(u_func_ptr& func);
     bool try_add_var(u_var_ptr& var);
-
-    bool try_add_func(function* func);
-    bool try_add_var(var_declare* var);
 
     function* try_get_func(const std::string_view func_name);
     var_declare* try_get_var(const std::string_view var_name);
@@ -119,11 +119,11 @@ private:
 
     // give vars/functions an id
     // refer through id?
-    var_declare_container m_vars;
-    function_containter m_funcs;
+    var_declare_container m_vars = var_declare_container();
+    function_containter m_funcs = function_containter();
 
-    std::unordered_map<std::string_view, u_var_ptr> m_var_map;
-    std::unordered_map<std::string_view, u_func_ptr> m_func_map;
+    var_declare_map m_var_map = var_declare_map();
+    function_map m_func_map = function_map();
 
 }; /* end of struct c_struct */
 
