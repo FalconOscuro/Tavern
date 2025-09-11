@@ -208,16 +208,11 @@ void renderer::render_geometry()
 
         m_default_shader->set_transform(transform.get_global());
 
-        for (auto m_it = drawable.meshes.begin(); m_it != drawable.meshes.end(); ++m_it)
-        {
-            const auto& skm = *m_it;
+        if (!drawable)
+            continue;
 
-            if (!skm)
-                continue;
-
-            m_default_shader->set_material(skm.material);
-            skm.mesh->draw();
-        }
+        m_default_shader->set_material(drawable.material);
+        drawable.mesh->draw();
     }
 }
 

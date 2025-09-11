@@ -124,29 +124,23 @@ void write(ryml::NodeRef *n, const transform &val)
     n->set_val_tag(component_type_info<transform>::c4_tag());
 }
 
-bool read(const ryml::ConstNodeRef& n, skinned_mesh* val)
+bool read(const ryml::ConstNodeRef& n, render_mesh* val)
 {
+    *val = render_mesh();
     auto& res_mngr = resource_manager::singleton();
 
-    const auto mesh = n["mesh"];
-    const auto material = n["material"];
+    file::mount_path mesh_path, mat_path;
 
-    if (!(mesh.has_val() && mesh.val_is_null())) {
-        file::mount_path path;
-        mesh >> path;
-        val->mesh = res_mngr.meshes.load(path);
-    }
+    if (n.get_if("mesh", &mesh_path))
+        val->mesh = res_mngr.meshes.load(mesh_path);
 
-    if (!(material.has_val() && material.val_is_null())) {
-        file::mount_path path;
-        material >> path;
-        val->material = res_mngr.materials.load(path);
-    }
+    if (n.get_if("material", &mat_path))
+        val->material = res_mngr.materials.load(mat_path);
 
     return true;
 }
 
-void write(ryml::NodeRef* n, const skinned_mesh& val)
+void write(ryml::NodeRef* n, const render_mesh& val)
 {
     *n |= ryml::MAP;
 
@@ -165,23 +159,6 @@ void write(ryml::NodeRef* n, const skinned_mesh& val)
         material << val.material.get_path();
     else
         material << nullptr;
-}
-
-bool read(const ryml::ConstNodeRef& n, render_mesh* val)
-{
-    // should only be one?
-    n["meshes"] >> val->meshes;
-
-    return true;
-}
-
-void write(ryml::NodeRef* n, const render_mesh& val)
-{
-    *n |= ryml::MAP;
-
-    auto meshes = n->append_child();
-    meshes.set_key("meshes");
-    meshes << val.meshes;
 
     n->set_val_tag(component_type_info<render_mesh>::c4_tag());
 }
