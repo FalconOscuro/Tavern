@@ -1,5 +1,8 @@
 #include "tavern/components/component_yaml_conversions.hpp"
 
+#include <algorithm>
+#include <boost/log/trivial.hpp>
+
 #include <c4/yml/node.hpp>
 #include <c4/yml/node_type.hpp>
 
@@ -11,12 +14,20 @@
 
 namespace tavern::file {
 
+// change to iterate over children to identify invalid args?
+
 bool read(const ryml::ConstNodeRef& n, mount_path* val)
 {
+    if (!n.is_map())
+        return false;
+
     std::string identifier, path;
 
-    n["identifier"] >> identifier;
-    n["path"] >> path;
+    if (!(n.get_if("identifier", &identifier) && n.get_if("path", &path)))
+    {
+        BOOST_LOG_TRIVIAL(error) << "Malformed mount path whilst deserializing yaml node '" << n.id() << "' must have both 'identifier' and 'path' child nodes.";
+        return false;
+    }
 
     *val = mount_path(identifier, path);
 
@@ -36,13 +47,24 @@ namespace tavern::component {
 
 bool read(const ryml::ConstNodeRef& n, camera* val)
 {
+    if (!n.is_map())
+        return false;
+
+    *val = camera();
+
     // camera could be hardcoded?
     // WARNING: Doesn't handle malformed data
-    n["fov"] >> val->fov;
-    n["near"] >> val->near;
-    n["far"] >> val->far;
-    n["active"] >> val->active;
 
+    n.get_if("fov",     &val->fov);
+    n.get_if("near",    &val->near);
+    n.get_if("far",     &val->far);
+    n.get_if("active",  &val->active);
+
+    if (val->near >= val->far)
+    {
+        BOOST_LOG_TRIVIAL(error) << "Malformed camera component whilst deserializing yaml node '" << n.id() << "' near plane should be less than far plane.";
+        return false;
+    }
     
     return true;
 }
@@ -61,26 +83,28 @@ void write(ryml::NodeRef* n, const camera& val)
 
 bool read(const ryml::ConstNodeRef &n, transform *val)
 {
-    if (!(n.has_child("position") && n.has_child("scale") && n.has_child("rotation")))
+    *val = transform();
+
+    // map of pos, scale and rot
+    if (!n.is_map())
         return false;
 
+    // allow for pure matrices?
     glm::vec3 position, rotation, scale;
 
-    n["position"] >> position;
-    n["rotation"] >> rotation;
-    n["scale"] >> scale;
+    // should throw error or warning
+    n.get_if("position", &position);
+    n.get_if("rotation", &rotation); // fallback to quaternion?
+
+    if (!n.get_if("scale", &scale))
+        scale = glm::vec3(1.0f); // scale should default to 1
 
     const glm::mat4 p_mat = glm::translate(glm::mat4(1), position);
     const glm::mat4 r_mat = glm::mat4_cast(glm::quat(rotation));
     const glm::mat4 s_mat = glm::scale(glm::mat4(1), scale);
 
     val->local = p_mat * r_mat * s_mat;
-
-    if (n.has_child("parent"))
-        n["parent"] >> val->parent;
-
-    else
-        val->parent = ecs::entity_type(-1);
+    n.get_if("parent", &val->parent);
 
     return true;
 }
@@ -145,6 +169,7 @@ void write(ryml::NodeRef* n, const skinned_mesh& val)
 
 bool read(const ryml::ConstNodeRef& n, render_mesh* val)
 {
+    // should only be one?
     n["meshes"] >> val->meshes;
 
     return true;
@@ -167,6 +192,9 @@ namespace glm {
 
 bool read(const ryml::ConstNodeRef &n, mat4 *val)
 {
+    if (!(n.is_seq() && n.num_children() >= 4))
+        return false;
+
     for (unsigned int i = 0; i < 4; ++i)
         n[i] >> (*val)[i];
 
@@ -178,18 +206,34 @@ void write(ryml::NodeRef* n, const mat4& val)
     *n |= ryml::SEQ;
 
     for (unsigned int i = 0; i < 4; ++i)
-        n->append_child() << val[i];
+    {
+        auto c = n->append_child();
+        c |= ryml::SEQ;
+
+        for (unsigned int j = 0; j < 4; ++j)
+            c.append_child() << val[i][j];
+    }
 }
 
 bool read(const ryml::ConstNodeRef& n, vec4* val)
 {
-    if (n.num_children() != 4)
-        return false;
+    *val = vec4(0.f);
 
-    n["x"] >> val->x;
-    n["y"] >> val->y;
-    n["z"] >> val->z;
-    n["w"] >> val->w;
+    if (n.is_map())
+    {
+        n.get_if("x", &val->x);
+        n.get_if("y", &val->y);
+        n.get_if("z", &val->z);
+        n.get_if("w", &val->w);
+    }
+
+    else if (n.is_seq())
+    {
+        for (unsigned int i = 0; i < std::min<unsigned int>(4, n.num_children()); ++i)
+            n[i] >> (*val)[i];
+    }
+
+    else return false;
 
     return true;
 }
@@ -206,12 +250,22 @@ void write(ryml::NodeRef* n, const vec4& val)
 
 bool read(const ryml::ConstNodeRef& n, vec3* val)
 {
-    if (n.num_children() != 3)
-        return false;
+    *val = vec3();
 
-    n["x"] >> val->x;
-    n["y"] >> val->y;
-    n["z"] >> val->z;
+    if (n.is_map())
+    {
+        n.get_if("x", &val->x);
+        n.get_if("y", &val->y);
+        n.get_if("z", &val->z);
+    }
+
+    else if (n.is_seq())
+    {
+        for (unsigned int i = 0; i < std::min<unsigned int>(3, n.num_children()); ++i)
+            n[i] >> (*val)[i];
+    }
+
+    else return false;
 
     return true;
 }
