@@ -15,6 +15,7 @@ public:
 
     virtual void accept(visitor* v) = 0;
 
+    // make private?
     file_pos pos;
 }; /* class node */
     

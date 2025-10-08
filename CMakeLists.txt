@@ -67,6 +67,7 @@ target_sources(Cantrip PRIVATE
     src/cantrip/parser/parser-stmt.cpp
     src/cantrip/parser/parser.cpp
 
+    src/cantrip/ast/expression/identifier.cpp
     src/cantrip/ast/expression/literal.cpp
 
     src/cantrip/ast/statement/struct.cpp

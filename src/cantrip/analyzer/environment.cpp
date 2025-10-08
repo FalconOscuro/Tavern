@@ -28,7 +28,7 @@ const ast::var_declare* environment_stack::check_identifier(const ast::identifie
 {
     for (size_t i = 0; i < env_stack.size(); ++i) {
         const environment& env = env_stack[env_stack.size() - (i + 1)];
-        auto found = env.variables.find(identifier->name);
+        auto found = env.variables.find(identifier->name().data());
 
         if (found != env.variables.end())
             return found->second;
