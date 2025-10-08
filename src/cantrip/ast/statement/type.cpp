@@ -16,34 +16,34 @@
 namespace cantrip::ast {
 
 type::type():
-    m_type(NONE)
+    m_type()
 {}
 
 type::type(const char* type_name)
 {
     if (type_name == nullptr || strcmp(type_name, NULL_TYPE_NAME) == 0)
-        m_type = NONE;
+        m_type.classifier = VOID;
 
     else if (strcmp(type_name, INT_TYPE_NAME) == 0)
-        m_type = CORE_INT;
+        m_type.classifier = CORE_INT;
 
     else if (strcmp(type_name, FLOAT_TYPE_NAME) == 0)
-        m_type = CORE_FLOAT;
+        m_type.classifier = CORE_FLOAT;
 
     else if (strcmp(type_name, STRING_TYPE_NAME) == 0)
-        m_type = CORE_STRING;
+        m_type.classifier = CORE_STRING;
 
     else if (strcmp(type_name, BOOL_TYPE_NAME) == 0)
-        m_type = CORE_BOOL;
+        m_type.classifier = CORE_BOOL;
 
     else if (strcmp(type_name, ENTITY_TYPE_NAME) == 0)
-        m_type = CORE_ENTITY;
+        m_type.classifier = CORE_ENTITY;
 
     else
         set_unresolved_name(type_name);
 }
 
-type::type(type_info t_info):
+type::type(type_classifer t_info):
     m_type(t_info)
 {
     // throw not assert?
@@ -55,28 +55,28 @@ type::type(token_type t_type)
     switch (t_type)
     {
     case TYPE_INTEGER:
-        m_type = CORE_INT;
+        m_type.classifier = CORE_INT;
         break;
 
     case TYPE_FLOAT:
-        m_type = CORE_FLOAT;
+        m_type.classifier = CORE_FLOAT;
         break;
 
     case TYPE_STRING:
-        m_type = CORE_STRING;
+        m_type.classifier = CORE_STRING;
         break;
 
     case TYPE_BOOLEAN:
-        m_type = CORE_BOOL;
+        m_type.classifier = CORE_BOOL;
         break;
 
     case TYPE_ENTITY:
-        m_type = CORE_ENTITY;
+        m_type.classifier = CORE_ENTITY;
         break;
 
     default:
         assert(false && "Invalid arg, when constructing from token type, must be a recognized 'TYPE_' token");
-        m_type = NONE;
+        m_type = VOID;
         break;
     }
 }
@@ -99,9 +99,9 @@ type::~type() {
 
 const std::string_view type::name() const
 {
-    switch (m_type)
+    switch (m_type.classifier)
     {
-    case NONE:
+    case VOID:
         return NULL_TYPE_NAME;
 
     case CORE_INT:
@@ -176,6 +176,7 @@ type& type::operator=(const type& t)
     return *this;
 }
 
+// ensure still works with new flags
 bool type::operator==(const type& rhs) const
 {
     // both custom fully resolved types
@@ -215,11 +216,11 @@ bool type::operator!=(const type& rhs) const
         return m_type != rhs.m_type;
 }
 
-bool type::operator==(type_info t) const {
+bool type::operator==(type_classifer t) const {
     return m_type == t;
 }
 
-bool type::operator!=(type_info t) const {
+bool type::operator!=(type_classifer t) const {
     return m_type != t;
 }
 

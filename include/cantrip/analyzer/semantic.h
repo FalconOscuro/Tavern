@@ -2,7 +2,6 @@
 #define SEMANTIC_ANALYZER_H
 
 #include "cantrip/ast/visitor.h"
-#include "cantrip/ast/statement/var_declare.h"
 
 #include "cantrip/module/module.h"
 
@@ -47,6 +46,8 @@ protected:
     void visit_while_stmt(ast::while_stmt*) override;
 
 private:
+
+    void resolve_struct_vars(ast::c_struct* c_struct);
 
     void resolve_func_return_type(ast::function* func);
     bool resolve_type(ast::type& type);

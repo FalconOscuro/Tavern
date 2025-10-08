@@ -9,9 +9,9 @@ namespace cantrip::ast {
 
 class c_struct;
 
-enum type_info {
+enum type_classifer : unsigned short {
     UNRESOLVED,
-    NONE, // Used for functions without return, should throw error if used elsewhere
+    VOID, // Used for functions without return, should throw error if used elsewhere
     CORE_INT,
     CORE_FLOAT,
     CORE_STRING,
@@ -19,7 +19,43 @@ enum type_info {
     CORE_ENTITY,
     CUSTOM_COMPONENT,
     CUSTOM_CLASS,
-    CUSTOM_STRUCT
+    CUSTOM_STRUCT,
+};
+
+enum type_flags : unsigned short {
+    NONE        = 0,
+    REFERENCE   = 1 << 0,
+    CONSTANT    = 1 << 1,
+    ARRAY       = 1 << 2,
+};
+
+struct type_info
+{
+    type_info() = default;
+    type_info(type_classifer classifier): classifier(classifier)
+    {}
+
+    type_info(const type_info&) = default;
+    type_info& operator=(const type_info&) = default;
+
+    type_classifer classifier = VOID;
+    type_flags flags = NONE;
+
+    bool operator==(type_classifer p_classifer) const {
+        return classifier == p_classifer;
+    }
+
+    bool operator!=(type_classifer p_classifer) const {
+        return classifier != p_classifer;
+    }
+
+    bool operator==(const type_info& rhs) const {
+        return classifier == rhs.classifier && flags == rhs.flags;
+    }
+
+    bool operator!=(const type_info& rhs) const {
+        return classifier != rhs.classifier || flags != rhs.flags;
+    }
 };
 
 class type
@@ -27,7 +63,7 @@ class type
 public:
     type();
     type(const char* type_name);
-    type(type_info t_info);
+    type(type_classifer t_info);
     type(token_type t_type);
     type(const type& t);
 
@@ -47,11 +83,13 @@ public:
     bool operator==(const type& t) const;
     bool operator!=(const type& t) const;
 
-    bool operator==(type_info t) const;
-    bool operator!=(type_info t) const;
+    bool operator==(type_classifer t) const;
+    bool operator!=(type_classifer t) const;
 
     bool is_resolved_custom_type() const;
     bool is_custom_type_or_unresolved() const;
+
+    unsigned long int get_size() const;
 
     // if array size is 0, then this is not an array
     // a bit hacky but works
