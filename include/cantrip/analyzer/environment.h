@@ -27,7 +27,8 @@ struct environment_stack
     bool in_loop() const;
 
     void push(bool is_loop = false) {
-        env_stack.emplace_back().is_loop = is_loop;
+        env_stack.emplace_back().is_loop = is_loop
+            | (!env_stack.empty() && top().is_loop);
     }
 
     void pop() {
