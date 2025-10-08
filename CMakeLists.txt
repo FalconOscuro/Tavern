@@ -75,6 +75,7 @@ target_sources(Cantrip PRIVATE
     
     src/cantrip/ast/visitor.cpp
 
+    src/cantrip/analyzer/environment.cpp
     src/cantrip/analyzer/semantic.cpp
 
     src/cantrip/error/exception.cpp
