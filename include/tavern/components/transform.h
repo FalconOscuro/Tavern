@@ -48,6 +48,7 @@ struct transform
     // If tombstone, no parent
     // Need tombstone retrievable at compile time
     ecs::entity_type parent = ecs::entity_type(-1);
+    // make separate component?
 
     inline const glm::mat4& get_global() const {
         return m_global;

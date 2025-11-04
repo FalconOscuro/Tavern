@@ -1,8 +1,6 @@
 #ifndef RENDER_MESH_H
 #define RENDER_MESH_H
 
-#include <vector>
-
 #include "tavern/graphics/material.h"
 #include "tavern/graphics/mesh.h"
 #include "tavern/graphics/shader.h"
