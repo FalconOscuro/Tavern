@@ -3,51 +3,10 @@
 #include "cantrip/ast/ast_expr.h"
 #include "cantrip/ast/ast_stmt.h"
 
+#include "cantrip/ast/statement/type.h"
 #include "cantrip/error/semantic_error.h"
 
 namespace cantrip::analyzer {
-
-bool environment_stack::push_var(const ast::var_declare* var)
-{
-    // always ensure stack is populated
-    if (env_stack.empty())
-        push();
-
-    environment& env = top();
-
-    const std::string_view name = var->name;
-
-    // redefinition
-    if (env.variables.find(name.data()) != env.variables.end())
-        return false;
-
-    else {
-        env.variables.emplace(std::make_pair(name, var));
-        return true;
-    }
-}
-
-const ast::var_declare* environment_stack::check_identifier(const ast::identifier*identifier) const
-{
-    for (size_t i = 0; i < env_stack.size(); ++i) {
-        const environment& env = env_stack[env_stack.size() - (i + 1)];
-        auto found = env.variables.find(identifier->name);
-
-        if (found != env.variables.end())
-            return found->second;
-    }
-
-    return nullptr;
-}
-
-bool environment_stack::in_loop() const
-{
-    for (size_t i = 0; i < env_stack.size(); ++i)
-        if (env_stack[i].is_loop)
-            return true;
-
-    return false;
-}
 
 void semantic::analyze_module(module* module)
 {
@@ -191,7 +150,7 @@ void semantic::visit_call(ast::call* call)
     {
         call->caller->accept(this);
 
-        if (m_type == ast::UNRESOLVED || m_type == ast::NONE)
+        if (m_type == ast::UNRESOLVED || m_type == ast::VOID)
             throw error::unkown_typename(call->caller->pos, m_type);
 
         else if (m_type.is_resolved_custom_type())
@@ -238,7 +197,7 @@ void semantic::visit_cast(ast::cast* cast)
 {
     cast->expr->accept(this);
 
-    if (!resolve_type(cast->as_type) || cast->as_type == ast::NONE)
+    if (!resolve_type(cast->as_type) || cast->as_type == ast::VOID)
         throw error::unkown_typename(cast);
 
     if (!is_type_convertible(m_type, cast->as_type))
@@ -266,7 +225,10 @@ void semantic::visit_identifier(ast::identifier* identifier)
         throw error::undeclared_identifier(identifier);
 
     else
+    {
         m_type = var->vtype;
+        identifier->set_var_info(var);
+    }
 }
 
 void semantic::visit_literal(ast::literal* literal)
@@ -302,7 +264,7 @@ void semantic::visit_type_check(ast::type_check* type_check)
     // can use for checking if entities have components?
     type_check->expr->accept(this);
 
-    if (!resolve_type(type_check->is_type) || type_check->is_type == ast::NONE)
+    if (!resolve_type(type_check->is_type) || type_check->is_type == ast::VOID)
         throw error::unkown_typename(type_check);
 
     // constant optimization with bool literal?
@@ -343,6 +305,7 @@ void semantic::visit_block(ast::block* block)
     m_env_stack.pop();
 }
 
+// should be checking all component vars before moving to component funcs
 void semantic::visit_component(ast::component* component)
 {
     m_self_env = component;
@@ -467,7 +430,7 @@ void semantic::visit_system(ast::system* sys)
 
 void semantic::visit_var_declare(ast::var_declare* var_declare)
 {
-    if (!resolve_type(var_declare->vtype) || var_declare->vtype == ast::NONE) {
+    if (!resolve_type(var_declare->vtype) || var_declare->vtype == ast::VOID) {
         throw error::unkown_typename(var_declare);
     }
 
@@ -495,6 +458,20 @@ void semantic::visit_while_stmt(ast::while_stmt* while_stmt)
     m_env_stack.push(true);
     while_stmt->exec_stmt->accept(this);
     m_env_stack.pop();
+}
+
+void semantic::resolve_struct_vars(ast::c_struct* c_struct)
+{
+    unsigned long int offset = 0;
+
+    for (auto it = c_struct->vars_begin(); it != c_struct->vars_end(); ++it)
+    {
+        if (!resolve_type(it->get()->vtype) || it->get()->vtype == ast::VOID)
+            throw error::unkown_typename(it->get());
+
+        // check for circular dependencies
+        // get type size
+    }
 }
 
 void semantic::resolve_func_return_type(ast::function* func) {

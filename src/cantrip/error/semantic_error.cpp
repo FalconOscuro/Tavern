@@ -21,7 +21,7 @@ redefinition::redefinition(const ast::var_declare* var):
 {}
 
 undeclared_identifier::undeclared_identifier(const ast::identifier* ident):
-    exception(ident->pos, std::string("Undeclared identifier '").append(ident->name).append("'").c_str())
+    exception(ident->pos, std::string("Undeclared identifier '").append(ident->name()).append("'").c_str())
 {}
 
 unkown_typename::unkown_typename(const ast::function* func):

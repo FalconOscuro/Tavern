@@ -67,6 +67,7 @@ target_sources(Cantrip PRIVATE
     src/cantrip/parser/parser-stmt.cpp
     src/cantrip/parser/parser.cpp
 
+    src/cantrip/ast/expression/identifier.cpp
     src/cantrip/ast/expression/literal.cpp
 
     src/cantrip/ast/statement/struct.cpp
@@ -75,6 +76,7 @@ target_sources(Cantrip PRIVATE
     
     src/cantrip/ast/visitor.cpp
 
+    src/cantrip/analyzer/environment.cpp
     src/cantrip/analyzer/semantic.cpp
 
     src/cantrip/error/exception.cpp

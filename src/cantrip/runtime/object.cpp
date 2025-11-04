@@ -17,10 +17,10 @@ inline uint8_t calculate_padding(uint32_t offset, uint8_t align)
 object_info::object_info(const ast::type& type):
     m_type(type)
 {
-    switch (type.get_type_info())
+    switch (type.get_type_info().classifier)
     {
         case ast::UNRESOLVED:
-        case ast::NONE:
+        case ast::VOID:
             throw error::unkown_typename(file_pos(), type);
             return;
 
@@ -117,7 +117,7 @@ object object_info::create(void* ptr) const
 {
     // Handle default values / constructors here :|
 
-    switch (m_type.get_type_info())
+    switch (m_type.get_type_info().classifier)
     {
         case ast::CORE_INT:
             return object(this, new(ptr) cantrip_int);
@@ -147,7 +147,7 @@ object object_info::create(void* ptr) const
 
 void object_info::destroy(void* ptr) const
 {
-    switch (m_type.get_type_info())
+    switch (m_type.get_type_info().classifier)
     {
         case ast::CORE_INT:
             delete reinterpret_cast<cantrip_int*>(ptr);
