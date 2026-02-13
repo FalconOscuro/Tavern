@@ -21,11 +21,27 @@ void cantrip_panel::draw()
 
     ImGui::Begin("Cantrip");
 
+    ImGui::InputText("##load cantrip module name", m_load_module_path, sizeof(m_load_module_path));
+    ImGui::SameLine();
+
+
+    if(ImGui::Button("Load") && strlen(m_load_module_path))
+    {
+        tavern::file::mount_path path;
+
+        if (tavern::file::mount_path::try_create(m_load_module_path, path))
+            cantrip.load_module(path);
+
+        else
+            BOOST_LOG_TRIVIAL(error) << "Cannot parse invalid mount path '" << m_load_module_path << '\'';
+    }
+
     if (ImGui::Button("Unload All"))
         cantrip.unload_all_modules();
 
     // display list of all loaded modules
     // examine/modify individual modules
+    // Load modules!!!
 
     ImGui::End();
 }

@@ -17,6 +17,8 @@ public:
 private:
 
     bool m_open = false;
+
+    char m_load_module_path[64] = {};
 };
 
 } /* namespace panel */

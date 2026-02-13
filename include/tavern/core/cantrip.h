@@ -13,7 +13,7 @@ class cantrip_modules
 {
 public:
     using module_ptr = std::shared_ptr<cantrip::module>;
-    using module_map = std::unordered_map<std::string_view, module_ptr>;
+    using module_map = std::unordered_map<std::string, module_ptr>;
 
     ~cantrip_modules();
 
@@ -22,7 +22,7 @@ public:
 
     // need to pass directory, scan for cantrip.yml & read in module info
     module_ptr load_module(const file::mount_path& module_path);
-    void unload_module(const std::string_view);
+    void unload_module(const std::string& module_name);
 
     module_ptr get_module(const std::string_view module_name);
 
