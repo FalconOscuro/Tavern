@@ -13,6 +13,7 @@ class cantrip_modules
 {
 public:
     using module_ptr = std::shared_ptr<cantrip::module>;
+    using module_map = std::unordered_map<std::string_view, module_ptr>;
 
     ~cantrip_modules();
 
@@ -29,6 +30,14 @@ public:
 
     void unload_all_modules();
 
+    module_map::const_iterator begin() const {
+        return m_loaded_modules.begin();
+    }
+
+    module_map::const_iterator end() const {
+        return m_loaded_modules.end();
+    }
+
     [[nodiscard]] static cantrip_modules& singleton() {
         static cantrip_modules instance;
         return instance;
@@ -39,7 +48,7 @@ private:
     cantrip_modules() = default;
 
     // NOTE: Shared_ptr can prevent proper unloading!
-    std::unordered_map<std::string_view, std::shared_ptr<cantrip::module>> m_loaded_modules;
+    module_map m_loaded_modules;
 };
 
 } /* namespace tavern::core */

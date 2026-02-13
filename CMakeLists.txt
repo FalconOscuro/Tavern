@@ -102,6 +102,7 @@ message(STATUS "Configuring binaries")
 add_executable(tavern-bin
     src/tavern-bin/main.cpp
 
+    src/tavern-bin/panels/cantrip.cpp
     src/tavern-bin/panels/performance.cpp
     src/tavern-bin/panels/scene.cpp
     src/tavern-bin/panels/file_system.cpp

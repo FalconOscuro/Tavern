@@ -180,10 +180,20 @@ std::shared_ptr<cantrip::module> cantrip_modules::load_module(const file::mount_
 
 void cantrip_modules::unload_module(const std::string_view module_name)
 {
-    // UNIMPLEMENTED
-    (void)module_name;
+    auto found = get_module(module_name);
 
+    if (!found)
+    {
+        BOOST_LOG_TRIVIAL(warning) << "Tried to unload cantrip module '"
+            << module_name << "', but was not loaded!";
+        return;
+    }
+
+    // WARNING: UNFINISHED
     // need to ensure no datatypes associated with module remains, should utilize module dependency info
+
+    m_loaded_modules.erase(module_name);
+    BOOST_LOG_TRIVIAL(info) << "Successfully unloaded module '" << module_name << "'.";
 }
 
 std::shared_ptr<cantrip::module> cantrip_modules::get_module(const std::string_view module_name)
@@ -193,8 +203,16 @@ std::shared_ptr<cantrip::module> cantrip_modules::get_module(const std::string_v
     return found != m_loaded_modules.end() ? found->second : nullptr;
 }
 
-// UNIMPLEMENTED
 void cantrip_modules::unload_all_modules()
-{}
+{
+    auto it = m_loaded_modules.begin();
+
+    // hacky loop, just constantly removes front of map, probably a better way of doing this but works for now
+    while (it != m_loaded_modules.end())
+    {
+        unload_module(it->first);
+        it = m_loaded_modules.begin();
+    }
+}
 
 } /* namespace tavern::core */
