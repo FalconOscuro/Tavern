@@ -21,7 +21,7 @@ object_info::object_info(const ast::type& type):
     {
         case ast::UNRESOLVED:
         case ast::VOID:
-            throw error::unkown_typename(file_pos(), type);
+            throw error::unknown_typename(file_pos(), type);
             return;
 
         case ast::CORE_INT:
@@ -140,7 +140,7 @@ object object_info::create(void* ptr) const
             return object(this, ptr);
 
         default:
-            throw error::unkown_typename(file_pos(), m_type);
+            throw error::unknown_typename(file_pos(), m_type);
             return object();
     }
 }
@@ -173,7 +173,7 @@ void object_info::destroy(void* ptr) const
             break;
 
         default:
-            throw error::unkown_typename(file_pos(), m_type);
+            throw error::unknown_typename(file_pos(), m_type);
             break;
     }
 }

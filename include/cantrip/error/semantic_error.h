@@ -42,18 +42,18 @@ public:
     ~undeclared_identifier() = default;
 };
 
-class unkown_typename final : public exception
+class unknown_typename final : public exception
 {
 public:
-    unkown_typename(const ast::function* func);
-    unkown_typename(const ast::var_declare* var);
-    unkown_typename(const ast::call* call);
-    unkown_typename(const ast::cast* cast);
-    unkown_typename(const ast::type_check* type_check);
+    unknown_typename(const ast::function* func);
+    unknown_typename(const ast::var_declare* var);
+    unknown_typename(const ast::call* call);
+    unknown_typename(const ast::cast* cast);
+    unknown_typename(const ast::type_check* type_check);
     
-    unkown_typename(const file_pos& pos, const ast::type& type);
+    unknown_typename(const file_pos& pos, const ast::type& type);
 
-    ~unkown_typename() = default;
+    ~unknown_typename() = default;
 };
 
 class not_in_loop final : public exception

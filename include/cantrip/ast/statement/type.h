@@ -1,6 +1,7 @@
 #ifndef AST_TYPE_H
 #define AST_TYPE_H
 
+// need to add support for other custom data types
 #include <string_view>
 
 #include "../../scanner/token.h"
