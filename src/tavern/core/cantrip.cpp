@@ -142,18 +142,37 @@ std::shared_ptr<cantrip::module> cantrip_modules::load_module(const file::mount_
     }
 
     // ensure last token is MODULE_END
+    if (tokens.back() != cantrip::MODULE_END)
+    {
+        BOOST_LOG_TRIVIAL(error) << "Failure whilst reading cantrip module '" << module.info.name << "', expected MODULE_END token!";
+        return nullptr;
+    }
     
     // parse
-    {
+    try {
         cantrip::parser parser = cantrip::parser(std::move(tokens));
         parser.parse_module(module);
     }
+    catch (const std::exception& e)
+    {
+        BOOST_LOG_TRIVIAL(error) << "Failed to parse cantrip module '"
+            << module.info.name << "':\n"
+            << e.what();
+        return nullptr;
+    }
 
     // semantic analysis
-    {
+    try {
         cantrip::analyzer::semantic semantic_analyzer;
 
         semantic_analyzer.analyze_module(&module);
+    }
+    catch (const std::exception& e)
+    {
+        BOOST_LOG_TRIVIAL(error) << "Failed semantic analysis of cantrip module '"
+            << module.info.name << "':\n"
+            << e.what();
+        return nullptr;
     }
 
     return m_loaded_modules.emplace(module.info.name, std::make_shared<cantrip::module>(std::move(module))).first->second;
@@ -163,6 +182,8 @@ void cantrip_modules::unload_module(const std::string_view module_name)
 {
     // UNIMPLEMENTED
     (void)module_name;
+
+    // need to ensure no datatypes associated with module remains, should utilize module dependency info
 }
 
 std::shared_ptr<cantrip::module> cantrip_modules::get_module(const std::string_view module_name)
