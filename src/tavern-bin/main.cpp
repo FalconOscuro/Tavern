@@ -7,9 +7,10 @@
 #include <boost/program_options.hpp>
 #include <boost/program_options/parsers.hpp>
 
+#include "tavern-bin/panels/cantrip.h"
+#include "tavern-bin/panels/file_system.h"
 #include "tavern-bin/panels/performance.h"
 #include "tavern-bin/panels/scene.h"
-#include "tavern-bin/panels/file_system.h"
 
 #include <tavern/components/camera.h>
 #include <tavern/components/transform.h>
@@ -94,9 +95,11 @@ int main(int argc, char** argv)
     
     {
         auto& renderer = tavern::graphics::renderer::singleton();
+
+        renderer.add_gui_layer("Cantrip", new panel::cantrip_panel());
+        renderer.add_gui_layer("File System", new panel::file_system_p());
         renderer.add_gui_layer("Performance", new panel::performance());
         renderer.add_gui_layer("Scene", new panel::scene_p());
-        renderer.add_gui_layer("File System", new panel::file_system_p());
     }
 
     engine.run();

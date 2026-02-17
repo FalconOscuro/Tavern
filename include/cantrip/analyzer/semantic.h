@@ -7,6 +7,7 @@
 
 #include <string_view>
 
+#include "cantrip/scanner/file_pos.h"
 #include "environment.h"
 
 namespace cantrip::analyzer {
@@ -51,6 +52,7 @@ private:
 
     void resolve_func_return_type(ast::function* func);
     bool resolve_type(ast::type& type);
+    void resolve_non_void_type_or_throw(ast::type& type, const file_pos& pos);
 
     // todo: proper type conversion checking
     bool is_type_convertible(const ast::type& from, const ast::type& to);

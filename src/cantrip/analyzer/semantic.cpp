@@ -151,7 +151,7 @@ void semantic::visit_call(ast::call* call)
         call->caller->accept(this);
 
         if (m_type == ast::UNRESOLVED || m_type == ast::VOID)
-            throw error::unkown_typename(call->caller->pos, m_type);
+            throw error::unknown_typename(call->caller->pos, m_type);
 
         else if (m_type.is_resolved_custom_type())
         {
@@ -180,7 +180,7 @@ void semantic::visit_call(ast::call* call)
 
             // TODO: resolve as constructor!
             if (found == m_module->functions.end())
-                throw error::unkown_typename(call);
+                throw error::unknown_typename(call);
 
             func = found->second.get();
         }
@@ -198,7 +198,7 @@ void semantic::visit_cast(ast::cast* cast)
     cast->expr->accept(this);
 
     if (!resolve_type(cast->as_type) || cast->as_type == ast::VOID)
-        throw error::unkown_typename(cast);
+        throw error::unknown_typename(cast);
 
     if (!is_type_convertible(m_type, cast->as_type))
         throw error::type_not_convertible(cast->pos, m_type, cast->as_type);
@@ -265,7 +265,7 @@ void semantic::visit_type_check(ast::type_check* type_check)
     type_check->expr->accept(this);
 
     if (!resolve_type(type_check->is_type) || type_check->is_type == ast::VOID)
-        throw error::unkown_typename(type_check);
+        throw error::unknown_typename(type_check);
 
     // constant optimization with bool literal?
     m_type = ast::type(ast::CORE_BOOL);
@@ -431,7 +431,7 @@ void semantic::visit_system(ast::system* sys)
 void semantic::visit_var_declare(ast::var_declare* var_declare)
 {
     if (!resolve_type(var_declare->vtype) || var_declare->vtype == ast::VOID) {
-        throw error::unkown_typename(var_declare);
+        throw error::unknown_typename(var_declare);
     }
 
     if (var_declare->expr)
@@ -466,8 +466,6 @@ void semantic::resolve_struct_vars(ast::c_struct* c_struct)
 
     for (auto it = c_struct->vars_begin(); it != c_struct->vars_end(); ++it)
     {
-        if (!resolve_type(it->get()->vtype) || it->get()->vtype == ast::VOID)
-            throw error::unkown_typename(it->get());
 
         // check for circular dependencies
         // get type size
@@ -476,7 +474,7 @@ void semantic::resolve_struct_vars(ast::c_struct* c_struct)
 
 void semantic::resolve_func_return_type(ast::function* func) {
     if (!resolve_type(func->return_type))
-        throw error::unkown_typename(func);
+        throw error::unknown_typename(func);
 }
 
 bool semantic::resolve_type(ast::type& type)
@@ -486,11 +484,18 @@ bool semantic::resolve_type(ast::type& type)
 
     auto found = m_module->components.find(type.name().data());
 
+    // need to add support for other custom data types
     if (found == m_module->components.end())
         return false;
 
     type.resolve(found->second.get());
     return true;
+}
+
+void semantic::resolve_non_void_type_or_throw(ast::type& type, const file_pos& pos)
+{
+    if (!resolve_type(type) || type == ast::VOID)
+        throw error::unknown_typename(pos, type);
 }
 
 // could make throw exception?

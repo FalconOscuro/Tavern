@@ -24,27 +24,27 @@ undeclared_identifier::undeclared_identifier(const ast::identifier* ident):
     exception(ident->pos, std::string("Undeclared identifier '").append(ident->name()).append("'").c_str())
 {}
 
-unkown_typename::unkown_typename(const ast::function* func):
-    unkown_typename(func->pos, func->return_type)
+unknown_typename::unknown_typename(const ast::function* func):
+    unknown_typename(func->pos, func->return_type)
 {}
 
-unkown_typename::unkown_typename(const ast::var_declare* var):
-    unkown_typename(var->pos, var->vtype)
+unknown_typename::unknown_typename(const ast::var_declare* var):
+    unknown_typename(var->pos, var->vtype)
 {}
 
-unkown_typename::unkown_typename(const ast::call* call):
+unknown_typename::unknown_typename(const ast::call* call):
     exception(call->pos, std::string("Could not find a constructor for undeclared type '").append(call->name).append("'").c_str())
 {}
 
-unkown_typename::unkown_typename(const ast::cast* cast):
-    unkown_typename(cast->pos, cast->as_type)
+unknown_typename::unknown_typename(const ast::cast* cast):
+    unknown_typename(cast->pos, cast->as_type)
 {}
 
-unkown_typename::unkown_typename(const ast::type_check* type_check):
-    unkown_typename(type_check->pos, type_check->is_type)
+unknown_typename::unknown_typename(const ast::type_check* type_check):
+    unknown_typename(type_check->pos, type_check->is_type)
 {}
 
-unkown_typename::unkown_typename(const file_pos& pos, const ast::type& type):
+unknown_typename::unknown_typename(const file_pos& pos, const ast::type& type):
     exception(pos, std::string("Undeclared identifier '").append(type.name()).append("'").c_str())
 {}
 

@@ -148,15 +148,17 @@ void type::resolve(c_struct* type)
     switch (type->s_type)
     {
         case COMPONENT:
-            m_type = CUSTOM_COMPONENT;
+            m_type.classifier = CUSTOM_COMPONENT;
+            // hacky, currently assumes all components are references, true for now but may change?
+            m_type.flags = REFERENCE;
             break;
 
         case CLASS:
-            m_type = CUSTOM_CLASS;
+            m_type.classifier = CUSTOM_CLASS;
             break;
 
         case STRUCT:
-            m_type = CUSTOM_STRUCT;
+            m_type.classifier = CUSTOM_STRUCT;
             break;
     }
 }
